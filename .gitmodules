@@ -1,0 +1,3 @@
+[submodule "sub/newsboat"]
+	path = sub/newsboat
+	url = https://github.com/newsboat/newsboat
