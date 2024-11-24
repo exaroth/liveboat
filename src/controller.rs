@@ -4,6 +4,8 @@ use std::error::Error;
 use std::path::Path;
 use std::sync::Arc;
 
+use chrono::{DateTime, TimeDelta, Local};
+
 use libnewsboat::utils as libutils;
 use rusqlite::Error as SQLiteError;
 use rusqlite::{params_from_iter, Connection, Result, Rows};
@@ -31,7 +33,12 @@ const FEED_ITEMS_SQL: &str = "SELECT
     items.author AS item_author,
     items.enclosure_description AS item_desc,
     items.pubDate AS pub_date,
-    items.unread AS unread
+    items.unread AS unread,
+    items.content AS content,
+    items.id AS guid,
+    items.enclosure_url AS enc_url,
+    items.enclosure_description_mime_type AS enc_mime_type,
+    items.flags AS flags
 FROM rss_item AS items
 JOIN rss_feed AS feed ON feed.rssurl = items.feedurl
 WHERE datetime(items.pubDate, 'unixepoch') >= datetime('now', '-10 days')
@@ -66,6 +73,7 @@ impl Controller {
         }
         let q_feeds = self.get_query_feeds(feeds)?;
         for f in q_feeds {
+            // println!("{:?}", f)
             println!("{:?}", serde_json::to_string(&f).unwrap());
         }
         Ok(())

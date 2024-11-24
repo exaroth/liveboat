@@ -1,4 +1,5 @@
 use crate::feed::Feed;
+use chrono::{DateTime, Local, TimeDelta};
 use libnewsboat::matchable::Matchable;
 use rusqlite::Error as SQLiteError;
 use rusqlite::Row;
@@ -13,8 +14,13 @@ pub struct FeedItem {
     url: String,
     author: String,
     desc: String,
-    date: u32,
+    date: i64,
     unread: bool,
+    content: String,
+    guid: i64,
+    enc_url: Option<String>,
+    enc_mime: Option<String>,
+    flags: Option<String>,
     pub feed_ptr: Option<Arc<RefCell<Feed>>>,
 }
 
@@ -28,24 +34,41 @@ impl FeedItem {
             desc: row.get(5)?,
             date: row.get(6)?,
             unread: row.get(7)?,
+            content: row.get(8)?,
+            guid: row.get(9)?,
+            enc_url: row.get(10)?,
+            enc_mime: row.get(11)?,
+            flags: row.get(12)?,
             feed_ptr: None,
         };
         Ok(feed_item)
     }
+
     pub fn feed_url(&self) -> &String {
         return &self.feed_url;
     }
+
     pub fn set_ptr(&mut self, f_p: Arc<RefCell<Feed>>) {
         self.feed_ptr = Some(f_p)
     }
 
-    pub fn date(&self) -> u32 {
+    pub fn date(&self) -> i64 {
         return self.date;
     }
+	pub fn age(&self) -> i64 {
+		let now = Local::now();
+		if let Some(d) = DateTime::from_timestamp(self.date, 0) {
+			let delta = now.signed_duration_since(d);
+			return delta.num_days()
+		};
+		return 0
+	}
+	pub fn is_unread(&self) -> bool {
+		return self.unread
+	}
 }
 
 impl Matchable for FeedItem {
-    // TODO
     fn attribute_value(&self, attr: &str) -> Option<String> {
         match attr {
             "title" => Some(self.title.clone()),
@@ -59,16 +82,15 @@ impl Matchable for FeedItem {
                 };
                 Some(unread)
             }
-            // "age" => Some(String::from("0")),
-            // TODO
-            // "date" => Some(String::new()),
-            // "guid" => Some(String::new()),
-            // "enclosure_url" => Some(String::new()),
-            // "enclosure_type" => Some(String::new()),
-            // "flags" => Some(String::new()),
-            // "articleindex" => Some(String::new()),
-
-            // "content" => Some(String::new()),
+            "date" => Some(format!("{}", self.date)),
+            "age" => Some(format!("{}", self.age())),
+            "content" => Some(self.content.clone()),
+            "guid" => Some(format!("{}", self.guid)),
+            "enclosure_url" => opt_attr_val(&self.enc_url),
+            "enclosure_type" => opt_attr_val(&self.enc_mime),
+            "flags" => opt_attr_val(&self.flags),
+			// TODO (kw)
+            "articleindex" => Some(String::new()),
             _ => {
                 if let Some(feed) = &self.feed_ptr {
                     feed.borrow().attribute_value(attr)
@@ -78,6 +100,13 @@ impl Matchable for FeedItem {
             }
         }
     }
+}
+
+fn opt_attr_val(attr: &Option<String>) -> Option<String> {
+    if let Some(a) = attr {
+        return Some(a.clone());
+    }
+    return Some(String::new());
 }
 
 impl Serialize for FeedItem {

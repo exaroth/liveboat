@@ -61,6 +61,15 @@ impl Feed {
     pub fn url(&self) -> &String {
         return &self.url;
     }
+
+    pub fn is_sorted(&self) -> bool {
+        self._sorted
+    }
+    
+    pub fn is_empty(&self) -> bool {
+        return self.items.len() == 0
+    }
+
 }
 
 impl Matchable for Feed {
@@ -70,13 +79,24 @@ impl Matchable for Feed {
             "rssurl" => Some(self.url.clone()),
             "total_count" => Some(format!("{}", self.items.len())),
             "tags" => Some(self.tags.join(" ")),
+            "latest_article_age" => {
+                if self.is_empty() {
+                    // Should never occur since we dont render
+                    // empty 
+                    return Some(String::new())
+                }
+                if !self.is_sorted() {
+                    panic!("Matcher called against unsorted feed")
+                }
+                return Some(format!("{}", self.items[0].age()))
+            },
+            "unread_count" => {
+                let n = self.items.iter().filter(|i| i.is_unread()).count();
+                Some(format!("{}", n))
+            }
             // TODO
-            // "unread_count" => Some(String::new()),
-            // "latest_article_age" => Some(String::new()),
-            // "feedlink" => Some(self.),
-            // "feedindex" => Some(String::new()),
-            // TODO not implemented as these are not stored
-            // in cache.
+            "feedlink" => Some(String::new()),
+            "feedindex" => Some(String::new()),
             "description" => Some(String::new()),
             "feeddate" => Some(String::new()),
             _ => None,
