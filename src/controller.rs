@@ -59,19 +59,12 @@ impl Controller {
     pub fn process(&self) -> Result<(), Box<dyn Error>> {
         let feed_items = self.get_feed_item_data()?;
         let feeds = self.load_feeds()?;
-        for item in feed_items {
-            if let Some(f) = feeds.iter().find(|f| f.borrow().url() == item.feed_url()) {
-                let mut i = item.clone();
-                i.set_ptr(Arc::clone(f));
-                f.borrow_mut().add_item(i);
-                continue;
-            }
-        }
+        self.populate_url_feeds(&feeds, &feed_items);
         let q_feeds = self.get_query_feeds(feeds)?;
-        // for f in q_feeds {
-        //     // println!("{:?}", f)
-        //     println!("{:?}", serde_json::to_string(&f).unwrap());
-        // }
+        for f in q_feeds {
+            // println!("{:?}", f)
+            println!("{:?}", serde_json::to_string_pretty(&f).unwrap());
+        }
         Ok(())
     }
 
@@ -93,6 +86,7 @@ impl Controller {
                     }
                 }
             }
+            q.sort_items();
             result.push(q)
         }
         Ok(result)
@@ -110,6 +104,21 @@ impl Controller {
             results.push(feed_item);
         }
         Ok(results)
+    }
+
+    fn populate_url_feeds(&self, feeds: &Vec<Arc<RefCell<Feed>>>, feed_items: &Vec<FeedItem>) {
+        for item in feed_items {
+            if let Some(f) = feeds.iter().find(|f| f.borrow().url() == item.feed_url()) {
+                let mut i = item.clone();
+                i.set_ptr(Arc::clone(f));
+                f.borrow_mut().add_item(i);
+                continue;
+            }
+        }
+        for f in feeds {
+            f.borrow_mut().sort_items()
+        }
+
     }
 
     fn load_feeds(&self) -> Result<Vec<Arc<RefCell<Feed>>>, Box<dyn Error>> {
