@@ -55,6 +55,7 @@ impl FeedItem {
     pub fn date(&self) -> i64 {
         return self.date;
     }
+
 	pub fn age(&self) -> i64 {
 		let now = Local::now();
 		if let Some(d) = DateTime::from_timestamp(self.date, 0) {
@@ -114,9 +115,17 @@ impl Serialize for FeedItem {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("Feed", 2)?;
+        let mut state = serializer.serialize_struct("Feed", 10)?;
         state.serialize_field("title", &self.title)?;
         state.serialize_field("url", &self.url)?;
+        state.serialize_field("date", &self.date)?;
+        state.serialize_field("author", &self.author)?;
+        state.serialize_field("unread", &self.unread)?;
+        state.serialize_field("desc", &self.desc)?;
+        state.serialize_field("content", &self.content)?;
+        state.serialize_field("flags", &self.flags)?;
+        state.serialize_field("enclosure_url", &self.enc_url)?;
+        state.serialize_field("enclosure_mime", &self.enc_mime)?;
         state.end()
     }
 }

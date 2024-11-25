@@ -7,6 +7,7 @@ use crate::feed_item::FeedItem;
 pub struct Feed {
     title: String,
     url: String,
+    feedlink: String,
     pub items: Vec<FeedItem>,
     hidden: bool,
     tags: Vec<String>,
@@ -16,20 +17,12 @@ pub struct Feed {
 }
 
 impl Feed {
-    pub fn add_item(&mut self, item: FeedItem) {
-        self.items.push(item)
-    }
 
-    /// Sort feed items from newest to oldest.
-    pub fn sort_items(&mut self) {
-        self.items.sort_by(|a, b| a.date().cmp(&b.date()));
-        self._sorted = true
-    }
-
-    pub fn init(title: String, url: String) -> Feed {
+    pub fn init(url: String, title: String, feedlink: String) -> Feed {
         return Feed {
             title: title,
             url: url,
+            feedlink: feedlink,
             hidden: false,
             items: Vec::new(),
             tags: Vec::new(),
@@ -45,6 +38,7 @@ impl Feed {
         Feed {
             title: title,
             url: String::new(),
+            feedlink: String::new(),
             items: Vec::new(),
             hidden: false,
             tags: Vec::new(),
@@ -52,7 +46,18 @@ impl Feed {
             _sorted: false,
         }
     }
+    
+    /// Add new article to the list of feed items.
+    pub fn add_item(&mut self, item: FeedItem) {
+        self.items.push(item)
+    }
 
+    /// Sort feed items from newest to oldest.
+    pub fn sort_items(&mut self) {
+        self.items.sort_by(|a, b| a.date().cmp(&b.date()));
+        self._sorted = true
+    }
+    
     pub fn update_with_url_data(&mut self, tags: Vec<String>, hidden: bool) {
         self.tags = tags;
         self.hidden = hidden;
@@ -77,6 +82,7 @@ impl Matchable for Feed {
         match attr {
             "feedtitle" => Some(self.title.clone()),
             "rssurl" => Some(self.url.clone()),
+            "feedlink" => Some(self.feedlink.clone()),
             "total_count" => Some(format!("{}", self.items.len())),
             "tags" => Some(self.tags.join(" ")),
             "latest_article_age" => {
@@ -95,10 +101,11 @@ impl Matchable for Feed {
                 Some(format!("{}", n))
             }
             // TODO
-            "feedlink" => Some(String::new()),
-            "feedindex" => Some(String::new()),
             "description" => Some(String::new()),
             "feeddate" => Some(String::new()),
+            // feed index is generated when displaying feed by newsboat
+            // and hence it can't be used. (kw)
+            "feedindex" => Some(String::new()),
             _ => None,
         }
     }
@@ -109,8 +116,11 @@ impl Serialize for Feed {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("Feed", 2)?;
+        let mut state = serializer.serialize_struct("Feed", 4)?;
+        // TODO: add feed id.
         state.serialize_field("title", &self.title)?;
+        state.serialize_field("url", &self.url)?;
+        state.serialize_field("feedlink", &self.feedlink)?;
         state.serialize_field("items", &self.items)?;
         state.end()
     }
@@ -122,6 +132,7 @@ impl fmt::Debug for Feed {
             .field("url", &self.url)
             .field("title", &self.title)
             .field("num_items", &self.items.len())
+            .field("feedlink", &self.feedlink)
             .field("tags", &self.tags)
             .field("hidden", &self.hidden)
             .field("is_query", &self.is_query)

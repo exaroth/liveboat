@@ -1,16 +1,12 @@
 use clap::Parser;
 use std::cell::RefCell;
 use std::error::Error;
-use std::path::Path;
 use std::sync::Arc;
 
-use chrono::{DateTime, TimeDelta, Local};
 
-use libnewsboat::utils as libutils;
 use rusqlite::Error as SQLiteError;
 use rusqlite::{params_from_iter, Connection, Result, Rows};
 
-use serde::Serialize;
 use crate::args::Args;
 use crate::config::Paths;
 use crate::feed::Feed;
@@ -72,10 +68,10 @@ impl Controller {
             }
         }
         let q_feeds = self.get_query_feeds(feeds)?;
-        for f in q_feeds {
-            // println!("{:?}", f)
-            println!("{:?}", serde_json::to_string(&f).unwrap());
-        }
+        // for f in q_feeds {
+        //     // println!("{:?}", f)
+        //     println!("{:?}", serde_json::to_string(&f).unwrap());
+        // }
         Ok(())
     }
 
@@ -146,13 +142,13 @@ impl Controller {
             s
         };
         let sql = format!(
-            "SELECT rssurl, title FROM rss_feed where rssurl in ({});",
+            "SELECT rssurl, title, url FROM rss_feed where rssurl in ({});",
             repeat_vars(urls.len())
         );
         let conn = &self.get_db_connection()?;
         let mut stmt = conn.prepare(&sql)?;
         let rows = stmt.query_map(params_from_iter(urls.iter()), |row| {
-            let f = Feed::init(row.get(1)?, row.get(0)?);
+            let f = Feed::init(row.get(0)?, row.get(1)?, row.get(2)?);
             Ok(f)
         })?;
         let mut result = Vec::new();
