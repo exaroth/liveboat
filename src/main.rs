@@ -1,10 +1,12 @@
 mod controller;
-mod config;
+mod paths;
 mod args;
 mod opts;
 mod urls;
 mod feed;
 mod feed_item;
+mod builder;
+mod template;
 
 
 use crate::controller::Controller;

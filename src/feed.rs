@@ -5,7 +5,7 @@ use std::fmt;
 
 use crate::feed_item::FeedItem;
 
-// TODO, override title with url one
+#[derive(Clone)]
 pub struct Feed {
     id: String,
     title: String,

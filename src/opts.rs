@@ -9,7 +9,7 @@ use toml;
 pub struct Options {
     remote_url: String,
     show_read_articles: bool,
-    theme: String,
+    template_name: String,
 
     // TODO
     time_threshold: u8,
@@ -33,7 +33,7 @@ impl Options {
         return Options {
             remote_url: String::new(),
             show_read_articles: false,
-            theme: String::from("default"),
+            template_name: String::from("default"),
             time_threshold: 10,
             exclude_tags: Vec::new(),
             exclude_feeds: Vec::new(),
@@ -56,4 +56,9 @@ impl Options {
         let opts: Options = toml::from_str(raw.as_str())?;
         return Ok(opts);
     }
+
+    pub fn template_name(&self) -> &String {
+        return &self.template_name
+    }
+
 }

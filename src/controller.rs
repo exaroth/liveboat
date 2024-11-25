@@ -2,16 +2,17 @@ use clap::Parser;
 use std::cell::RefCell;
 use std::error::Error;
 use std::sync::Arc;
-use std::fs::File;
 
 use rusqlite::Error as SQLiteError;
 use rusqlite::{params_from_iter, Connection, Result, Rows};
 
 use crate::args::Args;
-use crate::config::Paths;
+use crate::builder::Builder;
 use crate::feed::Feed;
 use crate::feed_item::FeedItem;
 use crate::opts::Options;
+use crate::paths::Paths;
+use crate::template::Context;
 use crate::urls::UrlReader;
 
 #[derive(Debug)]
@@ -61,54 +62,51 @@ impl Controller {
         let feeds = self.get_url_feeds()?;
         self.populate_url_feeds(&feeds, &feed_items);
         let q_feeds = self.get_query_feeds(&feeds)?;
-        println!("{:?}", self.paths);
-        self.save_json_feeds(&q_feeds, &feeds);
+        let ctx = Context::init(&feeds, &q_feeds);
+        let builder = Builder::init(
+            self.paths.tmp_dir(),
+            self.paths.build_dir(),
+            self.paths.template_dir(),
+            self.options.template_name(),
+            ctx,
+        )?;
+        builder.create_tmp();
+
+        self.save_json_feeds(&builder, &q_feeds, &feeds)?;
+        builder.render_template()?;
+
+        builder.copy_data()?;
         Ok(())
     }
 
-    // process query feeds -> output to json (how to generate id (? or use arbitrary index on the
-    // fly?))
-    // for url feeds use base58
-    // for query feeds serialize title?
-    //
-    // for each feed/qfeed generate json string and feed id as above
-    // save each feed in the feeds directory as <id>.json
-    // render template insering feed data in context
-    // need id, title, url, feedlink
-    // src will point to feeds/<id>.json
-    
-    /// Generate json files for each feed and output resulting JSON
-    /// as string.
-    fn save_json_feeds(&self, query_feeds: &Vec<Feed>, url_feeds: &Vec<Arc<RefCell<Feed>>>) -> Result<(), Box<dyn Error>> {
+    /// Generate json files for each feed.
+    fn save_json_feeds(
+        &self,
+        builder: &Builder<Context>,
+        query_feeds: &Vec<Feed>,
+        url_feeds: &Vec<Arc<RefCell<Feed>>>,
+    ) -> Result<(), Box<dyn Error>> {
         for f in query_feeds {
-            self.save_json_feed(f)?;
+            self.save_json_feed(builder, f)?;
         }
         for f in url_feeds {
-            self.save_json_feed(&f.borrow())?;
+            self.save_json_feed(&builder, &f.borrow())?;
         }
         Ok(())
     }
 
-    fn save_json_feed(&self, feed: &Feed) -> Result<(), Box<dyn Error>> {
+    fn save_json_feed(
+        &self,
+        builder: &Builder<Context>,
+        feed: &Feed,
+    ) -> Result<(), Box<dyn Error>> {
         if feed.is_empty() || feed.is_hidden() {
-            return Ok(())
+            return Ok(());
         }
-        use std::io::prelude::*;
-        let path = self.paths.feed_dir().join(format!("{}.json", feed.id()));
-        let mut file = File::create(path)?;
-        let contents = serde_json::to_string_pretty(&feed)?;
-        file.write_all(contents.as_bytes())?;
+        // TODO, if debug = true use pretty output
+        let data = serde_json::to_string_pretty(&feed)?;
+        builder.save_feed_data(feed.id(), data.as_bytes())?;
         Ok(())
-    }
-
-    fn generate_output(&self) {
-
-    }
-
-    fn render_template(&self) {
-            // get template dir 
-            // get template name as set in opts
-            // get in
     }
 
     fn populate_url_feeds(&self, feeds: &Vec<Arc<RefCell<Feed>>>, feed_items: &Vec<FeedItem>) {
@@ -123,7 +121,6 @@ impl Controller {
         for f in feeds {
             f.borrow_mut().sort_items()
         }
-
     }
 
     fn get_url_feeds(&self) -> Result<Vec<Arc<RefCell<Feed>>>, Box<dyn Error>> {
@@ -132,12 +129,11 @@ impl Controller {
         let feed_data = self.get_feed_data(urls)?;
         for f in &feed_data {
             if let Some(url_feed) = url_feeds.iter().find(|u| &u.url == f.borrow().url()) {
-                f.borrow_mut()
-                    .update_with_url_data(
-                        url_feed.tags.clone(),
-                        url_feed.hidden,
-                        url_feed.title_override.clone()
-                        )
+                f.borrow_mut().update_with_url_data(
+                    url_feed.tags.clone(),
+                    url_feed.hidden,
+                    url_feed.title_override.clone(),
+                )
             }
         }
         Ok(feed_data)
@@ -151,7 +147,10 @@ impl Controller {
         Ok(results)
     }
 
-    fn get_query_feeds(&self, feeds: &Vec<Arc<RefCell<Feed>>>) -> Result<Vec<Feed>, Box<dyn Error>> {
+    fn get_query_feeds(
+        &self,
+        feeds: &Vec<Arc<RefCell<Feed>>>,
+    ) -> Result<Vec<Feed>, Box<dyn Error>> {
         let mut result = Vec::new();
         let query_feeds = &self.url_reader.get_query_urls()?;
         for query_f in query_feeds {
@@ -188,7 +187,6 @@ impl Controller {
         }
         Ok(results)
     }
-
 
     fn get_feed_data(&self, urls: Vec<String>) -> Result<Vec<Arc<RefCell<Feed>>>, SQLiteError> {
         let repeat_vars = |c| {

@@ -1,5 +1,7 @@
+use rand::{distributions::Alphanumeric, Rng};
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::{Path, PathBuf}; 
+use handlebars::Handlebars;
 
 use libnewsboat::configpaths::ConfigPaths as NConfig;
 use libnewsboat::configpaths::NEWSBOAT_CONFIG_SUBDIR;
@@ -12,12 +14,28 @@ const LIVEBOAT_FEED_DIRNAME: &str = "feeds";
 
 #[derive(Debug, Default)]
 pub struct Paths {
+    /// Default path to build directory used to store generated output.
     build_dir: PathBuf,
+    /// Path to Liveboat TOML configuration file.
     config_file: PathBuf,
-    feed_dir: PathBuf,
+    /// Path to Newsboat cache db file.
     cache_file: PathBuf,
+    /// Path to file containing page templates
+    template_dir: PathBuf,
+    /// Path to Newsboat urls file.
     url_file: PathBuf,
+    /// Path to Newsboat lock file.
     lock_file: PathBuf,
+    /// Path to temporary file used for building the page.
+    tmp_dir: PathBuf,
+}
+
+fn generate_random_string(len: usize) -> String {
+    return rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(len)
+        .map(char::from)
+        .collect();
 }
 
 impl Paths {
@@ -34,18 +52,23 @@ impl Paths {
             lock_file: n_config.lock_file().to_path_buf(),
             config_file: PathBuf::new(),
             build_dir: PathBuf::new(),
-            feed_dir: PathBuf::new(),
+            tmp_dir: PathBuf::new(),
+            template_dir: PathBuf::new(),
         };
 
         paths.config_file = paths.newsboat_home_dir().join(LIVEBOAT_CONFIG_FILENAME);
-        paths.build_dir = paths.newsboat_home_dir().join(LIVEBOAT_BUILD_DIRNAME);
-        paths.feed_dir = paths.build_dir.join(LIVEBOAT_FEED_DIRNAME);
+        paths.build_dir = paths.home().join(LIVEBOAT_BUILD_DIRNAME);
+        // TODO: change to tmp
+        paths.tmp_dir = Path::new("/home/exaroth/test").join(format!("liveboat-{}", generate_random_string(5)));
+        // TODO: change after
+        paths.template_dir = Path::new("/home/exaroth/templates").join("");
 
         if let Some(e) = paths.process_args(args) {
             return Err(format!("{:?}", e));
         }
         return Ok(paths);
     }
+
 
     pub fn initialized(&self) -> bool {
         return self.config_file.is_file();
@@ -71,9 +94,14 @@ impl Paths {
         return &self.cache_file;
     }
 
-    pub fn feed_dir(&self) -> &Path {
-        return &self.feed_dir
+    pub fn tmp_dir(&self) -> &Path {
+        return &self.tmp_dir;
     }
+
+    pub fn template_dir(&self) -> &Path {
+        return &self.template_dir;
+    }
+
 
     fn set_argval(
         &mut self,
@@ -96,14 +124,18 @@ impl Paths {
         None
     }
 
-    fn newsboat_home_dir(&self) -> PathBuf {
+    fn home(&self) -> PathBuf {
         #[allow(deprecated)]
         if let Some(home) = std::env::home_dir() {
-            return home.join(NEWSBOAT_CONFIG_SUBDIR);
+            return home;
         }
         // NOTE: This clause can only trigger on Windows however
         // since newsboat is not Windows compatible it should never happen
         panic!("Could not retrieve home directory");
+    }
+
+    fn newsboat_home_dir(&self) -> PathBuf {
+        return self.home().join(NEWSBOAT_CONFIG_SUBDIR);
     }
 
     fn process_args(&mut self, args: Args) -> Option<ArgumentError> {
