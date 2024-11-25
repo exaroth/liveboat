@@ -8,11 +8,13 @@ use crate::args::{Args, ArgumentError};
 
 const LIVEBOAT_CONFIG_FILENAME: &str = "liveboat_config.toml";
 const LIVEBOAT_BUILD_DIRNAME: &str = "build";
+const LIVEBOAT_FEED_DIRNAME: &str = "feeds";
 
 #[derive(Debug, Default)]
 pub struct Paths {
     build_dir: PathBuf,
     config_file: PathBuf,
+    feed_dir: PathBuf,
     cache_file: PathBuf,
     url_file: PathBuf,
     lock_file: PathBuf,
@@ -32,10 +34,12 @@ impl Paths {
             lock_file: n_config.lock_file().to_path_buf(),
             config_file: PathBuf::new(),
             build_dir: PathBuf::new(),
+            feed_dir: PathBuf::new(),
         };
 
         paths.config_file = paths.newsboat_home_dir().join(LIVEBOAT_CONFIG_FILENAME);
         paths.build_dir = paths.newsboat_home_dir().join(LIVEBOAT_BUILD_DIRNAME);
+        paths.feed_dir = paths.build_dir.join(LIVEBOAT_FEED_DIRNAME);
 
         if let Some(e) = paths.process_args(args) {
             return Err(format!("{:?}", e));
@@ -65,6 +69,10 @@ impl Paths {
 
     pub fn cache_file(&self) -> &Path {
         return &self.cache_file;
+    }
+
+    pub fn feed_dir(&self) -> &Path {
+        return &self.feed_dir
     }
 
     fn set_argval(

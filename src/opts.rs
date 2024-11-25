@@ -19,7 +19,17 @@ pub struct Options {
 }
 
 impl Options {
-    fn default() -> Options {
+
+    pub fn init(path: &Path) -> Result<Options, Box<dyn std::error::Error>> {
+        if !path.exists() {
+            return Ok(Options::default());
+        };
+        let result = Options::load(path)?;
+        Ok(result)
+    }
+
+    /// Initialize default option settings.
+    pub fn default() -> Options {
         return Options {
             remote_url: String::new(),
             show_read_articles: false,
@@ -42,16 +52,8 @@ impl Options {
     }
 
     pub fn load(path: &Path) -> Result<Options, Box<dyn std::error::Error>> {
-        let depro = read_to_string(path)?;
-        let opts: Options = toml::from_str(depro.as_str()).unwrap();
+        let raw = read_to_string(path)?;
+        let opts: Options = toml::from_str(raw.as_str())?;
         return Ok(opts);
-    }
-
-    pub fn init(path: &Path) -> Result<Options, Box<dyn std::error::Error>> {
-        if !path.exists() {
-            return Ok(Options::default());
-        };
-        let result = Options::load(path)?;
-        Ok(result)
     }
 }

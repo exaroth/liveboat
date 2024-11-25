@@ -14,7 +14,7 @@ fn main() {
         Err(e)=> panic!("{:?}", e),
         Ok(c) => c,
     };
-    let results = match controller.process() {
+    let results = match controller.process_feeds() {
         Err(e)=> panic!("{:?}", e),
         _ => println!("ok")
     };

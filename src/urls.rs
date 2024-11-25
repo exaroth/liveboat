@@ -9,6 +9,7 @@ pub struct URLFeed {
     pub url: String,
     pub tags: Vec<String>,
     pub hidden: bool,
+    pub title_override: Option<String>
 }
 
 pub struct QueryFeed {
@@ -45,11 +46,15 @@ impl UrlReader {
             url: String::from(&tokens[0]),
             tags: Vec::new(),
             hidden: false,
+            title_override: None,
         };
         let l = tokens.len();
         if l > 1 {
             for i in 1..l {
                 if tokens[i].starts_with("~") {
+                    let mut t_override = tokens[i].clone();
+                    t_override.remove(0);
+                    feed.title_override = Some(t_override);
                     continue;
                 }
                 if tokens[i] == "!" {

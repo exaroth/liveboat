@@ -1,11 +1,15 @@
+use bs58::encode as bs58_encode;
 use libnewsboat::matchable::Matchable;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 use std::fmt;
 
 use crate::feed_item::FeedItem;
 
+// TODO, override title with url one
 pub struct Feed {
+    id: String,
     title: String,
+    display_title: String,
     url: String,
     feedlink: String,
     pub items: Vec<FeedItem>,
@@ -17,10 +21,11 @@ pub struct Feed {
 }
 
 impl Feed {
-
     pub fn init(url: String, title: String, feedlink: String) -> Feed {
         return Feed {
-            title: title,
+            id: bs58_encode(&url).into_string(),
+            title: title.clone(),
+            display_title: title.clone(),
             url: url,
             feedlink: feedlink,
             hidden: false,
@@ -35,8 +40,11 @@ impl Feed {
     /// Initialize empty query feed, these feeds are composite of other feeds
     /// and filter params and are missing most of the feed parameters.
     pub fn init_query_feed(title: String) -> Feed {
+        // TODO: add tags for the feed as well.
         Feed {
-            title: title,
+            id: bs58_encode(&title).into_string(),
+            title: title.clone(),
+            display_title: title.clone(),
             url: String::new(),
             feedlink: String::new(),
             items: Vec::new(),
@@ -46,7 +54,7 @@ impl Feed {
             _sorted: false,
         }
     }
-    
+
     /// Add new article to the list of feed items.
     pub fn add_item(&mut self, item: FeedItem) {
         self.items.push(item)
@@ -57,10 +65,19 @@ impl Feed {
         self.items.sort_by(|a, b| a.date().cmp(&b.date()));
         self._sorted = true
     }
-    
-    pub fn update_with_url_data(&mut self, tags: Vec<String>, hidden: bool) {
+
+    /// Update feed with data retrieved from urls file.
+    pub fn update_with_url_data(
+        &mut self,
+        tags: Vec<String>,
+        hidden: bool,
+        title_override: Option<String>,
+    ) {
         self.tags = tags;
         self.hidden = hidden;
+        if let Some(title) = title_override {
+            self.display_title = title;
+        }
     }
 
     pub fn url(&self) -> &String {
@@ -68,13 +85,19 @@ impl Feed {
     }
 
     pub fn is_sorted(&self) -> bool {
-        self._sorted
-    }
-    
-    pub fn is_empty(&self) -> bool {
-        return self.items.len() == 0
+        return self._sorted;
     }
 
+    pub fn is_hidden(&self) -> bool {
+        return self.hidden;
+    }
+
+    pub fn is_empty(&self) -> bool {
+        return self.items.len() == 0;
+    }
+    pub fn id(&self) -> &String {
+        return &self.id;
+    }
 }
 
 impl Matchable for Feed {
@@ -88,14 +111,14 @@ impl Matchable for Feed {
             "latest_article_age" => {
                 if self.is_empty() {
                     // Should never occur since we dont render
-                    // empty 
-                    return Some(String::new())
+                    // empty
+                    return Some(String::new());
                 }
                 if !self.is_sorted() {
                     panic!("Matcher called against unsorted feed")
                 }
-                return Some(format!("{}", self.items[0].age()))
-            },
+                return Some(format!("{}", self.items[0].age()));
+            }
             "unread_count" => {
                 let n = self.items.iter().filter(|i| i.is_unread()).count();
                 Some(format!("{}", n))
@@ -116,11 +139,13 @@ impl Serialize for Feed {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("Feed", 4)?;
+        let mut state = serializer.serialize_struct("Feed", 5)?;
         // TODO: add feed id.
+        state.serialize_field("id", &self.id)?;
         state.serialize_field("title", &self.title)?;
+        state.serialize_field("displayTitle", &self.display_title)?;
         state.serialize_field("url", &self.url)?;
-        state.serialize_field("feedlink", &self.feedlink)?;
+        state.serialize_field("feedLink", &self.feedlink)?;
         state.serialize_field("items", &self.items)?;
         state.end()
     }
@@ -131,6 +156,7 @@ impl fmt::Debug for Feed {
         f.debug_struct("Feed")
             .field("url", &self.url)
             .field("title", &self.title)
+            .field("display_title", &self.title)
             .field("num_items", &self.items.len())
             .field("feedlink", &self.feedlink)
             .field("tags", &self.tags)

@@ -21,6 +21,10 @@ pub struct Args {
     /// Filepath to liveboat config file (default ~/.newsboat/liveboat_config.yml)
     #[arg(long)]
     pub config_file: Option<String>,
+
+    // TODO
+    // add debug
+    // add command specifier
 }
 
 #[derive(Debug, Clone)]

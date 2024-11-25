@@ -139,8 +139,8 @@ impl Serialize for FeedItem {
         state.serialize_field("desc", &self.desc)?;
         state.serialize_field("content", &self.content)?;
         state.serialize_field("flags", &self.flags)?;
-        state.serialize_field("enclosure_url", &self.enc_url)?;
-        state.serialize_field("enclosure_mime", &self.enc_mime)?;
+        state.serialize_field("enclosureUrl", &self.enc_url)?;
+        state.serialize_field("enclosureMime", &self.enc_mime)?;
         state.end()
     }
 }
