@@ -59,7 +59,7 @@ impl Paths {
         paths.config_file = paths.newsboat_home_dir().join(LIVEBOAT_CONFIG_FILENAME);
         paths.build_dir = paths.home().join(LIVEBOAT_BUILD_DIRNAME);
         // TODO: change to tmp
-        paths.tmp_dir = Path::new("/home/exaroth/test").join(format!("liveboat-{}", generate_random_string(5)));
+        paths.tmp_dir = std::env::temp_dir().join(format!("liveboat-{}", generate_random_string(5)));
         // TODO: change after
         paths.template_dir = Path::new("/home/exaroth/templates").join("");
 
