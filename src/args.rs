@@ -3,7 +3,7 @@ use std::fmt;
 use clap::Parser;
 
 // TODO: add -x option allowing custom commands to be used
-// generate, upload, serve
+// generate, upload, serve, update
 // add deug option
 /// Static page generator for newsboat feeds, use -h to see help
 #[derive(Parser, Debug)]

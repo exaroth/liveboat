@@ -40,7 +40,6 @@ impl Feed {
     /// Initialize empty query feed, these feeds are composite of other feeds
     /// and filter params and are missing most of the feed parameters.
     pub fn init_query_feed(title: String) -> Feed {
-        // TODO: add tags for the feed as well.
         Feed {
             id: bs58_encode(&title).into_string(),
             title: title.clone(),
@@ -111,7 +110,7 @@ impl Matchable for Feed {
             "latest_article_age" => {
                 if self.is_empty() {
                     // Should never occur since we dont render
-                    // empty
+                    // empty.
                     return Some(String::new());
                 }
                 if !self.is_sorted() {
@@ -140,7 +139,6 @@ impl Serialize for Feed {
         S: Serializer,
     {
         let mut state = serializer.serialize_struct("Feed", 5)?;
-        // TODO: add feed id.
         state.serialize_field("id", &self.id)?;
         state.serialize_field("title", &self.title)?;
         state.serialize_field("displayTitle", &self.display_title)?;

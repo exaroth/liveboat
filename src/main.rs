@@ -20,17 +20,4 @@ fn main() {
         Err(e)=> panic!("{:?}", e),
         _ => println!("ok")
     };
-
-    // println!("{:?}", res)
-    // TODO: add logger
-    //
-    // Parse urls file
-    // parse tags/filters/queries
-    // merge results with those form db
-    // generate actual feeds
-    // use the feeds to generate templates
-    // 
-    // 
-    // 
-    // 
 }

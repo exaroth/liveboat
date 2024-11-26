@@ -2,6 +2,8 @@ use crate::feed::Feed;
 use std::cell::RefCell;
 use std::sync::Arc;
 
+/// Representation of default context to be passed
+/// when rendering index template.
 #[derive(serde::Serialize)]
 pub struct Context<'a> {
     feeds: Vec<Feed>,
@@ -14,8 +16,11 @@ impl <'a>Context<'a> {
         let mut feeds = Vec::new();
         for f in url_feeds {
             let item = <RefCell<Feed> as Clone>::clone(&f).into_inner();
-            feeds.push(item)
+            if item.is_hidden() || item.is_empty() {
+                continue
+            }
+            feeds.push(item);
         }
-        Context{feeds: feeds, query_feeds: query_feeds}
+        Context{feeds, query_feeds}
     }
 }

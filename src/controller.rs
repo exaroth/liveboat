@@ -76,6 +76,7 @@ impl Controller {
         builder.render_template()?;
 
         builder.copy_data()?;
+        builder.clean_up();
         Ok(())
     }
 
@@ -133,7 +134,7 @@ impl Controller {
                     url_feed.tags.clone(),
                     url_feed.hidden,
                     url_feed.title_override.clone(),
-                )
+                );
             }
         }
         Ok(feed_data)

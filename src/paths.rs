@@ -1,7 +1,6 @@
 use rand::{distributions::Alphanumeric, Rng};
 use std::fs;
 use std::path::{Path, PathBuf}; 
-use handlebars::Handlebars;
 
 use libnewsboat::configpaths::ConfigPaths as NConfig;
 use libnewsboat::configpaths::NEWSBOAT_CONFIG_SUBDIR;
@@ -10,7 +9,6 @@ use crate::args::{Args, ArgumentError};
 
 const LIVEBOAT_CONFIG_FILENAME: &str = "liveboat_config.toml";
 const LIVEBOAT_BUILD_DIRNAME: &str = "build";
-const LIVEBOAT_FEED_DIRNAME: &str = "feeds";
 
 #[derive(Debug, Default)]
 pub struct Paths {
@@ -58,7 +56,6 @@ impl Paths {
 
         paths.config_file = paths.newsboat_home_dir().join(LIVEBOAT_CONFIG_FILENAME);
         paths.build_dir = paths.home().join(LIVEBOAT_BUILD_DIRNAME);
-        // TODO: change to tmp
         paths.tmp_dir = std::env::temp_dir().join(format!("liveboat-{}", generate_random_string(5)));
         // TODO: change after
         paths.template_dir = Path::new("/home/exaroth/templates").join("");

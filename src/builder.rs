@@ -76,7 +76,7 @@ impl<'a, C: serde::Serialize> Builder<'a, C> {
         let feeds_dir_tmp = self.tmp_dir.join(FEEDS_DIRNAME);
         let feeds_dir = self.build_dir.join(FEEDS_DIRNAME);
 
-        if self.build_dir.is_dir() {
+        if self.build_dir.is_dir() && feeds_dir.is_dir() {
             _ = fs::remove_dir_all(&feeds_dir);
         }
         copy_all(feeds_dir_tmp, &feeds_dir)?;
@@ -104,7 +104,10 @@ impl<'a, C: serde::Serialize> Builder<'a, C> {
         Ok(())
     }
 
-    pub fn clean_up(&self) {}
+    pub fn clean_up(&self) {
+        _ = fs::remove_dir_all(self.tmp_dir);
+
+    }
 }
 
 /// Helper func for copying all the contents of directory
