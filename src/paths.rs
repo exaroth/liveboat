@@ -1,11 +1,13 @@
 use rand::{distributions::Alphanumeric, Rng};
+use std::error::Error;
 use std::fs;
-use std::path::{Path, PathBuf}; 
+use std::path::{Path, PathBuf};
+use resolve_path::PathResolveExt;
 
 use libnewsboat::configpaths::ConfigPaths as NConfig;
 use libnewsboat::configpaths::NEWSBOAT_CONFIG_SUBDIR;
 
-use crate::args::{Args, ArgumentError};
+use crate::args::Args;
 
 const LIVEBOAT_CONFIG_FILENAME: &str = "liveboat_config.toml";
 const LIVEBOAT_BUILD_DIRNAME: &str = "build";
@@ -37,7 +39,7 @@ fn generate_random_string(len: usize) -> String {
 }
 
 impl Paths {
-    pub fn new(args: Args) -> Result<Paths, String> {
+    pub fn new(args: Args) -> Result<Paths, Box<dyn Error>> {
         let n_config = NConfig::new();
 
         if !n_config.initialized() {
@@ -45,8 +47,12 @@ impl Paths {
         };
 
         let mut paths = Paths {
-            cache_file: n_config.cache_file().to_path_buf(),
-            url_file: n_config.url_file().to_path_buf(),
+            cache_file: path_with_argval(
+                args.cache_file,
+                true,
+                n_config.cache_file().to_path_buf(),
+            )?,
+            url_file: path_with_argval(args.url_file, true, n_config.url_file().to_path_buf())?,
             lock_file: n_config.lock_file().to_path_buf(),
             config_file: PathBuf::new(),
             build_dir: PathBuf::new(),
@@ -54,18 +60,27 @@ impl Paths {
             template_dir: PathBuf::new(),
         };
 
-        paths.config_file = paths.newsboat_home_dir().join(LIVEBOAT_CONFIG_FILENAME);
-        paths.build_dir = paths.home().join(LIVEBOAT_BUILD_DIRNAME);
-        paths.tmp_dir = std::env::temp_dir().join(format!("liveboat-{}", generate_random_string(5)));
+        paths.config_file = path_with_argval(
+            args.config_file,
+            false,
+            paths.newsboat_home_dir().join(LIVEBOAT_CONFIG_FILENAME),
+        )?;
+        paths.build_dir = path_with_argval(
+            args.build_dir,
+            false,
+            paths.home().join(LIVEBOAT_BUILD_DIRNAME),
+        )?;
+        paths.tmp_dir =
+            std::env::temp_dir().join(format!("liveboat-{}", generate_random_string(5)));
         // TODO: change after
-        paths.template_dir = Path::new("/home/exaroth/templates").join("");
+        paths.template_dir = path_with_argval(
+            args.template_dir,
+            true,
+            Path::new("/home/exaroth/templates").join(""),
+        )?;
 
-        if let Some(e) = paths.process_args(args) {
-            return Err(format!("{:?}", e));
-        }
         return Ok(paths);
     }
-
 
     pub fn initialized(&self) -> bool {
         return self.config_file.is_file();
@@ -99,28 +114,6 @@ impl Paths {
         return &self.template_dir;
     }
 
-
-    fn set_argval(
-        &mut self,
-        argname: &str,
-        arg: Option<String>,
-        check_exists: bool,
-    ) -> Option<ArgumentError> {
-        if let Some(argval) = arg {
-            match fs::canonicalize(argval) {
-                Err(e) => {
-                    if check_exists {
-                        Some(ArgumentError::new(String::from(argname), e.to_string()));
-                    }
-                }
-                Ok(p) => {
-                    self.cache_file = p;
-                }
-            }
-        }
-        None
-    }
-
     fn home(&self) -> PathBuf {
         #[allow(deprecated)]
         if let Some(home) = std::env::home_dir() {
@@ -135,11 +128,25 @@ impl Paths {
         return self.home().join(NEWSBOAT_CONFIG_SUBDIR);
     }
 
-    fn process_args(&mut self, args: Args) -> Option<ArgumentError> {
-        self.set_argval("--url_file", args.url_file, true)?;
-        self.set_argval("--cache_file", args.cache_file, true)?;
-        self.set_argval("--build_dir", args.build_dir, false)?;
-        self.set_argval("--config_file", args.config_file, false)?;
-        None
+}
+
+fn path_with_argval(
+    arg: Option<String>,
+    check_exists: bool,
+    default: PathBuf,
+) -> Result<PathBuf, String> {
+    if let Some(argval) = arg {
+        match fs::canonicalize(&argval.resolve()) {
+            Err(_) => {
+                // TODO: log nonexistent path otherwise
+                if check_exists {
+                    return Err(format!("Path {} does not exist!", &argval));
+                }
+            }
+            Ok(p) => {
+                return Ok(p)
+            }
+        }
     }
+    Ok(default)
 }

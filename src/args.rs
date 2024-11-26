@@ -18,6 +18,9 @@ pub struct Args {
     /// Path to directory where built static files will be stored (default ~/.newsboat/build")
     #[arg(long)]
     pub build_dir: Option<String>,
+    /// Path to directory containing templates.
+    #[arg(long)]
+    pub template_dir: Option<String>,
     /// Filepath to liveboat config file (default ~/.newsboat/liveboat_config.yml)
     #[arg(long)]
     pub config_file: Option<String>,

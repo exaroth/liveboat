@@ -16,6 +16,7 @@ chrono = "0.4.38"
 bs58 = "0.5.1"
 handlebars = "6.2.0"
 rand = "0.8.5"
+resolve-path = "0.1.0"
 
 [[bin]]
 name = "liveboat"
