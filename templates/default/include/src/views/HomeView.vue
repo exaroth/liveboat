@@ -1,9 +1,9 @@
 <script setup>
-import TheWelcome from '../components/TheWelcome.vue'
+import FeedList from '../components/FeedList.vue'
 </script>
 
 <template>
   <main>
-    <TheWelcome />
+    <FeedList :filtered="true"/>
   </main>
 </template>
