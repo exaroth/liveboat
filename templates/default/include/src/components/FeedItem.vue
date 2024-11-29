@@ -16,6 +16,13 @@ const props = defineProps({
   },
 })
 
+const _dateOpts = {
+  month: 'short',
+  weekday: 'short',
+  day: '2-digit',
+}
+const formatDate = new Intl.DateTimeFormat('en-US', _dateOpts).format
+
 fStore.$subscribe((state) => {
   filterFeedItems(state.payload)
 })
@@ -26,23 +33,38 @@ const initialized = ref(false)
 
 const filterFeedItems = (state) => {
   if (state.filterByDays) {
-    _updateItemsWithDate(state.daysBackCount)
+    filteredFeedItems.value = aggregateItems(_updateItemsWithDate(state.daysBackCount))
   } else {
-    _updateItemsWithCount(state.itemCount)
+    filteredFeedItems.value = aggregateItems(_updateItemsWithCount(state.itemCount))
   }
 }
 
 const _updateItemsWithDate = (daysBack) => {
-  filteredFeedItems.value = feedItems.value.slice(0, 10)
   let d = new Date()
   d.setDate(d.getDate() - daysBack)
-  filteredFeedItems.value = feedItems.value.filter((f) => {
+  return feedItems.value.filter((f) => {
     return f.date > d
   })
 }
 
 const _updateItemsWithCount = (numItems) => {
-  filteredFeedItems.value = feedItems.value.slice(0, numItems)
+  return feedItems.value.slice(0, numItems)
+}
+
+const aggregateItems = (items) => {
+  let result = {}
+  let now = new Date()
+  for (let item of items) {
+    let d = ''
+    if (item.date.getTime() !== now.getTime()) {
+      d = formatDate(item.date)
+    }
+    if (!(d in result)) {
+      result[d] = []
+    }
+    result[d].push(item)
+  }
+  return result
 }
 
 const processFeedItems = (feedItems) => {
@@ -58,7 +80,6 @@ const processFeedItems = (feedItems) => {
       title: feedItem.title,
       url: feedItem.url,
       date: date,
-      dateStr: date.toLocaleDateString(),
       domain: url.hostname,
     })
   }
@@ -80,7 +101,7 @@ watchEffect(async () => {
   if (props.filtered) {
     filterFeedItems(fStore)
   } else {
-    filteredFeedItems.value = feedItems.value
+    filteredFeedItems.value = aggregateItems(feedItems.value)
   }
 })
 </script>
@@ -88,15 +109,17 @@ watchEffect(async () => {
 <template>
   <div class="feed-wrapper">
     <h3 class="feed-title" v-if="feed.title"></h3>
-    <router-link :to="{ name: 'feedView', params: {feedId: feed.id }}" v-if="feed.title">{{ feed.displayTitle || feed.title }}</router-link>
-    <ul v-if="filteredFeedItems.length > 0">
-      <li v-for="(feedItem, index) in filteredFeedItems" :key="index">
-        <span class="feed-item-date">{{ feedItem.dateStr }}</span>
+    <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="feed.title">{{
+      feed.displayTitle || feed.title
+    }}</router-link>
+    <div v-for="(items, dateStr) in filteredFeedItems" :key="dateStr">
+      <span class="feed-item-date" v-if="dateStr">{{ dateStr }}</span>
+      <ul v-for="(feedItem, index) in items" :key="index">
         <span class="feed-item-link">
           <a :href="feedItem.url" target="_blank">{{ truncate(feedItem.title) }}</a>
         </span>
         <span class="feed-item-domain">({{ feedItem.domain }})</span>
-      </li>
-    </ul>
+      </ul>
+    </div>
   </div>
 </template>
