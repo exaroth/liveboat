@@ -7,6 +7,7 @@ use toml;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Options {
+    title: String,
     remote_url: String,
     show_read_articles: bool,
     template_name: String,
@@ -31,6 +32,7 @@ impl Options {
     /// Initialize default option settings.
     pub fn default() -> Options {
         return Options {
+            title: String::from("Liveboat feed page"),
             remote_url: String::new(),
             show_read_articles: false,
             template_name: String::from("default"),

@@ -2,6 +2,7 @@ use crate::feed::Feed;
 use std::cell::RefCell;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
+use crate::opts::Options;
 
 /// Representation of default context to be passed
 /// when rendering index template.
@@ -10,11 +11,12 @@ pub struct Context<'a> {
     build_time: u64,
     feeds: Vec<Feed>,
     query_feeds: &'a Vec<Feed>,
+    options: &'a Options,
 }
 
 impl <'a>Context<'a> {
     
-    pub fn init(url_feeds: &'a Vec<Arc<RefCell<Feed>>>, query_feeds: &'a Vec<Feed>) -> Context<'a> {
+    pub fn init(url_feeds: &'a Vec<Arc<RefCell<Feed>>>, query_feeds: &'a Vec<Feed>, options: &'a Options) -> Context<'a> {
 
 
         let mut feeds = Vec::new();
@@ -32,6 +34,6 @@ impl <'a>Context<'a> {
         .expect("Time went backwards");
         let build_time = since_the_epoch.as_secs();
 
-        Context{feeds, query_feeds, build_time}
+        Context{feeds, query_feeds, build_time, options}
     }
 }

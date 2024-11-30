@@ -62,7 +62,7 @@ impl Controller {
         let feeds = self.get_url_feeds()?;
         self.populate_url_feeds(&feeds, &feed_items);
         let q_feeds = self.get_query_feeds(&feeds)?;
-        let ctx = Context::init(&feeds, &q_feeds);
+        let ctx = Context::init(&feeds, &q_feeds, &self.options);
         let builder = Builder::init(
             self.paths.tmp_dir(),
             self.paths.build_dir(),
