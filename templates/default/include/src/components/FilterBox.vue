@@ -55,7 +55,7 @@ fStore.$subscribe((state) => {
 .filter-container {
   width: 100%;
   padding: 20px 0px 20px 0px;
-  margin: 0px 0px 20px 0px;
+  margin: 0px 0px 24px 0px;
 }
 
 .filter-box {
@@ -80,8 +80,8 @@ fStore.$subscribe((state) => {
 
 .filter-box button.selected {
   background-color: transparent;
-  border: 1px solid #c7cfcc;
-  outline: none;
+  outline: 1px solid #c7cfcc;
+  border: none;
 }
 
 .filter-box button:hover {

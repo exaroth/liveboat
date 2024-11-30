@@ -147,14 +147,14 @@ watchEffect(async () => {
 .feed-item-domain {
   opacity: 0.4;
   font-size: 0.72rem;
+  margin: 0px 0px 0px 4px;
 }
 .feed-wrapper {
   padding: 0px 0px 12px 0px;
 }
 
 .feed-title {
-  font-size: 1.02rem;
-  padding: 0px 20px 0px 50px;
+  padding: 0px 0px 0px 50px;
   margin: 0px 0px 10px 0px;
   width: 100%;
   border-bottom: 2px solid #3c5e8b;
@@ -163,18 +163,17 @@ watchEffect(async () => {
 .feed-title a {
   display: inline-block;
   background-color: #3c5e8b;
-  padding: 0px 10px 0px 10px;
+  padding: 2px 20px 0px 20px;
   border-radius: 3px 3px 0px 0px;
-}
-.feed-item-domain {
-  margin: 0px 0px 0px 4px;
 }
 .feed-item-group {
   position: relative;
 }
 .feed-item-date {
+  width: 90px;
+  text-align: right;
   position: absolute;
-  left: -80px;
+  left: -90px;
   color: #73bed3;
 }
 </style>
