@@ -123,7 +123,7 @@ watchEffect(async () => {
     <div class="feed-title">
       <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="feed.title">{{
         feed.displayTitle || feed.title
-      }}</router-link>
+        }}</router-link>
     </div>
     <div class="feed-item-group" v-for="(items, dateStr) in filteredFeedItems" :key="dateStr">
       <span class="feed-item-date" v-if="dateStr">{{ dateStr }}</span>
@@ -166,6 +166,15 @@ watchEffect(async () => {
   padding: 2px 20px 0px 20px;
   border-radius: 3px 3px 0px 0px;
 }
+
+.feed-title svg {
+  width: 20px;
+  height: 20px;
+  position: relative;
+  top: 4px;
+  left: 4px;
+}
+
 .feed-item-group {
   position: relative;
 }
