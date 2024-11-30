@@ -10,7 +10,7 @@ const pageTitle = window.pageTitle
   <div class="header-crumbs">
     <span>
       <h5>Page generated with <IconHeart></IconHeart> using Liveboat</h5>
-      <a href="git@github.com:exaroth/liveboat.git" target="_blank">
+      <a href="https://github.com/exaroth/liveboat" target="_blank">
       <IconGithub id="github-link"></IconGithub>
       </a>
     </span>

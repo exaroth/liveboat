@@ -32,13 +32,21 @@ const filteredFeedItems = ref([])
 const initialized = ref(false)
 
 const filterFeedItems = (state) => {
-  if (state.filterByDays) {
+  if (state.searchTerm) {
+    filteredFeedItems.value = aggregateItems(_filterByTerm(state.searchTerm))
+  } else if (state.filterByDays) {
     filteredFeedItems.value = aggregateItems(_updateItemsWithDate(state.daysBackCount))
   } else {
     filteredFeedItems.value = aggregateItems(_updateItemsWithCount(state.itemCount))
   }
 }
 
+const _filterByTerm = (term) => {
+    // TODO: add filtering by item content and tags
+    return feedItems.value.filter((f) => {
+        return f.title.toLowerCase().includes(term)
+    })
+}
 const _updateItemsWithDate = (daysBack) => {
   let d = new Date()
   d.setDate(d.getDate() - daysBack)
