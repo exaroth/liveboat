@@ -45,10 +45,11 @@ AND items.deleted=0;
 impl Controller {
     pub fn init() -> Result<Controller, Box<dyn Error>> {
         let args = Args::parse();
-        let paths = Paths::new(args)?;
+        let mut paths = Paths::new(&args)?;
         let opts = Options::init(paths.config_file())?;
         let url_reader = UrlReader::init(paths.url_file());
-
+        paths.set_template_path(&args.template_path, opts.template_name())?;
+        // TODO: verify
         let ctrl = Controller {
             paths: paths,
             options: opts,
@@ -66,7 +67,7 @@ impl Controller {
         let builder = Builder::init(
             self.paths.tmp_dir(),
             self.paths.build_dir(),
-            self.paths.template_dir(),
+            self.paths.template_path(),
             self.options.template_name(),
             ctx,
         )?;

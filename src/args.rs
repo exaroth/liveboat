@@ -20,7 +20,7 @@ pub struct Args {
     pub build_dir: Option<String>,
     /// Path to directory containing templates.
     #[arg(long)]
-    pub template_dir: Option<String>,
+    pub template_path: Option<String>,
     /// Filepath to liveboat config file (default ~/.newsboat/liveboat_config.yml)
     #[arg(long)]
     pub config_file: Option<String>,

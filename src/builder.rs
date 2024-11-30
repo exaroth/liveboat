@@ -16,7 +16,7 @@ const INCLUDE_DIRNAME: &str = "include";
 const INDEX_FILENAME: &str = "index";
 
 pub struct Builder<'a, C> {
-    template_path:  PathBuf,
+    template_path:  &'a Path,
     build_dir: &'a Path,
     tmp_dir: &'a Path,
     context: C,
@@ -26,12 +26,12 @@ impl<'a, C: serde::Serialize> Builder<'a, C> {
     pub fn init(
         tmp_dir: &'a Path,
         build_dir: &'a Path,
-        template_dir: &'a Path,
+        template_path: &'a Path,
         template_name: &String,
         context: C,
     ) -> Result<Builder<'a, C>, IOError> {
-
-        let template_path = template_dir.join(template_name);
+        
+        // TODO: use src when dev mode is enabled
         if !template_path.try_exists()? {
             return Err(IOError::new(
                 ErrorKind::NotFound,
@@ -42,6 +42,7 @@ impl<'a, C: serde::Serialize> Builder<'a, C> {
             )
             .into());
         }
+        // TODO: remove after
         let tpl_file = template_path.join(format!("{}.hbs", INDEX_FILENAME));
         if !tpl_file.try_exists()? {
             return Err(IOError::new(
@@ -52,7 +53,7 @@ impl<'a, C: serde::Serialize> Builder<'a, C> {
         };
 
         Ok(Builder {
-            template_path: template_path.clone(),
+            template_path,
             build_dir,
             tmp_dir,
             context,

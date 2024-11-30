@@ -11,6 +11,8 @@ use crate::args::Args;
 
 const LIVEBOAT_CONFIG_FILENAME: &str = "liveboat_config.toml";
 const LIVEBOAT_BUILD_DIRNAME: &str = "build";
+const LIVEBOAT_CONFIG_DIRNAME: &str = ".config/liveboat";
+const LIVEBOAT_TEMPLATES_DIRNAME: &str = "templates";
 
 #[derive(Debug, Default)]
 pub struct Paths {
@@ -20,6 +22,8 @@ pub struct Paths {
     config_file: PathBuf,
     /// Path to Newsboat cache db file.
     cache_file: PathBuf,
+    /// Path to Liveboat config directory
+    config_dir: PathBuf,
     /// Path to file containing page templates
     template_dir: PathBuf,
     /// Path to Newsboat urls file.
@@ -28,6 +32,8 @@ pub struct Paths {
     lock_file: PathBuf,
     /// Path to temporary file used for building the page.
     tmp_dir: PathBuf,
+    /// Optional path to template to be used for generating the page
+    template_path: PathBuf,
 }
 
 fn generate_random_string(len: usize) -> String {
@@ -39,7 +45,7 @@ fn generate_random_string(len: usize) -> String {
 }
 
 impl Paths {
-    pub fn new(args: Args) -> Result<Paths, Box<dyn Error>> {
+    pub fn new(args: &Args) -> Result<Paths, Box<dyn Error>> {
         let n_config = NConfig::new();
 
         if !n_config.initialized() {
@@ -48,36 +54,36 @@ impl Paths {
 
         let mut paths = Paths {
             cache_file: path_with_argval(
-                args.cache_file,
+                &args.cache_file,
                 true,
                 n_config.cache_file().to_path_buf(),
             )?,
-            url_file: path_with_argval(args.url_file, true, n_config.url_file().to_path_buf())?,
+            url_file: path_with_argval(&args.url_file, true, n_config.url_file().to_path_buf())?,
             lock_file: n_config.lock_file().to_path_buf(),
             config_file: PathBuf::new(),
             build_dir: PathBuf::new(),
             tmp_dir: PathBuf::new(),
             template_dir: PathBuf::new(),
+            template_path: PathBuf::new(),
+            config_dir: PathBuf::new(),
         };
 
+        paths.config_dir = paths.home().join(LIVEBOAT_CONFIG_DIRNAME);
+        paths.template_dir = paths.config_dir.join(LIVEBOAT_TEMPLATES_DIRNAME);
+
         paths.config_file = path_with_argval(
-            args.config_file,
+            &args.config_file,
             false,
-            paths.newsboat_home_dir().join(LIVEBOAT_CONFIG_FILENAME),
+            paths.config_dir.join(LIVEBOAT_CONFIG_FILENAME),
         )?;
+
         paths.build_dir = path_with_argval(
-            args.build_dir,
+            &args.build_dir,
             false,
             paths.home().join(LIVEBOAT_BUILD_DIRNAME),
         )?;
         paths.tmp_dir =
             std::env::temp_dir().join(format!("liveboat-{}", generate_random_string(5)));
-        // TODO: change after
-        paths.template_dir = path_with_argval(
-            args.template_dir,
-            true,
-            Path::new("/home/exaroth/templates").join(""),
-        )?;
 
         return Ok(paths);
     }
@@ -113,6 +119,19 @@ impl Paths {
     pub fn template_dir(&self) -> &Path {
         return &self.template_dir;
     }
+    pub fn template_path(&self) -> &Path {
+        return &self.template_path;
+    }
+
+
+    pub fn set_template_path(&mut self, p: &Option<String>, default: &String) -> Result<(), Box<dyn Error>> {
+        self.template_path = path_with_argval(
+            p,
+            true,
+            self.template_dir().join(default),
+        )?;
+        Ok(())
+    }
 
     fn home(&self) -> PathBuf {
         #[allow(deprecated)]
@@ -124,14 +143,11 @@ impl Paths {
         panic!("Could not retrieve home directory");
     }
 
-    fn newsboat_home_dir(&self) -> PathBuf {
-        return self.home().join(NEWSBOAT_CONFIG_SUBDIR);
-    }
 
 }
 
 fn path_with_argval(
-    arg: Option<String>,
+    arg: &Option<String>,
     check_exists: bool,
     default: PathBuf,
 ) -> Result<PathBuf, String> {
