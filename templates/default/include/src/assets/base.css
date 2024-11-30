@@ -58,6 +58,13 @@
   font-weight: normal;
 }
 
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0px 0px 0px 12px;
+}
+
 body {
   min-height: 100vh;
   color: var(--color-text);
@@ -67,19 +74,13 @@ body {
     background-color 0.5s;
   line-height: 1.6;
   font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
+    "Lucida Grande",
+    "Lucida Sans Unicode",
+    "Lucida Sans",
+    Verdana,
+    Tahoma,
     sans-serif;
-  font-size: 15px;
+  font-size: 14px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
