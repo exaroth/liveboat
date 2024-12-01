@@ -20,6 +20,7 @@ pub struct BuildController {
     paths: Paths,
     options: Options,
     url_reader: UrlReader,
+    debug: bool,
 }
 
 const FEED_ITEMS_SQL: &str = "SELECT 
@@ -63,6 +64,7 @@ impl BuildController {
             paths: paths,
             options: opts,
             url_reader: url_reader,
+            debug: args.debug.unwrap_or(false),
         };
         Ok(ctrl)
     }
@@ -114,15 +116,20 @@ impl BuildController {
         if feed.is_empty() || feed.is_hidden() {
             return Ok(());
         }
-        // TODO, if debug = true use pretty output
-        let data = serde_json::to_string_pretty(&feed)?;
-        builder.save_feed_data(feed.id(), data.as_bytes())?;
+        if self.debug {
+            builder.save_feed_data(feed.id(), serde_json::to_string_pretty(&feed)?.as_bytes())?;
+        } else {
+            builder.save_feed_data(feed.id(), serde_json::to_string(&feed)?.as_bytes())?;
+        }
         Ok(())
     }
 
     fn populate_url_feeds(&self, feeds: &Vec<Arc<RefCell<Feed>>>, feed_items: &Vec<FeedItem>) {
         for item in feed_items {
             if let Some(f) = feeds.iter().find(|f| f.borrow().url() == item.feed_url()) {
+                if self.options.show_read_articles == false && item.is_unread() == false {
+                    continue
+                }
                 let mut i = item.clone();
                 i.set_ptr(Arc::clone(f));
                 f.borrow_mut().add_item(i);
