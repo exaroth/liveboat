@@ -7,3 +7,5 @@ pub mod feed;
 pub mod feed_item;
 pub mod builder;
 pub mod template;
+pub mod cli;
+pub mod errors;

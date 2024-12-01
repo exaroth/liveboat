@@ -2,31 +2,67 @@ use std::fmt;
 
 use clap::Parser;
 
-// TODO: add -x option allowing custom commands to be used
-// generate, upload, serve, update
-// add deug option
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+pub enum Command {
+    Init,
+    Build,
+    Deploy,
+    Update,
+}
+
+impl std::fmt::Display for Command {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            Self::Init => "init",
+            Self::Build => "build",
+            Self::Deploy => "deploy",
+            Self::Update => "update",
+        };
+        s.fmt(f)
+    }
+}
+
+impl std::str::FromStr for Command {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "init" => Ok(Self::Init),
+            "build" => Ok(Self::Build),
+            "deploy" => Ok(Self::Deploy),
+            "update" => Ok(Self::Update),
+            _ => Err(format!("Unknown command: {s}")),
+        }
+    }
+}
+
 /// Static page generator for newsboat feeds, use -h to see help
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Args {
     #[arg(long)]
-    /// Path to newsboat db cache (default ~/.newsboat/cache.db)
+    /// Path to newsboat db cache.
     pub cache_file: Option<String>,
-    /// Path to newsboat urls file to use (default ~/.newsboat/urls)
+    /// Path to newsboat urls file.
     #[arg(long)]
     pub url_file: Option<String>,
-    /// Path to directory where built static files will be stored (default ~/.newsboat/build")
+    /// Path to build directory.
     #[arg(long)]
     pub build_dir: Option<String>,
-    /// Path to directory containing templates.
+    /// Path to directory containing template.
     #[arg(long)]
     pub template_path: Option<String>,
-    /// Filepath to liveboat config file (default ~/.newsboat/liveboat_config.yml)
+    /// path to liveboat config file.
     #[arg(long)]
     pub config_file: Option<String>,
-    // TODO
-    // add debug
-    // add command specifier
+    #[arg(long)]
+    pub debug: Option<bool>,
+    /// Command to execute.
+    #[arg(
+        short = 'x',
+        default_value_t = Command::Build,
+    )]
+    pub command: Command,
 }
 
 #[derive(Debug, Clone)]

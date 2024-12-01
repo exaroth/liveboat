@@ -1,4 +1,3 @@
-use clap::Parser;
 use std::cell::RefCell;
 use std::error::Error;
 use std::sync::Arc;
@@ -8,6 +7,8 @@ use rusqlite::{params_from_iter, Connection, Result, Rows};
 
 use crate::args::Args;
 use crate::builder::Builder;
+use crate::cli;
+use crate::errors::FilesystemError;
 use crate::feed::Feed;
 use crate::feed_item::FeedItem;
 use crate::opts::Options;
@@ -43,19 +44,50 @@ AND items.deleted=0;
 ";
 
 impl Controller {
-    pub fn init() -> Result<Controller, Box<dyn Error>> {
-        let args = Args::parse();
-        let mut paths = Paths::new(&args)?;
+    pub fn init(args: &Args) -> Result<Controller, Box<dyn Error>> {
+        let paths = Paths::new(&args.config_file)?;
+        if !paths.initialized() {
+            Err(FilesystemError::NotInitialized)?;
+        }
         let opts = Options::init(paths.config_file())?;
         let url_reader = UrlReader::init(paths.url_file());
-        paths.set_template_path(&args.template_path, opts.template_name())?;
         // TODO: verify
+        // set config path
+        // check for config path
         let ctrl = Controller {
             paths: paths,
             options: opts,
             url_reader: url_reader,
         };
         Ok(ctrl)
+    }
+
+    pub fn cold_start(args: &Args) -> Result<(), Box<dyn Error>> {
+        let mut paths = Paths::new(&args.config_file)?;
+        paths.update_with_args(args)?;
+        let mut opts = Options::default();
+        opts.title = cli::prompt_string(opts.title, "Enter your feed page title:")?;
+        opts.newsboat_urls_file =
+            cli::prompt_path(paths.url_file(), true, "Enter path to Newsboat urls file:")?;
+        opts.newsboat_cache_file = cli::prompt_path(
+            paths.cache_file(),
+            true,
+            "Enter path to Newsboat cache db file:",
+        )?;
+        opts.time_threshold = cli::prompt_int(
+            opts.time_threshold,
+            "Enter number of days in the past Liveboat should generate feeds for",
+        )?;
+        opts.show_read_articles = cli::confirm(
+            opts.show_read_articles,
+            "Should Liveboat include read articles in the feeds?",
+        );
+        opts.build_dir = cli::prompt_path(
+            paths.build_dir(),
+            false,
+            "Where should Liveboat save generated pages to?",
+        )?;
+        Ok(())
     }
 
     pub fn process_feeds(&self) -> Result<(), Box<dyn Error>> {

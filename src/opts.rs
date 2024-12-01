@@ -7,13 +7,16 @@ use toml;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Options {
-    title: String,
+    pub title: String,
     remote_url: String,
-    show_read_articles: bool,
+    pub show_read_articles: bool,
     template_name: String,
 
     // TODO
-    time_threshold: u8,
+    pub newsboat_urls_file: String,
+    pub newsboat_cache_file: String,
+    pub time_threshold: u64,
+    pub build_dir: String,
     exclude_tags: Vec<String>,
     exclude_feeds: Vec<String>,
     // TODO
@@ -34,11 +37,14 @@ impl Options {
         return Options {
             title: String::from("Liveboat feed page"),
             remote_url: String::new(),
-            show_read_articles: false,
+            show_read_articles: true,
             template_name: String::from("default"),
             time_threshold: 10,
             exclude_tags: Vec::new(),
             exclude_feeds: Vec::new(),
+            newsboat_urls_file: String::new(),
+            newsboat_cache_file: String::new(),
+            build_dir: String::new(),
         };
     }
 

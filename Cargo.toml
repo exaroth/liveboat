@@ -17,6 +17,9 @@ bs58 = "0.5.1"
 handlebars = "6.2.0"
 rand = "0.8.5"
 resolve-path = "0.1.0"
+dialoguer = "0.11.0"
+thiserror = "2.0.3"
+console = "0.15.8"
 
 [[bin]]
 name = "liveboat"
