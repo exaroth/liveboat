@@ -63,7 +63,7 @@ impl Paths {
             false,
             paths.config_dir.join(LIVEBOAT_CONFIG_FILENAME),
         )?;
-        paths.template_dir = paths.home().join(LIVEBOAT_BUILD_DIRNAME);
+        paths.build_dir = paths.home().join(LIVEBOAT_BUILD_DIRNAME);
 
         return Ok(paths);
     }

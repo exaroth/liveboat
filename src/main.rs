@@ -28,6 +28,7 @@ fn main() {
         eprintln!("Error: {}", e);
         std::process::exit(1);
     }
+    println!("Done");
     std::process::exit(0);
 }
 
@@ -39,6 +40,7 @@ fn init(args: &Args) -> Option<Box<dyn Error>> {
 }
 
 fn build(args: &Args) -> Option<Box<dyn Error>> {
+    print!("Building feeds...");
     let controller = match BuildController::init(&args) {
         Err(e) => return Some(e),
         Ok(ctrl) => ctrl,

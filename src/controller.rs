@@ -203,7 +203,6 @@ impl BuildController {
         let repeat_vars = |c| {
             assert_ne!(c, 0);
             let mut s = "?,".repeat(c);
-            // Remove trailing comma
             s.pop();
             s
         };
