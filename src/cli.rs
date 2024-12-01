@@ -13,7 +13,7 @@ use resolve_path::PathResolveExt;
 use std::error::Error;
 
 use console::Style;
-use dialoguer::{theme::ColorfulTheme, Confirm, Input, Select};
+use dialoguer::{theme::ColorfulTheme, Confirm, Input};
 
 use std::path::Path;
 
