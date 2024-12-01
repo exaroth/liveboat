@@ -2,6 +2,7 @@ use rand::{distributions::Alphanumeric, Rng};
 use resolve_path::PathResolveExt;
 use std::error::Error;
 use std::fs;
+use std::io;
 use std::path::{Path, PathBuf};
 
 use libnewsboat::configpaths::ConfigPaths as NConfig;
@@ -75,19 +76,42 @@ impl Paths {
         if !n_config.initialized() {
             return Err(FilesystemError::Unknown(n_config.error_message().into()));
         };
-        self.url_file = path_with_argval(&args.url_file, true, n_config.url_file().to_path_buf())?;
+        self.url_file = path_with_argval(&args.url_file, true, self.url_file.clone())?;
         self.cache_file =
-            path_with_argval(&args.cache_file, true, n_config.cache_file().to_path_buf())?;
+            path_with_argval(&args.cache_file, true, self.cache_file.clone())?;
         self.build_dir = path_with_argval(
             &args.build_dir,
             false,
-            self.home().join(LIVEBOAT_BUILD_DIRNAME),
+            self.build_dir.clone(),
         )?;
         self.template_path = path_with_argval(
             &args.template_path,
             true,
             self.template_dir().join(self.template_path()),
         )?;
+        Ok(())
+    }
+
+    pub fn update_with_opts(&mut self, url_file: &String, cache_file: &String, build_dir: &String, template_name: &String) {
+        self.url_file = PathBuf::from(url_file);
+        self.cache_file = PathBuf::from(cache_file);
+        self.build_dir = PathBuf::from(build_dir);
+        self.template_path = self.template_dir.join(template_name)
+    }
+
+    pub fn check_all(&self) -> Result<(), FilesystemError> {
+        if !self.url_file.is_file() {
+            return Err(FilesystemError::PathDoesNotExist(self.url_file.clone()))
+        }
+        if !self.cache_file.is_file() {
+            return Err(FilesystemError::PathDoesNotExist(self.cache_file.clone()))
+        }
+        if !self.config_file.is_file() {
+            return Err(FilesystemError::PathDoesNotExist(self.config_file.clone()))
+        }
+        if !self.template_path.is_dir() {
+            return Err(FilesystemError::PathDoesNotExist(self.template_path.clone()))
+        }
         Ok(())
     }
 

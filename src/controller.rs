@@ -44,15 +44,21 @@ AND items.deleted=0;
 
 impl BuildController {
     pub fn init(args: &Args) -> Result<BuildController, Box<dyn Error>> {
-        let paths = Paths::new(&args.config_file)?;
+        let mut paths = Paths::new(&args.config_file)?;
         if !paths.initialized() {
             Err(FilesystemError::NotInitialized)?;
         }
         let opts = Options::init(paths.config_file())?;
+        paths.update_with_opts(
+            &opts.newsboat_urls_file,
+            &opts.newsboat_cache_file,
+            &opts.build_dir,
+            &opts.template_name(),
+        );
+        paths.update_with_args(&args)?;
+        paths.check_all()?;
+
         let url_reader = UrlReader::init(paths.url_file());
-        // TODO: verify
-        // set config path
-        // check for config path
         let ctrl = BuildController {
             paths: paths,
             options: opts,

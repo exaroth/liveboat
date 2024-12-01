@@ -39,7 +39,6 @@ pub fn prompt_path(
         ..ColorfulTheme::default()
     };
     let p = String::from(default.to_str().unwrap());
-    let mut result = String::new();
     loop {
         let prompt_result = Input::with_theme(&theme)
             .with_prompt(prompt)
@@ -56,10 +55,8 @@ pub fn prompt_path(
                 continue;
             }
         }
-        result = resolved.display().to_string();
-        break;
+        return Ok(resolved.display().to_string());
     }
-    return Ok(result);
 }
 
 pub fn prompt_int(default: u64, prompt: &str) -> Result<u64, Box<dyn Error>> {
