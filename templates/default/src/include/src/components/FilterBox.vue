@@ -32,18 +32,16 @@ watch(searchFeedsTerm, (val) => {
   searchDelayTimeout = setTimeout(() => {
     if (searchFeedsTerm.value != null || searchFeedsTerm.value !== '') {
       fStore.$patch({
-        searchTerm: val.toLowerCase(),
+        searchTerm: val.toLowerCase().trim(),
       })
     }
   }, 600)
 })
+
 </script>
 
 <template>
   <div class="filter-container">
-    <span id="filter-search">
-      <input :value="searchFeedsTerm" @input="(event) => (searchFeedsTerm = event.target.value)" />
-    </span>
     <span class="filter-box"
       ><button
         :class="{ selected: filters.daysBackCount === 7 && filters.filterByDays === true }"
@@ -76,6 +74,9 @@ watch(searchFeedsTerm, (val) => {
         Last 20
       </button></span
     >
+    <span id="filter-search">
+      <input placeholder="Search" :value="searchFeedsTerm" @input="(event) => (searchFeedsTerm = event.target.value)" />
+    </span>
   </div>
 </template>
 
@@ -93,9 +94,9 @@ watch(searchFeedsTerm, (val) => {
   border-radius: 3px;
 }
 
-.filter-box button {
+.filter-box button,
+#filter-search input {
   width: 90px;
-  cursor: pointer;
   background-color: #3c5e8b;
   border: none;
   line-height: 26px;
@@ -104,6 +105,11 @@ watch(searchFeedsTerm, (val) => {
   font-weight: bold;
   color: #c7cfcc;
   outline: none;
+}
+.filter-box button,
+#filter-search span,
+#filter-search button{
+  cursor: pointer;
 }
 
 .filter-box button.selected {
@@ -114,5 +120,34 @@ watch(searchFeedsTerm, (val) => {
 
 .filter-box button:hover {
   opacity: 0.9;
+}
+
+#filter-search {
+  float: right;
+}
+#filter-search input {
+  width: 164px;
+  height: 29px;
+  background-color: transparent;
+  outline: 1px solid #c7cfcc;
+  font-weight: normal;
+  padding: 0px 0px 0px 6px;
+}
+@media (max-width: 640px) {
+  .filter-container {
+    margin: 0px;
+    padding: 10px 0px 20px 0px;
+  }
+  #filter-search {
+    float: none;
+    position: relative;
+  }
+  #filter-search input {
+    width: 100%;
+    margin-top: 20px;
+  }
+  .filter-box button {
+    width: 75px;
+  }
 }
 </style>

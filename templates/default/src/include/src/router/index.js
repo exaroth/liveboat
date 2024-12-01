@@ -14,6 +14,11 @@ const router = createRouter({
       name: 'feedView',
       component: () => import('../views/FeedView.vue'),
     },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: () => import('../views/NotFoundView.vue'),
+    },
   ],
 })
 

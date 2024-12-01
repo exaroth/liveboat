@@ -1,13 +1,5 @@
 @import './base.css';
 
-#app {
-  width: 1024px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
-  min-height: 100vh;
-}
-
 a,
 p,
 h1,
@@ -22,9 +14,17 @@ li {
   text-decoration: none;
 }
 
+#app {
+  width: 100vw;
+  margin: 0 auto;
+  padding: .8rem;
+  font-weight: normal;
+  min-height: 100vh;
+}
+
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+    background-color: rgba(60, 94, 139, 0.4);
   }
 }
 
@@ -37,5 +37,6 @@ li {
   #app {
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
+    width: 1024px;
   }
 }

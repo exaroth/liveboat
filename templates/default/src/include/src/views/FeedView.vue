@@ -1,14 +1,13 @@
 <script setup>
 import { useRoute } from 'vue-router'
-import { useFeedsStore } from '@/stores/feeds';
-import FeedItem from '@/components/FeedItem.vue';
-import IndexHeader from '@/components/IndexHeader.vue';
+import { useFeedsStore } from '@/stores/feeds'
+import FeedItem from '@/components/FeedItem.vue'
+import IndexHeader from '@/components/IndexHeader.vue'
 
 const route = useRoute()
-const feedsStore = useFeedsStore();
+const feedsStore = useFeedsStore()
 
-const feed = feedsStore.getFeedById(route.params.feedId);
-
+const feed = feedsStore.getFeedById(route.params.feedId)
 </script>
 
 <template>

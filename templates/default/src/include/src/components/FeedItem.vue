@@ -42,10 +42,12 @@ const filterFeedItems = (state) => {
 }
 
 const _filterByTerm = (term) => {
-    // TODO: add filtering by item content and tags
-    return feedItems.value.filter((f) => {
-        return f.title.toLowerCase().includes(term)
-    })
+  let title = (props.feed.displayTitle || props.feed.title).toLowerCase().split(' ')
+  let checker = (arr, target) => target.every((v) => arr.some((vv) => vv.includes(v)))
+  return feedItems.value.filter((f) => {
+    let fTitle = f.title.toLowerCase().split(' ')
+    return checker(fTitle.concat(title), term.split(' '))
+  })
 }
 const _updateItemsWithDate = (daysBack) => {
   let d = new Date()
@@ -131,7 +133,7 @@ watchEffect(async () => {
     <div class="feed-title">
       <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="feed.title">{{
         feed.displayTitle || feed.title
-        }}</router-link>
+      }}</router-link>
     </div>
     <div class="feed-item-group" v-for="(items, dateStr) in filteredFeedItems" :key="dateStr">
       <span class="feed-item-date" v-if="dateStr">{{ dateStr }}</span>
@@ -163,7 +165,7 @@ watchEffect(async () => {
 
 .feed-title {
   padding: 0px 0px 0px 50px;
-  margin: 0px 0px 10px 0px;
+  margin: 0px 0px 14px 0px;
   width: 100%;
   border-bottom: 2px solid #3c5e8b;
 }
@@ -188,9 +190,15 @@ watchEffect(async () => {
 }
 .feed-item-date {
   width: 90px;
-  text-align: right;
-  position: absolute;
-  left: -90px;
   color: #73bed3;
+  position: relative;
+}
+
+@media (min-width: 1150px) {
+  .feed-item-date {
+    text-align: right;
+    position: absolute;
+    left: -90px;
+  }
 }
 </style>
