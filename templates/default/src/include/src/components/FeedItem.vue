@@ -46,6 +46,7 @@ const _filterByTerm = (term) => {
   let checker = (arr, target) => target.every((v) => arr.some((vv) => vv.includes(v)))
   return feedItems.value.filter((f) => {
     let fTitle = f.title.toLowerCase().split(' ')
+    fTitle.push(f.author.toLowerCase())
     return checker(fTitle.concat(title), term.split(' '))
   })
 }
@@ -99,6 +100,7 @@ const processFeedItems = (feedItems) => {
       url: feedItem.url,
       date: date,
       domain: url.hostname,
+      author: feedItem.author,
     })
   }
   return result
@@ -142,6 +144,7 @@ watchEffect(async () => {
           <span class="feed-item-link">
             <a :href="feedItem.url" target="_blank">{{ truncate(feedItem.title) }}</a>
           </span>
+          <span class="feed-item-author" v-if="feedItem.author"> by {{ feedItem.author }}</span>
           <span class="feed-item-domain">({{ feedItem.domain }})</span>
         </li>
       </ul>
@@ -183,6 +186,11 @@ watchEffect(async () => {
   position: relative;
   top: 4px;
   left: 4px;
+}
+.feed-item-author {
+  font-size: 12px;
+  color: #73bed3;
+  opacity: .7;
 }
 
 .feed-item-group {
