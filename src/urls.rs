@@ -1,22 +1,21 @@
 use std::fs::read_to_string;
 use std::path::Path;
 
-use libnewsboat::utils as libutils;
 use libnewsboat::matcher::Matcher;
+use libnewsboat::utils as libutils;
 
 #[derive(Debug, Clone)]
 pub struct URLFeed {
     pub url: String,
     pub tags: Vec<String>,
     pub hidden: bool,
-    pub title_override: Option<String>
+    pub title_override: Option<String>,
 }
 
 pub struct QueryFeed {
     pub title: String,
     pub matcher: Matcher,
 }
-
 
 #[derive(Clone, Debug)]
 pub struct UrlReader {
@@ -95,12 +94,15 @@ impl UrlReader {
             }
             let parts = libutils::tokenize_quoted(tokens[0].as_str(), ":");
             if parts.len() < 3 {
-                return Err(format!("Invalid query found: {}", line))
+                return Err(format!("Invalid query found: {}", line));
             }
             let filter_s = &parts[2];
             match Matcher::parse(filter_s) {
-                Ok(r) => results.push(QueryFeed{title: parts[1].clone(), matcher: r}),
-                Err(e) => return Err(e)
+                Ok(r) => results.push(QueryFeed {
+                    title: parts[1].clone(),
+                    matcher: r,
+                }),
+                Err(e) => return Err(e),
             };
         }
         Ok(results)

@@ -24,7 +24,6 @@ pub struct Args {
     /// Filepath to liveboat config file (default ~/.newsboat/liveboat_config.yml)
     #[arg(long)]
     pub config_file: Option<String>,
-
     // TODO
     // add debug
     // add command specifier
@@ -33,7 +32,7 @@ pub struct Args {
 #[derive(Debug, Clone)]
 pub struct ArgumentError {
     arg: String,
-    msg: String 
+    msg: String,
 }
 
 impl fmt::Display for ArgumentError {
@@ -44,7 +43,7 @@ impl fmt::Display for ArgumentError {
 
 impl ArgumentError {
     pub fn new(argname: String, message: String) -> ArgumentError {
-        ArgumentError{
+        ArgumentError {
             arg: argname,
             msg: message,
         }

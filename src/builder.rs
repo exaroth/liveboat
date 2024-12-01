@@ -16,7 +16,7 @@ const INCLUDE_DIRNAME: &str = "include";
 const INDEX_FILENAME: &str = "index";
 
 pub struct Builder<'a, C> {
-    template_path:  &'a Path,
+    template_path: &'a Path,
     build_dir: &'a Path,
     tmp_dir: &'a Path,
     context: C,
@@ -30,7 +30,6 @@ impl<'a, C: serde::Serialize> Builder<'a, C> {
         template_name: &String,
         context: C,
     ) -> Result<Builder<'a, C>, IOError> {
-        
         // TODO: use src when dev mode is enabled
         if !template_path.try_exists()? {
             return Err(IOError::new(
@@ -107,7 +106,6 @@ impl<'a, C: serde::Serialize> Builder<'a, C> {
 
     pub fn clean_up(&self) {
         _ = fs::remove_dir_all(self.tmp_dir);
-
     }
 }
 
