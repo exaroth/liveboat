@@ -1,14 +1,3 @@
-// liveboat -x init
-// check if config dir exists and config file exists
-// if user passed custom config file check only dir
-// if not exist prompt user to run liveboat -x init
-// if not found prompt user
-// prompt for feed title
-// prompt for path to newsboat urls -> check
-// prompt for path to newsboat cache -> check
-// prompt for build dir path
-// prompt whether to show read articles
-// prompt for time threshold
 use resolve_path::PathResolveExt;
 use std::error::Error;
 

@@ -1,18 +1,15 @@
 use rand::{distributions::Alphanumeric, Rng};
 use resolve_path::PathResolveExt;
-use std::error::Error;
 use std::fs;
-use std::io;
 use std::path::{Path, PathBuf};
 
 use libnewsboat::configpaths::ConfigPaths as NConfig;
-use libnewsboat::configpaths::NEWSBOAT_CONFIG_SUBDIR;
 
 use crate::args::Args;
 use crate::errors::FilesystemError;
 
 const LIVEBOAT_CONFIG_FILENAME: &str = "liveboat_config.toml";
-const LIVEBOAT_BUILD_DIRNAME: &str = "build";
+const LIVEBOAT_BUILD_DIRNAME: &str = "liveboat_build";
 const LIVEBOAT_CONFIG_DIRNAME: &str = ".config/liveboat";
 const LIVEBOAT_TEMPLATES_DIRNAME: &str = "templates";
 
@@ -66,6 +63,7 @@ impl Paths {
             false,
             paths.config_dir.join(LIVEBOAT_CONFIG_FILENAME),
         )?;
+        paths.template_dir = paths.home().join(LIVEBOAT_BUILD_DIRNAME);
 
         return Ok(paths);
     }
