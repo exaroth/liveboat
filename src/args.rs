@@ -1,5 +1,3 @@
-use std::fmt;
-
 use clap::Parser;
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
@@ -66,25 +64,4 @@ pub struct Args {
         default_value_t = Command::Build,
     )]
     pub command: Command,
-}
-
-#[derive(Debug, Clone)]
-pub struct ArgumentError {
-    arg: String,
-    msg: String,
-}
-
-impl fmt::Display for ArgumentError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Invalid argument: {}: {}", self.arg, self.msg)
-    }
-}
-
-impl ArgumentError {
-    pub fn new(argname: String, message: String) -> ArgumentError {
-        ArgumentError {
-            arg: argname,
-            msg: message,
-        }
-    }
 }

@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::error::Error;
 use std::sync::Arc;
+use log::{info, trace, warn};
 
 use rusqlite::Error as SQLiteError;
 use rusqlite::{params_from_iter, Connection, Result, Rows};
@@ -45,18 +46,23 @@ AND items.deleted=0
 
 impl BuildController {
     pub fn init(args: &Args) -> Result<BuildController, Box<dyn Error>> {
+        info!("Initializing controller");
         let mut paths = Paths::new(&args.config_file)?;
+        info!("Default paths are {}", paths);
         if !paths.initialized() {
             Err(FilesystemError::NotInitialized)?;
         }
         let opts = Options::init(paths.config_file())?;
+        info!("Opts are {}", opts);
         paths.update_with_opts(
             &opts.newsboat_urls_file,
             &opts.newsboat_cache_file,
             &opts.build_dir,
             &opts.template_name(),
         );
+        info!("Paths after opt update {}", paths);
         paths.update_with_args(&args)?;
+        info!("Paths after arg update {}", paths);
         paths.check_all()?;
 
         let url_reader = UrlReader::init(paths.url_file());
@@ -66,10 +72,12 @@ impl BuildController {
             url_reader: url_reader,
             debug: args.debug,
         };
+        info!("Controller initialized");
         Ok(ctrl)
     }
 
     pub fn process_feeds(&self) -> Result<(), Box<dyn Error>> {
+        info!("Processing feeds");
         let feed_items = self.get_feed_item_data()?;
         let feeds = self.get_url_feeds()?;
         self.populate_url_feeds(&feeds, &feed_items);
@@ -82,7 +90,7 @@ impl BuildController {
             self.options.template_name(),
             ctx,
         )?;
-        builder.create_tmp();
+        builder.create_tmp()?;
 
         self.save_json_feeds(&builder, &q_feeds, &feeds)?;
         builder.render_template()?;
@@ -114,6 +122,7 @@ impl BuildController {
         feed: &Feed,
     ) -> Result<(), Box<dyn Error>> {
         if feed.is_empty() || feed.is_hidden() {
+            info!("Skipping saving feed: {:?}", feed);
             return Ok(());
         }
         if self.debug {
@@ -125,9 +134,11 @@ impl BuildController {
     }
 
     fn populate_url_feeds(&self, feeds: &Vec<Arc<RefCell<Feed>>>, feed_items: &Vec<FeedItem>) {
+        info!("Populating feeds with feed items");
         for item in feed_items {
             if let Some(f) = feeds.iter().find(|f| f.borrow().url() == item.feed_url()) {
                 if self.options.show_read_articles == false && item.is_unread() == false {
+                    info!("Skipping item: {}", item);
                     continue
                 }
                 let mut i = item.clone();
@@ -144,6 +155,7 @@ impl BuildController {
     fn get_url_feeds(&self) -> Result<Vec<Arc<RefCell<Feed>>>, Box<dyn Error>> {
         let url_feeds = self.url_reader.get_url_feeds();
         let urls = url_feeds.iter().map(|u| u.url.clone()).collect();
+        trace!("List of urls to retrieve: {}", format!("{:?}", urls));
         let feed_data = self.get_feed_data(urls)?;
         for f in &feed_data {
             if let Some(url_feed) = url_feeds.iter().find(|u| &u.url == f.borrow().url()) {
@@ -160,8 +172,10 @@ impl BuildController {
     fn get_feed_item_data(&self) -> Result<Vec<FeedItem>, Box<dyn Error>> {
         let conn = &self.get_db_connection()?;
         let mut stmt = conn.prepare(FEED_ITEMS_SQL)?;
+        info!("Prepared statement for feed retrieval: {}", stmt.expanded_sql().unwrap());
         // NOTE: we cant interpolate days integer directly with rusql
         let days_s = format!("-{} days", self.options.time_threshold);
+        info!("Day threshold param == {}", days_s);
         let mut r = stmt.query(rusqlite::named_params!{"$days": days_s})?;
         let results = self.load_feed_items(&mut r)?;
         Ok(results)
@@ -178,10 +192,13 @@ impl BuildController {
             for f in feeds {
                 for i in &f.borrow().items {
                     match query_f.matcher.matches(i) {
-                        // TODO, check MatcherError
-                        Err(_) => continue,
+                        Err(e) => {
+                            warn!("Matcher error: {:?}", e);
+                            continue
+                        },
                         Ok(matches) => {
                             if matches {
+                                trace!("Query {} matched against item {}]", query_f.title, i);
                                 q.add_item(i.clone())
                             }
                         }
@@ -203,6 +220,7 @@ impl BuildController {
         let mut results: Vec<FeedItem> = Vec::new();
         while let Some(row) = rows.next()? {
             let feed_item = FeedItem::from_db_row(row)?;
+            trace!("load_feed_items:: Adding Feed item: {}", feed_item);
             results.push(feed_item);
         }
         Ok(results)
@@ -219,6 +237,7 @@ impl BuildController {
             "SELECT rssurl, title, url FROM rss_feed where rssurl in ({});",
             repeat_vars(urls.len())
         );
+        trace!("Feed retrieval SQL: {}", sql);
         let conn = &self.get_db_connection()?;
         let mut stmt = conn.prepare(&sql)?;
         let rows = stmt.query_map(params_from_iter(urls.iter()), |row| {
@@ -232,6 +251,7 @@ impl BuildController {
                 Err(e) => return Err(e),
             }
         }
+        trace!("Retrieved feeds: {}", format!("{:?}", result));
         Ok(result)
     }
 }

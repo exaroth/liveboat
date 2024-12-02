@@ -1,8 +1,10 @@
-use crate::feed::Feed;
-use crate::opts::Options;
 use std::cell::RefCell;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
+use std::fmt;
+
+use crate::feed::Feed;
+use crate::opts::Options;
 
 /// Representation of default context to be passed
 /// when rendering index template.
@@ -41,5 +43,22 @@ impl<'a> Context<'a> {
             build_time,
             options,
         }
+    }
+}
+
+impl fmt::Display for Context<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Ctx::
+            feed_num {}:
+            q_feed_num: {}
+            opts: {}
+            build_time: {}",
+            self.feeds.len(),
+            self.query_feeds.len(),
+            self.options,
+            self.build_time,
+        )
     }
 }

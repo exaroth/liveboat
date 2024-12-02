@@ -1,6 +1,7 @@
 // TODO use current dir by default for building
 // if unnamed arg passed use that instead
 
+use log::info;
 use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
@@ -59,14 +60,18 @@ impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
         })
     }
 
-    pub fn create_tmp(&self) {
-        _ = fs::create_dir(self.tmp_dir);
-        _ = fs::create_dir(self.tmp_dir.join(FEEDS_DIRNAME));
+    pub fn create_tmp(&self) -> Result<(), io::Error> {
+        info!("Creating tmp dir at {}", self.tmp_dir.display());
+        _ = fs::create_dir(self.tmp_dir)?;
+        info!("Creating tmp feeds dir");
+        _ = fs::create_dir(self.tmp_dir.join(FEEDS_DIRNAME))?;
+        Ok(())
     }
 
     pub fn save_feed_data(&self, name: &String, data: &[u8]) -> Result<(), Box<dyn Error>> {
         let feeds_dir = self.tmp_dir.join(FEEDS_DIRNAME);
         let path = feeds_dir.join(format!("{}.json", name));
+        info!("Saving feed at path {}", path.display());
         let mut file = File::create(path)?;
         file.write_all(data)?;
         Ok(())
@@ -75,6 +80,11 @@ impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
     pub fn copy_data(&self) -> Result<(), Box<dyn Error>> {
         let feeds_dir_tmp = self.tmp_dir.join(FEEDS_DIRNAME);
         let feeds_dir = self.build_dir.join(FEEDS_DIRNAME);
+        info!(
+            "Copying feed data from {} to {}",
+            feeds_dir_tmp.display(),
+            feeds_dir.display()
+        );
 
         if self.build_dir.is_dir() && feeds_dir.is_dir() {
             _ = fs::remove_dir_all(&feeds_dir);
@@ -82,22 +92,27 @@ impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
         copy_all(feeds_dir_tmp, &feeds_dir)?;
 
         let include_dir = self.template_path.join(INCLUDE_DIRNAME);
+        info!("Copying include contents @ {}", include_dir.display());
         copy_all(include_dir, &self.build_dir)?;
 
         let tpl_index_path = self.tmp_dir.join(format!("{}.html", INDEX_FILENAME));
         let index_path = self.build_dir.join(format!("{}.html", INDEX_FILENAME));
+        info!("Copying rendered index @ {} to {}", tpl_index_path.display(), index_path.display());
         fs::copy(tpl_index_path, index_path)?;
         Ok(())
     }
 
     pub fn render_template(&self) -> Result<(), Box<dyn Error>> {
         let tpl_file = self.template_path.join(format!("{}.hbs", INDEX_FILENAME));
+        info!("Rendering template @ {}", &tpl_file.display());
         let raw = fs::read_to_string(tpl_file)?;
         let mut handlebars = Handlebars::new();
         _ = handlebars.register_template_string(INDEX_FILENAME, raw);
         let out = handlebars.render(INDEX_FILENAME, &self.context)?;
 
         let out_path = self.tmp_dir.join(format!("{}.html", INDEX_FILENAME));
+        info!("Saving template @ {}", &out_path.display());
+
         let mut f = File::create(out_path)?;
         f.write_all(out.as_bytes())?;
 
@@ -105,6 +120,7 @@ impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
     }
 
     pub fn clean_up(&self) {
+        info!("Cleanup");
         _ = fs::remove_dir_all(self.tmp_dir);
     }
 }

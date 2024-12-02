@@ -17,7 +17,7 @@ use std::error::Error;
 use crate::args::{Args, Command};
 use crate::controller::BuildController;
 use crate::utils::cold_start;
-use log::{debug, error, info, trace, warn};
+use log::info;
 
 fn main() {
     let args = Args::parse();
@@ -42,7 +42,7 @@ fn init(args: &Args) -> Option<Box<dyn Error>> {
 }
 
 fn build(args: &Args) -> Option<Box<dyn Error>> {
-    print!("Building feeds...");
+    info!("Build command called");
     let controller = match BuildController::init(&args) {
         Err(e) => return Some(e),
         Ok(ctrl) => ctrl,

@@ -76,7 +76,7 @@ impl fmt::Display for Options {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "Paths::
+            "Opts::
             title {}:
             show_read: {}
             template_name: {}

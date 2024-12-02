@@ -170,7 +170,7 @@ impl fmt::Display for Paths {
             template_path: {}
             build_dir: {}
             cache_file: {},
-            url_filr: {}",
+            url_file: {}",
             self.config_file.display(),
             self.config_dir.display(),
             self.tmp_dir.display(),

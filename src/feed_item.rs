@@ -6,6 +6,7 @@ use rusqlite::Row;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 use std::cell::RefCell;
 use std::sync::Arc;
+use std::fmt;
 
 /// Container for storing and operating
 /// on the newsboat article items.
@@ -110,6 +111,25 @@ impl Matchable for FeedItem {
                 }
             }
         }
+    }
+}
+
+impl fmt::Display for FeedItem {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "FeedItem::
+            feed url {}:
+            title: {}
+            url: {}
+            date: {}
+            unread: {}",
+            self.feed_url,
+            self.title,
+            self.url,
+            self.date,
+            self.unread,
+        )
     }
 }
 
