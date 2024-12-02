@@ -5,6 +5,8 @@ use std::fmt;
 
 use crate::feed_item::FeedItem;
 
+/// Representation for single feed as retrieved from database.
+/// Used for storing both url and query based feeds.
 #[derive(Clone)]
 pub struct Feed {
     id: String,

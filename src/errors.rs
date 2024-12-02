@@ -1,6 +1,8 @@
 use thiserror::Error;
 use std::path::PathBuf;
 
+/// Error used for handling common issues related
+/// to filesystem such as missing files.
 #[derive(Error, Debug)]
 pub enum FilesystemError {
     #[error("Invalid path provided: `{0}`")]

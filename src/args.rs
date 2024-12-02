@@ -1,5 +1,8 @@
 use clap::Parser;
 
+/// Command represents list of available
+/// commands which can be invoked via -x
+/// argument.
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum Command {
     Init,

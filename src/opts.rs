@@ -6,6 +6,8 @@ use std::str;
 use toml;
 use std::fmt;
 
+/// This represents main configuration options
+/// available to the user.
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Options {
     pub title: String,
@@ -48,7 +50,8 @@ impl Options {
             build_dir: String::new(),
         };
     }
-
+    
+    /// Output data to TOML and save.
     pub fn save(&self, path: &Path) -> Result<String, Box<dyn std::error::Error>> {
         let t = toml::to_string(&self)?;
 
@@ -59,7 +62,8 @@ impl Options {
         f.write_all(t.as_bytes())?;
         Ok(t)
     }
-
+    
+    /// Instantiate options from TOML file.
     pub fn load(path: &Path) -> Result<Options, Box<dyn std::error::Error>> {
         let raw = read_to_string(path)?;
         let opts: Options = toml::from_str(raw.as_str())?;

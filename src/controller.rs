@@ -16,6 +16,9 @@ use crate::paths::Paths;
 use crate::template::Context;
 use crate::urls::UrlReader;
 
+/// Build controller faciliates the process of parsing url
+/// file, retrieving data from db, generating feed objects
+/// and building output files.
 #[derive(Debug)]
 pub struct BuildController {
     paths: Paths,
@@ -75,8 +78,14 @@ impl BuildController {
         info!("Controller initialized");
         Ok(ctrl)
     }
-
-    pub fn process_feeds(&self) -> Result<(), Box<dyn Error>> {
+    
+    /// Main template method used for processing build command.
+    /// We first retrieve feed and article information from database
+    /// as well as parse urls file then create feed and query feed objects
+    /// using matching rules provided by the latter and populate feed objects
+    /// with the articles. Finally we utilize builder module to first output
+    /// all the static page data to tmp dir and copy it to build directory.
+    pub fn build(&self) -> Result<(), Box<dyn Error>> {
         info!("Processing feeds");
         let feed_items = self.get_feed_item_data()?;
         let feeds = self.get_url_feeds()?;
@@ -132,7 +141,8 @@ impl BuildController {
         }
         Ok(())
     }
-
+    
+    /// Populate feeds with article items, filter out read articles based on the opt value.
     fn populate_url_feeds(&self, feeds: &Vec<Arc<RefCell<Feed>>>, feed_items: &Vec<FeedItem>) {
         info!("Populating feeds with feed items");
         for item in feed_items {
@@ -151,7 +161,8 @@ impl BuildController {
             f.borrow_mut().sort_items()
         }
     }
-
+    
+    /// Retrieve article data from db and populate it with data from urls. 
     fn get_url_feeds(&self) -> Result<Vec<Arc<RefCell<Feed>>>, Box<dyn Error>> {
         let url_feeds = self.url_reader.get_url_feeds();
         let urls = url_feeds.iter().map(|u| u.url.clone()).collect();
@@ -168,7 +179,8 @@ impl BuildController {
         }
         Ok(feed_data)
     }
-
+    
+    /// Retrieve article data from sqlite db.
     fn get_feed_item_data(&self) -> Result<Vec<FeedItem>, Box<dyn Error>> {
         let conn = &self.get_db_connection()?;
         let mut stmt = conn.prepare(FEED_ITEMS_SQL)?;
@@ -180,7 +192,10 @@ impl BuildController {
         let results = self.load_feed_items(&mut r)?;
         Ok(results)
     }
-
+    
+    /// Process query feed objects as defined in urls file - this is done by matching
+    /// rules for each article against those defined by the user, we generate feed object
+    /// for each query feed marking it appropriately.
     fn get_query_feeds(
         &self,
         feeds: &Vec<Arc<RefCell<Feed>>>,
@@ -210,12 +225,13 @@ impl BuildController {
         }
         Ok(result)
     }
-
+    
     fn get_db_connection(&self) -> Result<Connection, SQLiteError> {
         let conn = Connection::open(&self.paths.cache_file())?;
         Ok(conn)
     }
-
+    
+    /// Instantiate feed objects based on the rows retrieved from db.
     fn load_feed_items(&self, rows: &mut Rows<'_>) -> Result<Vec<FeedItem>, SQLiteError> {
         let mut results: Vec<FeedItem> = Vec::new();
         while let Some(row) = rows.next()? {
@@ -225,7 +241,9 @@ impl BuildController {
         }
         Ok(results)
     }
+    
 
+    /// Retrieve feed information from sqlite db, we do it only for feeds defined in urls file.
     fn get_feed_data(&self, urls: Vec<String>) -> Result<Vec<Arc<RefCell<Feed>>>, SQLiteError> {
         let repeat_vars = |c| {
             assert_ne!(c, 0);

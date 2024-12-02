@@ -34,6 +34,7 @@ fn main() {
     std::process::exit(0);
 }
 
+/// Initialize configuration and fetch auxiliary data.
 fn init(args: &Args) -> Option<Box<dyn Error>> {
     match cold_start(args) {
         Err(e)=> Some(e),
@@ -41,13 +42,15 @@ fn init(args: &Args) -> Option<Box<dyn Error>> {
     }
 }
 
+/// Faciliate building and outputting feeds and template
+/// data.
 fn build(args: &Args) -> Option<Box<dyn Error>> {
     info!("Build command called");
     let controller = match BuildController::init(&args) {
         Err(e) => return Some(e),
         Ok(ctrl) => ctrl,
     };
-    match controller.process_feeds() {
+    match controller.build() {
         Err(e) => return Some(e),
         _ => return None,
     };

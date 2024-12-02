@@ -6,6 +6,7 @@ use dialoguer::{theme::ColorfulTheme, Confirm, Input};
 
 use std::path::Path;
 
+/// Prompt for input containing string value.
 pub fn prompt_string(default: String, prompt: &str) -> Result<String, Box<dyn Error>> {
     let theme: ColorfulTheme = ColorfulTheme {
         values_style: Style::new().yellow().dim(),
@@ -18,6 +19,7 @@ pub fn prompt_string(default: String, prompt: &str) -> Result<String, Box<dyn Er
     return Ok(result);
 }
 
+/// Prompt for input containing path.
 pub fn prompt_path(
     default: &Path,
     check_exists: bool,
@@ -48,6 +50,7 @@ pub fn prompt_path(
     }
 }
 
+/// Prompt for input containing integer.
 pub fn prompt_int(default: u64, prompt: &str) -> Result<u64, Box<dyn Error>> {
     loop {
         let prompt_result = prompt_string(default.to_string(), prompt)?;
@@ -61,6 +64,7 @@ pub fn prompt_int(default: u64, prompt: &str) -> Result<u64, Box<dyn Error>> {
     }
 }
 
+/// Prompt for confirmation.
 pub fn confirm(default: bool, prompt: &str) -> bool {
     Confirm::with_theme(&ColorfulTheme::default())
         .with_prompt(prompt)

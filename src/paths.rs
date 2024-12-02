@@ -14,6 +14,7 @@ const LIVEBOAT_BUILD_DIRNAME: &str = "liveboat_build";
 const LIVEBOAT_CONFIG_DIRNAME: &str = ".config/liveboat";
 const LIVEBOAT_TEMPLATES_DIRNAME: &str = "templates";
 
+/// This module stores all the paths used by the application.
 #[derive(Debug, Default)]
 pub struct Paths {
     /// Default path to build directory used to store generated output.
@@ -43,6 +44,8 @@ fn generate_random_string(len: usize) -> String {
 }
 
 impl Paths {
+
+    /// Initialize default paths.
     pub fn new(config_file_path: &Option<String>) -> Result<Paths, FilesystemError> {
         let mut paths = Paths {
             cache_file: PathBuf::new(),
@@ -68,7 +71,8 @@ impl Paths {
 
         return Ok(paths);
     }
-
+    
+    /// Update paths with those passed by the used when invoking via cli.
     pub fn update_with_args(&mut self, args: &Args) -> Result<(), FilesystemError> {
         let n_config = NConfig::new();
 
@@ -85,7 +89,8 @@ impl Paths {
         )?;
         Ok(())
     }
-
+    
+    /// Update with paths as saved in the options file.
     pub fn update_with_opts(
         &mut self,
         url_file: &String,
@@ -98,7 +103,8 @@ impl Paths {
         self.build_dir = PathBuf::from(build_dir);
         self.template_path = self.template_dir.join(template_name)
     }
-
+    
+    /// Check if all the paths required for app operation are correct.
     pub fn check_all(&self) -> Result<(), FilesystemError> {
         if !self.url_file.is_file() {
             return Err(FilesystemError::PathDoesNotExist(self.url_file.clone()));
@@ -116,7 +122,7 @@ impl Paths {
         }
         Ok(())
     }
-
+    
     pub fn initialized(&self) -> bool {
         return self.config_file.is_file();
     }
@@ -182,6 +188,8 @@ impl fmt::Display for Paths {
     }
 }
 
+/// Set path based on the argument passed by the user
+/// (if available), also resolves it to absolute path.
 fn path_with_argval(
     arg: &Option<String>,
     check_exists: bool,

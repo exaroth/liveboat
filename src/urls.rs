@@ -5,6 +5,8 @@ use log::info;
 use libnewsboat::matcher::Matcher;
 use libnewsboat::utils as libutils;
 
+/// Representation of single url based feed,
+/// this will also include file based feeds.
 #[derive(Debug, Clone)]
 pub struct URLFeed {
     pub url: String,
@@ -13,11 +15,14 @@ pub struct URLFeed {
     pub title_override: Option<String>,
 }
 
+/// Representation of query based feed.
 pub struct QueryFeed {
     pub title: String,
     pub matcher: Matcher,
 }
 
+/// Module used for operating on the 
+/// Newsboat urls file.
 #[derive(Clone, Debug)]
 pub struct UrlReader {
     lines: Vec<String>,
@@ -30,7 +35,9 @@ impl UrlReader {
         u.read(url_fpath);
         return u;
     }
-
+    
+    /// Read the lines of the urls file, filtering out 
+    /// comments and empty lines.
     fn read(&mut self, path: &Path) {
         let mut result: Vec<String> = Vec::new();
         for line in read_to_string(path).unwrap().lines() {
@@ -43,7 +50,8 @@ impl UrlReader {
         }
         self.lines = result;
     }
-
+    
+    /// Process tokens associated with single url feed.
     fn get_http_feed(&self, tokens: &Vec<String>) -> URLFeed {
         info!("Processing http feed");
         let mut feed = URLFeed {
@@ -76,7 +84,9 @@ impl UrlReader {
         info!("URL feed after: {}", format!("{:?}", feed));
         return feed;
     }
+    
 
+    /// Fetch all url feeds as defined in urls file.
     pub fn get_url_feeds(&self) -> Vec<URLFeed> {
         info!("Retrieving url feeds from url file");
         let mut result = Vec::new();
@@ -97,7 +107,8 @@ impl UrlReader {
         }
         result
     }
-
+    
+    /// Fetch all query urls as defined in urls file.
     pub fn get_query_urls(&self) -> Result<Vec<QueryFeed>, String> {
         info!("Retrieving query urls");
         let mut results = Vec::new();
