@@ -1,4 +1,3 @@
-use rand::{distributions::Alphanumeric, Rng};
 use resolve_path::PathResolveExt;
 use std::fmt;
 use std::fs;
@@ -8,6 +7,7 @@ use libnewsboat::configpaths::ConfigPaths as NConfig;
 
 use crate::args::Args;
 use crate::errors::FilesystemError;
+use crate::utils::generate_random_string;
 
 const LIVEBOAT_CONFIG_FILENAME: &str = "liveboat_config.toml";
 const LIVEBOAT_BUILD_DIRNAME: &str = "liveboat_build";
@@ -35,16 +35,7 @@ pub struct Paths {
     template_path: PathBuf,
 }
 
-fn generate_random_string(len: usize) -> String {
-    return rand::thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(len)
-        .map(char::from)
-        .collect();
-}
-
 impl Paths {
-
     /// Initialize default paths.
     pub fn new(config_file_path: &Option<String>) -> Result<Paths, FilesystemError> {
         let mut paths = Paths {
@@ -71,7 +62,7 @@ impl Paths {
 
         return Ok(paths);
     }
-    
+
     /// Update paths with those passed by the used when invoking via cli.
     pub fn update_with_args(&mut self, args: &Args) -> Result<(), FilesystemError> {
         let n_config = NConfig::new();
@@ -89,7 +80,7 @@ impl Paths {
         )?;
         Ok(())
     }
-    
+
     /// Update with paths as saved in the options file.
     pub fn update_with_opts(
         &mut self,
@@ -103,7 +94,7 @@ impl Paths {
         self.build_dir = PathBuf::from(build_dir);
         self.template_path = self.template_dir.join(template_name)
     }
-    
+
     /// Check if all the paths required for app operation are correct.
     pub fn check_all(&self) -> Result<(), FilesystemError> {
         if !self.url_file.is_file() {
@@ -122,7 +113,7 @@ impl Paths {
         }
         Ok(())
     }
-    
+
     pub fn initialized(&self) -> bool {
         return self.config_file.is_file();
     }

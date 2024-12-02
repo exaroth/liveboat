@@ -1,6 +1,8 @@
 use std::error::Error;
 use std::fs;
 
+use rand::{distributions::Alphanumeric, Rng};
+
 use crate::args::Args;
 use crate::cli;
 use crate::opts::Options;
@@ -75,4 +77,13 @@ fn initialization_wizard(opts: &mut Options, paths: &Paths) -> Result<(), Box<dy
     )?;
     info!("build dir is : {}", opts.build_dir);
     Ok(())
+}
+
+/// Generate random string with given length.
+pub fn generate_random_string(len: usize) -> String {
+    return rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(len)
+        .map(char::from)
+        .collect();
 }

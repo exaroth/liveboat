@@ -1,7 +1,7 @@
+use log::{info, trace, warn};
 use std::cell::RefCell;
 use std::error::Error;
 use std::sync::Arc;
-use log::{info, trace, warn};
 
 use rusqlite::Error as SQLiteError;
 use rusqlite::{params_from_iter, Connection, Result, Rows};
@@ -17,7 +17,7 @@ use crate::template::Context;
 use crate::urls::UrlReader;
 
 /// Build controller faciliates the process of parsing url
-/// file, retrieving data from db, generating feed objects
+/// files, retrieving feed information from db, generating feed objects
 /// and building output files.
 #[derive(Debug)]
 pub struct BuildController {
@@ -78,7 +78,7 @@ impl BuildController {
         info!("Controller initialized");
         Ok(ctrl)
     }
-    
+
     /// Main template method used for processing build command.
     /// We first retrieve feed and article information from database
     /// as well as parse urls file then create feed and query feed objects
@@ -141,7 +141,7 @@ impl BuildController {
         }
         Ok(())
     }
-    
+
     /// Populate feeds with article items, filter out read articles based on the opt value.
     fn populate_url_feeds(&self, feeds: &Vec<Arc<RefCell<Feed>>>, feed_items: &Vec<FeedItem>) {
         info!("Populating feeds with feed items");
@@ -149,7 +149,7 @@ impl BuildController {
             if let Some(f) = feeds.iter().find(|f| f.borrow().url() == item.feed_url()) {
                 if self.options.show_read_articles == false && item.is_unread() == false {
                     info!("Skipping item: {}", item);
-                    continue
+                    continue;
                 }
                 let mut i = item.clone();
                 i.set_ptr(Arc::clone(f));
@@ -161,8 +161,8 @@ impl BuildController {
             f.borrow_mut().sort_items()
         }
     }
-    
-    /// Retrieve article data from db and populate it with data from urls. 
+
+    /// Retrieve article data from db and populate it with data from urls.
     fn get_url_feeds(&self) -> Result<Vec<Arc<RefCell<Feed>>>, Box<dyn Error>> {
         let url_feeds = self.url_reader.get_url_feeds();
         let urls = url_feeds.iter().map(|u| u.url.clone()).collect();
@@ -179,20 +179,23 @@ impl BuildController {
         }
         Ok(feed_data)
     }
-    
+
     /// Retrieve article data from sqlite db.
     fn get_feed_item_data(&self) -> Result<Vec<FeedItem>, Box<dyn Error>> {
         let conn = &self.get_db_connection()?;
         let mut stmt = conn.prepare(FEED_ITEMS_SQL)?;
-        info!("Prepared statement for feed retrieval: {}", stmt.expanded_sql().unwrap());
+        info!(
+            "Prepared statement for feed retrieval: {}",
+            stmt.expanded_sql().unwrap()
+        );
         // NOTE: we cant interpolate days integer directly with rusql
         let days_s = format!("-{} days", self.options.time_threshold);
         info!("Day threshold param == {}", days_s);
-        let mut r = stmt.query(rusqlite::named_params!{"$days": days_s})?;
+        let mut r = stmt.query(rusqlite::named_params! {"$days": days_s})?;
         let results = self.load_feed_items(&mut r)?;
         Ok(results)
     }
-    
+
     /// Process query feed objects as defined in urls file - this is done by matching
     /// rules for each article against those defined by the user, we generate feed object
     /// for each query feed marking it appropriately.
@@ -209,8 +212,8 @@ impl BuildController {
                     match query_f.matcher.matches(i) {
                         Err(e) => {
                             warn!("Matcher error: {:?}", e);
-                            continue
-                        },
+                            continue;
+                        }
                         Ok(matches) => {
                             if matches {
                                 trace!("Query {} matched against item {}]", query_f.title, i);
@@ -225,12 +228,12 @@ impl BuildController {
         }
         Ok(result)
     }
-    
+
     fn get_db_connection(&self) -> Result<Connection, SQLiteError> {
         let conn = Connection::open(&self.paths.cache_file())?;
         Ok(conn)
     }
-    
+
     /// Instantiate feed objects based on the rows retrieved from db.
     fn load_feed_items(&self, rows: &mut Rows<'_>) -> Result<Vec<FeedItem>, SQLiteError> {
         let mut results: Vec<FeedItem> = Vec::new();
@@ -241,7 +244,6 @@ impl BuildController {
         }
         Ok(results)
     }
-    
 
     /// Retrieve feed information from sqlite db, we do it only for feeds defined in urls file.
     fn get_feed_data(&self, urls: Vec<String>) -> Result<Vec<Arc<RefCell<Feed>>>, SQLiteError> {
