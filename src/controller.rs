@@ -6,7 +6,7 @@ use rusqlite::Error as SQLiteError;
 use rusqlite::{params_from_iter, Connection, Result, Rows};
 
 use crate::args::Args;
-use crate::builder::Builder;
+use crate::builder::SinglePageBuilder;
 use crate::errors::FilesystemError;
 use crate::feed::Feed;
 use crate::feed_item::FeedItem;
@@ -39,8 +39,8 @@ const FEED_ITEMS_SQL: &str = "SELECT
     items.flags AS flags
 FROM rss_item AS items
 JOIN rss_feed AS feed ON feed.rssurl = items.feedurl
-WHERE datetime(items.pubDate, 'unixepoch') >= datetime('now', '-10 days')
-AND items.deleted=0;
+WHERE datetime(items.pubDate, 'unixepoch') >= datetime('now', $days )
+AND items.deleted=0
 ";
 
 impl BuildController {
@@ -75,7 +75,7 @@ impl BuildController {
         self.populate_url_feeds(&feeds, &feed_items);
         let q_feeds = self.get_query_feeds(&feeds)?;
         let ctx = Context::init(&feeds, &q_feeds, &self.options);
-        let builder = Builder::init(
+        let builder = SinglePageBuilder::init(
             self.paths.tmp_dir(),
             self.paths.build_dir(),
             self.paths.template_path(),
@@ -95,7 +95,7 @@ impl BuildController {
     /// Generate json files for each feed.
     fn save_json_feeds(
         &self,
-        builder: &Builder<Context>,
+        builder: &SinglePageBuilder<Context>,
         query_feeds: &Vec<Feed>,
         url_feeds: &Vec<Arc<RefCell<Feed>>>,
     ) -> Result<(), Box<dyn Error>> {
@@ -110,7 +110,7 @@ impl BuildController {
 
     fn save_json_feed(
         &self,
-        builder: &Builder<Context>,
+        builder: &SinglePageBuilder<Context>,
         feed: &Feed,
     ) -> Result<(), Box<dyn Error>> {
         if feed.is_empty() || feed.is_hidden() {
@@ -160,7 +160,9 @@ impl BuildController {
     fn get_feed_item_data(&self) -> Result<Vec<FeedItem>, Box<dyn Error>> {
         let conn = &self.get_db_connection()?;
         let mut stmt = conn.prepare(FEED_ITEMS_SQL)?;
-        let mut r = stmt.query([])?;
+        // NOTE: we cant interpolate days integer directly with rusql
+        let days_s = format!("-{} days", self.options.time_threshold);
+        let mut r = stmt.query(rusqlite::named_params!{"$days": days_s})?;
         let results = self.load_feed_items(&mut r)?;
         Ok(results)
     }

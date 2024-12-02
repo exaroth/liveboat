@@ -39,7 +39,7 @@ impl Options {
             remote_url: String::new(),
             show_read_articles: true,
             template_name: String::from("default"),
-            time_threshold: 10,
+            time_threshold: 20,
             exclude_tags: Vec::new(),
             exclude_feeds: Vec::new(),
             newsboat_urls_file: String::new(),

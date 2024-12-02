@@ -6,7 +6,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::Error as IOError;
 use std::io::ErrorKind;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::{fs, io};
 
 use handlebars::Handlebars;
@@ -15,21 +15,21 @@ const FEEDS_DIRNAME: &str = "feeds";
 const INCLUDE_DIRNAME: &str = "include";
 const INDEX_FILENAME: &str = "index";
 
-pub struct Builder<'a, C> {
+pub struct SinglePageBuilder<'a, C> {
     template_path: &'a Path,
     build_dir: &'a Path,
     tmp_dir: &'a Path,
     context: C,
 }
 
-impl<'a, C: serde::Serialize> Builder<'a, C> {
+impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
     pub fn init(
         tmp_dir: &'a Path,
         build_dir: &'a Path,
         template_path: &'a Path,
         template_name: &String,
         context: C,
-    ) -> Result<Builder<'a, C>, IOError> {
+    ) -> Result<SinglePageBuilder<'a, C>, IOError> {
         // TODO: use src when dev mode is enabled
         if !template_path.try_exists()? {
             return Err(IOError::new(
@@ -51,7 +51,7 @@ impl<'a, C: serde::Serialize> Builder<'a, C> {
             .into());
         };
 
-        Ok(Builder {
+        Ok(SinglePageBuilder {
             template_path,
             build_dir,
             tmp_dir,

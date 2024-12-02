@@ -61,8 +61,8 @@ impl FeedItem {
         return self.date;
     }
     
-	pub fn age(&self) -> i64 {
     /// Return age of the article (in days).
+	pub fn age(&self) -> i64 {
 		let now = Local::now();
 		if let Some(d) = DateTime::from_timestamp(self.date, 0) {
 			let delta = now.signed_duration_since(d);

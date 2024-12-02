@@ -28,11 +28,11 @@ fn initialization_wizard(opts: &mut Options, paths: &Paths) -> Result<(), Box<dy
     )?;
     opts.time_threshold = cli::prompt_int(
         opts.time_threshold,
-        "Enter number of days in the past Liveboat should generate feeds for",
+        "Enter number of days in the past Liveboat should generate feeds for:",
     )?;
     opts.show_read_articles = cli::confirm(
         opts.show_read_articles,
-        "Should Liveboat include read articles in the feeds?",
+        "Should feed page include articles marked as read by Newsboat?",
     );
     opts.build_dir = cli::prompt_path(
         &paths.build_dir(),
