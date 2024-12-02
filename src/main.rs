@@ -17,9 +17,11 @@ use std::error::Error;
 use crate::args::{Args, Command};
 use crate::controller::BuildController;
 use crate::utils::cold_start;
+use log::{debug, error, info, trace, warn};
 
 fn main() {
     let args = Args::parse();
+    utils::init_logger(args.debug);
     let exec_result = match args.command {
         Command::Init => init(&args),
         Command::Build => build(&args),

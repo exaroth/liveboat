@@ -4,6 +4,7 @@ use std::io::Write;
 use std::path::Path;
 use std::str;
 use toml;
+use std::fmt;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Options {
@@ -69,4 +70,27 @@ impl Options {
         return &self.template_name
     }
 
+}
+
+impl fmt::Display for Options {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Paths::
+            title {}:
+            show_read: {}
+            template_name: {}
+            urls_file: {}
+            cache_file: {}
+            time_threshold: {},
+            build_dir: {}",
+            self.title,
+            self.show_read_articles,
+            self.template_name,
+            self.newsboat_urls_file,
+            self.newsboat_cache_file,
+            self.time_threshold,
+            self.build_dir,
+        )
+    }
 }

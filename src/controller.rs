@@ -64,7 +64,7 @@ impl BuildController {
             paths: paths,
             options: opts,
             url_reader: url_reader,
-            debug: args.debug.unwrap_or(false),
+            debug: args.debug,
         };
         Ok(ctrl)
     }

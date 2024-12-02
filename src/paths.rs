@@ -1,5 +1,6 @@
 use rand::{distributions::Alphanumeric, Rng};
 use resolve_path::PathResolveExt;
+use std::fmt;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -75,13 +76,8 @@ impl Paths {
             return Err(FilesystemError::Unknown(n_config.error_message().into()));
         };
         self.url_file = path_with_argval(&args.url_file, true, self.url_file.clone())?;
-        self.cache_file =
-            path_with_argval(&args.cache_file, true, self.cache_file.clone())?;
-        self.build_dir = path_with_argval(
-            &args.build_dir,
-            false,
-            self.build_dir.clone(),
-        )?;
+        self.cache_file = path_with_argval(&args.cache_file, true, self.cache_file.clone())?;
+        self.build_dir = path_with_argval(&args.build_dir, false, self.build_dir.clone())?;
         self.template_path = path_with_argval(
             &args.template_path,
             true,
@@ -90,7 +86,13 @@ impl Paths {
         Ok(())
     }
 
-    pub fn update_with_opts(&mut self, url_file: &String, cache_file: &String, build_dir: &String, template_name: &String) {
+    pub fn update_with_opts(
+        &mut self,
+        url_file: &String,
+        cache_file: &String,
+        build_dir: &String,
+        template_name: &String,
+    ) {
         self.url_file = PathBuf::from(url_file);
         self.cache_file = PathBuf::from(cache_file);
         self.build_dir = PathBuf::from(build_dir);
@@ -99,22 +101,24 @@ impl Paths {
 
     pub fn check_all(&self) -> Result<(), FilesystemError> {
         if !self.url_file.is_file() {
-            return Err(FilesystemError::PathDoesNotExist(self.url_file.clone()))
+            return Err(FilesystemError::PathDoesNotExist(self.url_file.clone()));
         }
         if !self.cache_file.is_file() {
-            return Err(FilesystemError::PathDoesNotExist(self.cache_file.clone()))
+            return Err(FilesystemError::PathDoesNotExist(self.cache_file.clone()));
         }
         if !self.config_file.is_file() {
-            return Err(FilesystemError::PathDoesNotExist(self.config_file.clone()))
+            return Err(FilesystemError::PathDoesNotExist(self.config_file.clone()));
         }
         if !self.template_path.is_dir() {
-            return Err(FilesystemError::PathDoesNotExist(self.template_path.clone()))
+            return Err(FilesystemError::PathDoesNotExist(
+                self.template_path.clone(),
+            ));
         }
         Ok(())
     }
 
     pub fn initialized(&self) -> bool {
-        return self.config_file.is_file() && self.config_dir.is_dir();
+        return self.config_file.is_file();
     }
 
     pub fn url_file(&self) -> &Path {
@@ -152,6 +156,29 @@ impl Paths {
         // NOTE: This clause can only trigger on Windows however
         // since newsboat is not Windows compatible it should never happen
         panic!("Could not retrieve home directory");
+    }
+}
+
+impl fmt::Display for Paths {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Paths::
+            config_file {}:
+            config_dir: {}
+            tmp_dir: {}
+            template_path: {}
+            build_dir: {}
+            cache_file: {},
+            url_filr: {}",
+            self.config_file.display(),
+            self.config_dir.display(),
+            self.tmp_dir.display(),
+            self.template_path.display(),
+            self.build_dir.display(),
+            self.cache_file.display(),
+            self.url_file.display()
+        )
     }
 }
 

@@ -55,8 +55,11 @@ pub struct Args {
     /// path to liveboat config file.
     #[arg(long)]
     pub config_file: Option<String>,
-    #[arg(long)]
-    pub debug: Option<bool>,
+    #[arg(
+        long,
+        default_value_t = false
+        )]
+    pub debug: bool,
     /// Command to execute.
     #[arg(
         short = 'x',
