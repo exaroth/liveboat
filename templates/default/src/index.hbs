@@ -26,8 +26,9 @@
   </head>
   <body>
       <script>
-      window.build_time = {{ build_time }};
+      window.buildTime = {{ build_time }};
       window.pageTitle = '{{ options.title }}';
+      window.siteUrl = 'localhost';
       window.feeds = [
           {{#each feeds}}
           {

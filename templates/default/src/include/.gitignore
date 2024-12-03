@@ -29,3 +29,4 @@ coverage
 
 *.tsbuildinfo
 index.html
+package-lock.json

@@ -11,6 +11,7 @@ use std::fmt;
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Options {
     pub title: String,
+    pub site_url: String,
     pub show_read_articles: bool,
     pub newsboat_urls_file: String,
     pub newsboat_cache_file: String,
@@ -37,6 +38,7 @@ impl Options {
     pub fn default() -> Options {
         return Options {
             title: String::from("Liveboat feed page"),
+            site_url: String::new(),
             remote_url: String::new(),
             show_read_articles: true,
             template_name: String::from("default"),
@@ -80,6 +82,7 @@ impl fmt::Display for Options {
             f,
             "Opts::
             title {}:
+            site_url {}:
             show_read: {}
             template_name: {}
             urls_file: {}
@@ -87,6 +90,7 @@ impl fmt::Display for Options {
             time_threshold: {},
             build_dir: {}",
             self.title,
+            self.site_url,
             self.show_read_articles,
             self.template_name,
             self.newsboat_urls_file,

@@ -27,8 +27,9 @@
   </head>
   <body>
       <script>
-      window.build_time = {{ build_time }};
+      window.buildTime = {{ build_time }};
       window.pageTitle = '{{ options.title }}';
+      window.siteUrl = '{{ options.site_url }}';
       window.feeds = [
           {{#each feeds}}
           {
@@ -51,7 +52,7 @@
       </script>
       <div id="app"></div>
 
-    <script type="module" src="./index.js"></script>
+    <script type="module" src="./assets/index.js"></script>
 
   </body>
 </html>
