@@ -2,7 +2,7 @@
 import IconGithub from './icons/IconGithub.vue'
 import IconHeart from './icons/IconHeart.vue'
 
-const buildTime = new Date(window.build_time * 1000)
+const buildTime = new Date(window.buildTime * 1000)
 const pageTitle = window.pageTitle
 </script>
 
