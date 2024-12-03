@@ -92,9 +92,9 @@ impl Paths {
         build_dir: &String,
         template_name: &String,
     ) {
-        self.url_file = PathBuf::from(url_file);
-        self.cache_file = PathBuf::from(cache_file);
-        self.build_dir = PathBuf::from(build_dir);
+        self.url_file = url_file.resolve().to_path_buf();
+        self.cache_file = cache_file.resolve().to_path_buf();
+        self.build_dir = build_dir.resolve().to_path_buf();
         self.template_path = self.template_dir.join(template_name)
     }
 
@@ -169,7 +169,7 @@ impl fmt::Display for Paths {
             tmp_dir: {}
             template_path: {}
             build_dir: {}
-            cache_file: {},
+            cache_file: {}
             url_file: {}",
             self.config_file.display(),
             self.config_dir.display(),
