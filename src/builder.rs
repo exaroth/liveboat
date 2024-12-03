@@ -1,6 +1,3 @@
-// TODO use current dir by default for building
-// if unnamed arg passed use that instead
-
 use log::info;
 use std::error::Error;
 use std::fs::File;

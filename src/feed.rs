@@ -165,3 +165,56 @@ impl fmt::Debug for Feed {
             .finish()
     }
 }
+
+/// Compact version of the feed used for processing in feed lists.
+#[derive(serde::Serialize)]
+pub struct FeedCompact {
+    id: String,
+    title: String,
+    display_title: String,
+    url: String,
+    feedlink: String,
+    hidden: bool,
+    tags: Vec<String>,
+    num_items: usize,
+}
+
+impl FeedCompact {
+    fn from_feed(f: &Feed) -> FeedCompact {
+        return FeedCompact {
+            id: f.id.clone(),
+            title: f.title.clone(),
+            display_title: f.display_title.clone(),
+            url: f.url.clone(),
+            feedlink: f.feedlink.clone(),
+            hidden: f.hidden.clone(),
+            tags: f.tags.clone(),
+            num_items: f.items.len(),
+        };
+    }
+}
+
+/// Representation of feed list.
+#[derive(serde::Serialize)]
+pub struct FeedList {
+    feeds: Vec<FeedCompact>,
+}
+
+impl FeedList {
+    pub fn new() -> FeedList {
+        let f = FeedList { feeds: Vec::new() };
+        return f;
+    }
+
+    pub fn from_vec(v: Vec<Feed>) -> FeedList {
+        let mut f = FeedList::new();
+        for item in v {
+            f.feeds.push(FeedCompact::from_feed(&item));
+        }
+        return f;
+    }
+
+    pub fn add_feed(&mut self, f: &Feed) {
+        self.feeds.push(FeedCompact::from_feed(f))
+    }
+}

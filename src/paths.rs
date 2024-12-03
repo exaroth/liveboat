@@ -2,6 +2,7 @@ use resolve_path::PathResolveExt;
 use std::fmt;
 use std::fs;
 use std::path::{Path, PathBuf};
+use log::warn;
 
 use libnewsboat::configpaths::ConfigPaths as NConfig;
 
@@ -188,11 +189,11 @@ fn path_with_argval(
 ) -> Result<PathBuf, FilesystemError> {
     if let Some(argval) = arg {
         match fs::canonicalize(&argval.resolve()) {
-            Err(_) => {
+            Err(e) => {
                 if check_exists {
                     return Err(FilesystemError::InvalidPathProvided(argval.clone()));
                 }
-                // TODO: log nonexistent path otherwise
+                warn!("Error resolving path: {:?}, using default path: {}", e, default.display());
                 return Ok(default);
             }
             Ok(p) => return Ok(p),

@@ -9,7 +9,7 @@ use rusqlite::{params_from_iter, Connection, Result, Rows};
 use crate::args::Args;
 use crate::builder::SinglePageBuilder;
 use crate::errors::FilesystemError;
-use crate::feed::Feed;
+use crate::feed::{Feed, FeedList};
 use crate::feed_item::FeedItem;
 use crate::opts::Options;
 use crate::paths::Paths;
@@ -119,8 +119,29 @@ impl BuildController {
         for f in query_feeds {
             self.save_json_feed(builder, f)?;
         }
+        let q_list = FeedList::from_vec(query_feeds.clone());
+        self.save_json_feedlist(&builder, &q_list, String::from("query_feeds"))?;
+        let mut f_list = FeedList::new();
         for f in url_feeds {
-            self.save_json_feed(&builder, &f.borrow())?;
+            let feed = f.borrow();
+            self.save_json_feed(&builder, &feed)?;
+            if !feed.is_empty() && !feed.is_hidden() {
+                f_list.add_feed(&feed);
+            }
+        }
+        self.save_json_feedlist(&builder, &f_list, String::from("feeds"))?;
+        Ok(())
+    }
+    fn save_json_feedlist(
+        &self,
+        builder: &SinglePageBuilder<Context>,
+        feedlist: &FeedList,
+        name: String,
+    ) -> Result<(), Box<dyn Error>> {
+        if self.debug {
+            builder.save_feed_data(&name, serde_json::to_string_pretty(&feedlist)?.as_bytes())?;
+        } else {
+            builder.save_feed_data(&name, serde_json::to_string(&feedlist)?.as_bytes())?;
         }
         Ok(())
     }

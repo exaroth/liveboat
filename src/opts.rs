@@ -11,18 +11,16 @@ use std::fmt;
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Options {
     pub title: String,
-    remote_url: String,
     pub show_read_articles: bool,
-    template_name: String,
-
-    // TODO
     pub newsboat_urls_file: String,
     pub newsboat_cache_file: String,
     pub time_threshold: u64,
     pub build_dir: String,
+    template_name: String,
+
+    remote_url: String,
     exclude_tags: Vec<String>,
     exclude_feeds: Vec<String>,
-    // TODO
 }
 
 impl Options {
