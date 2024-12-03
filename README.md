@@ -1,6 +1,8 @@
-![logo](logo.png)
+<img align="left" width="100" height="100" src="logo.png">
+<br/>
 
-TODO: demo link
+# Liveboat
+<br/>
 
 ### Installation
 
