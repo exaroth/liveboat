@@ -5,8 +5,8 @@ use rusqlite::Error as SQLiteError;
 use rusqlite::Row;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 use std::cell::RefCell;
-use std::sync::Arc;
 use std::fmt;
+use std::sync::Arc;
 
 /// Container for storing and operating
 /// on the newsboat article items.
@@ -28,7 +28,6 @@ pub struct FeedItem {
 }
 
 impl FeedItem {
-
     /// Initialize new article item from db row.
     pub fn from_db_row(row: &Row) -> Result<FeedItem, SQLiteError> {
         let feed_item = FeedItem {
@@ -52,7 +51,7 @@ impl FeedItem {
     pub fn feed_url(&self) -> &String {
         return &self.feed_url;
     }
-    
+
     /// set a pointer to feed associated with the article.
     pub fn set_ptr(&mut self, f_p: Arc<RefCell<Feed>>) {
         self.feed_ptr = Some(f_p)
@@ -61,23 +60,22 @@ impl FeedItem {
     pub fn date(&self) -> i64 {
         return self.date;
     }
-    
+
     /// Return age of the article (in days).
-	pub fn age(&self) -> i64 {
-		let now = Local::now();
-		if let Some(d) = DateTime::from_timestamp(self.date, 0) {
-			let delta = now.signed_duration_since(d);
-			return delta.num_days()
-		};
-		return 0
-	}
-	pub fn is_unread(&self) -> bool {
-		return self.unread
-	}
+    pub fn age(&self) -> i64 {
+        let now = Local::now();
+        if let Some(d) = DateTime::from_timestamp(self.date, 0) {
+            let delta = now.signed_duration_since(d);
+            return delta.num_days();
+        };
+        return 0;
+    }
+    pub fn is_unread(&self) -> bool {
+        return self.unread;
+    }
 }
 
 impl Matchable for FeedItem {
-    
     /// Returns filter attributes which are used by newsboat
     /// to generate query feeds.
     fn attribute_value(&self, attr: &str) -> Option<String> {
@@ -124,11 +122,7 @@ impl fmt::Display for FeedItem {
             url: {}
             date: {}
             unread: {}",
-            self.feed_url,
-            self.title,
-            self.url,
-            self.date,
-            self.unread,
+            self.feed_url, self.title, self.url, self.date, self.unread,
         )
     }
 }
@@ -144,7 +138,6 @@ fn opt_attr_val(attr: &Option<String>) -> Option<String> {
 }
 
 impl Serialize for FeedItem {
-
     /// JSON serialization attributes.
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where

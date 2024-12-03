@@ -1,8 +1,8 @@
+use log::warn;
 use resolve_path::PathResolveExt;
 use std::fmt;
 use std::fs;
 use std::path::{Path, PathBuf};
-use log::warn;
 
 use libnewsboat::configpaths::ConfigPaths as NConfig;
 
@@ -10,10 +10,10 @@ use crate::args::Args;
 use crate::errors::FilesystemError;
 use crate::utils::generate_random_string;
 
-const LIVEBOAT_CONFIG_FILENAME: &str = "liveboat_config.toml";
-const LIVEBOAT_BUILD_DIRNAME: &str = "liveboat_build";
-const LIVEBOAT_CONFIG_DIRNAME: &str = ".config/liveboat";
-const LIVEBOAT_TEMPLATES_DIRNAME: &str = "templates";
+const LIVEBOAT_DEFAULT_CONFIG_FILENAME: &str = "config.toml";
+const LIVEBOAT_DEFAULT_BUILD_DIRNAME: &str = "liveboat_build";
+const LIVEBOAT_DEFAULT_CONFIG_DIRNAME: &str = ".config/liveboat";
+const LIVEBOAT_DEFAULT_TEMPLATES_DIRNAME: &str = "templates";
 
 /// This module stores all the paths used by the application.
 #[derive(Debug, Default)]
@@ -50,27 +50,29 @@ impl Paths {
             config_dir: PathBuf::new(),
         };
 
-        paths.config_dir = paths.home().join(LIVEBOAT_CONFIG_DIRNAME);
-        paths.template_dir = paths.config_dir.join(LIVEBOAT_TEMPLATES_DIRNAME);
+        paths.config_dir = paths.home().join(LIVEBOAT_DEFAULT_CONFIG_DIRNAME);
+        paths.template_dir = paths.config_dir.join(LIVEBOAT_DEFAULT_TEMPLATES_DIRNAME);
         paths.tmp_dir =
             std::env::temp_dir().join(format!("liveboat-{}", generate_random_string(5)));
         paths.config_file = path_with_argval(
             config_file_path,
             false,
-            paths.config_dir.join(LIVEBOAT_CONFIG_FILENAME),
+            paths.config_dir.join(LIVEBOAT_DEFAULT_CONFIG_FILENAME),
         )?;
-        paths.build_dir = paths.home().join(LIVEBOAT_BUILD_DIRNAME);
+        paths.build_dir = paths.home().join(LIVEBOAT_DEFAULT_BUILD_DIRNAME);
+        let n_config = NConfig::new();
+
+        if !n_config.initialized() {
+            return Err(FilesystemError::Unknown(n_config.error_message().into()));
+        };
+        paths.url_file = n_config.url_file().to_path_buf();
+        paths.cache_file = n_config.cache_file().to_path_buf();
 
         return Ok(paths);
     }
 
     /// Update paths with those passed by the used when invoking via cli.
     pub fn update_with_args(&mut self, args: &Args) -> Result<(), FilesystemError> {
-        let n_config = NConfig::new();
-
-        if !n_config.initialized() {
-            return Err(FilesystemError::Unknown(n_config.error_message().into()));
-        };
         self.url_file = path_with_argval(&args.url_file, true, self.url_file.clone())?;
         self.cache_file = path_with_argval(&args.cache_file, true, self.cache_file.clone())?;
         self.build_dir = path_with_argval(&args.build_dir, false, self.build_dir.clone())?;
@@ -193,7 +195,11 @@ fn path_with_argval(
                 if check_exists {
                     return Err(FilesystemError::InvalidPathProvided(argval.clone()));
                 }
-                warn!("Error resolving path: {:?}, using default path: {}", e, default.display());
+                warn!(
+                    "Error resolving path: {:?}, using default path: {}",
+                    e,
+                    default.display()
+                );
                 return Ok(default);
             }
             Ok(p) => return Ok(p),

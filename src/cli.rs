@@ -1,5 +1,6 @@
 use resolve_path::PathResolveExt;
 use std::error::Error;
+use log::info;
 
 use console::Style;
 use dialoguer::{theme::ColorfulTheme, Confirm, Input};
@@ -35,8 +36,8 @@ pub fn prompt_path(
             .with_prompt(prompt)
             .default(p.clone())
             .interact()?;
-
         let resolved = prompt_result.resolve();
+        info!("Resolved path: {}", resolved.display());
         if check_exists {
             if !resolved.exists() {
                 println!(
