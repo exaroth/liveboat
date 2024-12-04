@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: install deps
-        run: sudo apt-get update && sudo apt-get install snapd
+        run: sudo apt-get update && sudo apt-get install snapd && make install
       - name: install rustup
         run: sudo snap install rustup --classic
       - name: compile
