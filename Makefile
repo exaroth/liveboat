@@ -16,9 +16,3 @@ help:
 .PHONY: install
 install:
 	git submodule update --init
-
-.PHONY: build
-install:
-	cargo build --release --target=x86_64-unknown-linux-musl 
-	git submodule update --init
-
