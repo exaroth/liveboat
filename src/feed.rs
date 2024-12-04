@@ -17,8 +17,9 @@ pub struct Feed {
     pub items: Vec<FeedItem>,
     hidden: bool,
     tags: Vec<String>,
-    is_query: bool,
 
+    _is_query: bool,
+    _order_idx: usize,
     _sorted: bool,
 }
 
@@ -33,15 +34,16 @@ impl Feed {
             hidden: false,
             items: Vec::new(),
             tags: Vec::new(),
-            is_query: false,
 
+            _is_query: false,
+            _order_idx: 0,
             _sorted: false,
         };
     }
 
     /// Initialize empty query feed, these feeds are composite of other feeds
     /// and filter params and are missing most of the feed parameters.
-    pub fn init_query_feed(title: String) -> Feed {
+    pub fn init_query_feed(title: String, line_no: usize) -> Feed {
         Feed {
             id: bs58_encode(&title).into_string(),
             title: title.clone(),
@@ -51,7 +53,9 @@ impl Feed {
             items: Vec::new(),
             hidden: false,
             tags: Vec::new(),
-            is_query: true,
+
+            _is_query: true,
+            _order_idx: line_no,
             _sorted: false,
         }
     }
@@ -73,9 +77,11 @@ impl Feed {
         tags: Vec<String>,
         hidden: bool,
         title_override: Option<String>,
+        line_no: usize,
     ) {
         self.tags = tags;
         self.hidden = hidden;
+        self._order_idx = line_no;
         if let Some(title) = title_override {
             self.display_title = title;
         }
@@ -98,6 +104,9 @@ impl Feed {
     }
     pub fn id(&self) -> &String {
         return &self.id;
+    }
+    pub fn order_idx(&self) -> &usize {
+        return &self._order_idx
     }
 }
 
@@ -161,7 +170,9 @@ impl fmt::Debug for Feed {
             .field("feedlink", &self.feedlink)
             .field("tags", &self.tags)
             .field("hidden", &self.hidden)
-            .field("is_query", &self.is_query)
+            .field("is_query", &self._is_query)
+            .field("is_sorted", &self._sorted)
+            .field("_order_idx", &self._order_idx)
             .finish()
     }
 }

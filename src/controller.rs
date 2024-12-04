@@ -188,16 +188,18 @@ impl BuildController {
         let url_feeds = self.url_reader.get_url_feeds();
         let urls = url_feeds.iter().map(|u| u.url.clone()).collect();
         trace!("List of urls to retrieve: {}", format!("{:?}", urls));
-        let feed_data = self.get_feed_data(urls)?;
+        let mut feed_data = self.get_feed_data(urls)?;
         for f in &feed_data {
             if let Some(url_feed) = url_feeds.iter().find(|u| &u.url == f.borrow().url()) {
                 f.borrow_mut().update_with_url_data(
                     url_feed.tags.clone(),
                     url_feed.hidden,
                     url_feed.title_override.clone(),
+                    url_feed.line_no,
                 );
             }
         }
+        feed_data.sort_by(|a, b| a.borrow().order_idx().cmp(b.borrow().order_idx()));
         Ok(feed_data)
     }
 
@@ -227,7 +229,7 @@ impl BuildController {
         let mut result = Vec::new();
         let query_feeds = &self.url_reader.get_query_urls()?;
         for query_f in query_feeds {
-            let mut q = Feed::init_query_feed(query_f.title.clone());
+            let mut q = Feed::init_query_feed(query_f.title.clone(), query_f.line_no);
             for f in feeds {
                 for i in &f.borrow().items {
                     match query_f.matcher.matches(i) {
@@ -247,6 +249,7 @@ impl BuildController {
             q.sort_items();
             result.push(q)
         }
+        result.sort_by(|a, b| a.order_idx().cmp(b.order_idx()));
         Ok(result)
     }
 
