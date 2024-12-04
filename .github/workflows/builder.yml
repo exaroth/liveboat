@@ -1,0 +1,36 @@
+name: release-builder
+
+on: push
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v2
+      - name: install deps
+        run: sudo apt-get update && sudo apt-get install snapd
+      - name: install rustup
+        run: sudo snap install rustup --classic
+      - name: compile
+        run: cargo build --release
+      - name: create out dir
+        run: mkdir -p out
+      - name: copy build
+        run: cp target/release/liveboat out/liveboat_release
+      - name: Commit files
+        id: commit
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "github-actions"
+          git add ./out
+          git commit -m "New build" -a
+          echo "::set-output name=push::true"
+        shell: bash
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
