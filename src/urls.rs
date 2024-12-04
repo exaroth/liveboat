@@ -13,12 +13,14 @@ pub struct URLFeed {
     pub tags: Vec<String>,
     pub hidden: bool,
     pub title_override: Option<String>,
+    pub line_no: usize,
 }
 
 /// Representation of query based feed.
 pub struct QueryFeed {
     pub title: String,
     pub matcher: Matcher,
+    pub line_no: usize,
 }
 
 /// Module used for operating on the 
@@ -52,13 +54,14 @@ impl UrlReader {
     }
     
     /// Process tokens associated with single url feed.
-    fn get_http_feed(&self, tokens: &Vec<String>) -> URLFeed {
+    fn get_http_feed(&self, tokens: &Vec<String>, line_no: usize) -> URLFeed {
         info!("Processing http feed");
         let mut feed = URLFeed {
             url: String::from(&tokens[0]),
             tags: Vec::new(),
             hidden: false,
             title_override: None,
+            line_no: line_no,
         };
         info!("Default feed: {}", format!("{:?}", feed));
         let l = tokens.len();
@@ -90,7 +93,9 @@ impl UrlReader {
     pub fn get_url_feeds(&self) -> Vec<URLFeed> {
         info!("Retrieving url feeds from url file");
         let mut result = Vec::new();
-        for line in &self.lines {
+        let linel = self.lines.len();
+        for line_no in 0..linel {
+            let line = &self.lines[line_no];
             info!("Line: {}", line);
             let tokens = libutils::tokenize_quoted(line.as_str(), " \r\n\t");
             info!("Tokens: {}", format!("{:?}", tokens));
@@ -102,7 +107,7 @@ impl UrlReader {
                 info!("Is special, skipping");
                 continue;
             }
-            let feed = self.get_http_feed(&tokens);
+            let feed = self.get_http_feed(&tokens, line_no);
             result.push(feed);
         }
         result
@@ -112,7 +117,9 @@ impl UrlReader {
     pub fn get_query_urls(&self) -> Result<Vec<QueryFeed>, String> {
         info!("Retrieving query urls");
         let mut results = Vec::new();
-        for line in &self.lines {
+        let linel = self.lines.len();
+        for line_no in 0..linel {
+            let line = &self.lines[line_no];
             let tokens = libutils::tokenize_quoted(line.as_str(), " \r\n\t");
             if tokens.is_empty() {
                 continue;
@@ -132,6 +139,7 @@ impl UrlReader {
                 Ok(r) => results.push(QueryFeed {
                     title: parts[1].clone(),
                     matcher: r,
+                    line_no: line_no
                 }),
                 Err(e) => return Err(e),
             };
