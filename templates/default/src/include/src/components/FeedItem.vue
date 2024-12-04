@@ -94,7 +94,13 @@ const processFeedItems = (feedItems) => {
   var result = []
   for (let feedItem of feedItems) {
     let date = new Date(feedItem.date * 1000)
-    let url = new URL(feedItem.url)
+    let url;
+    try {
+      url = new URL(feedItem.url)
+    } catch  {
+      console.log("Could not fetch URL for article: ", feedItem)
+      continue
+    }
     result.push({
       title: feedItem.title,
       url: feedItem.url,
