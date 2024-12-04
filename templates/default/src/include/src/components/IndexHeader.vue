@@ -4,6 +4,7 @@ import IconHeart from './icons/IconHeart.vue'
 
 const buildTime = new Date(window.buildTime * 1000)
 const pageTitle = window.pageTitle
+const sitePath = window.sitePath
 </script>
 
 <template>
@@ -17,7 +18,7 @@ const pageTitle = window.pageTitle
   </div>
   <div class="header-container">
     <div class="header-title">
-      <h2><a href="/">{{ pageTitle }}</a></h2>
+      <h2><a :href="sitePath">{{ pageTitle }}</a></h2>
       <h5>Page last updated on {{ buildTime.toUTCString() }}</h5>
     </div>
   </div>

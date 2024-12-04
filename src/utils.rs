@@ -51,8 +51,6 @@ pub fn cold_start(args: &Args) -> Result<(), Box<dyn Error>> {
 fn initialization_wizard(opts: &mut Options, paths: &Paths) -> Result<(), Box<dyn Error>> {
     opts.title = cli::prompt_string(opts.title.clone(), "Enter your feed page title:")?;
     info!("Title is : {}", opts.title);
-    opts.site_url = cli::prompt_string(String::new(), "Enter url you plan to host the site at")?;
-    info!("Site URL is : {}", opts.site_url);
     opts.newsboat_urls_file =
         cli::prompt_path(&paths.url_file(), true, "Enter path to Newsboat urls file:")?;
     info!("url f is : {}", opts.newsboat_urls_file);

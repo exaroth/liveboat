@@ -115,9 +115,19 @@ const feedHasItems = () => {
   return Object.keys(filteredFeedItems.value).length !== 0
 }
 
+const resolveFeedPath = (feedId) => {
+  let basePath = `feeds/${feedId}.json`
+  let pathPrefix = window.sitePath || '/'
+  if (!pathPrefix.endsWith('/')) {
+    pathPrefix = pathPrefix + '/'
+  }
+  let feedUrl = pathPrefix + basePath
+  return feedUrl
+}
+
 watchEffect(async () => {
   if (!initialized.value) {
-    const url = `/feeds/${props.feed.id}.json`
+    const url = resolveFeedPath(props.feed.id)
     let data = await (await fetch(url)).json()
     feedItems.value = processFeedItems(data.items)
   }
@@ -190,7 +200,7 @@ watchEffect(async () => {
 .feed-item-author {
   font-size: 12px;
   color: #73bed3;
-  opacity: .7;
+  opacity: 0.7;
 }
 
 .feed-item-group {
