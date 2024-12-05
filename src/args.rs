@@ -41,6 +41,8 @@ impl std::str::FromStr for Command {
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub struct Args {
+    /// Optional path to build directory
+    pub build_target: Option<String>,
     #[arg(long)]
     /// Path to newsboat db cache.
     pub cache_file: Option<String>,

@@ -188,7 +188,7 @@ impl BuildController {
         let url_feeds = self.url_reader.get_url_feeds();
         let urls = url_feeds.iter().map(|u| u.url.clone()).collect();
         trace!("List of urls to retrieve: {}", format!("{:?}", urls));
-        let mut feed_data = self.get_feed_data(urls)?;
+        let feed_data = self.get_feed_data(urls)?;
         for f in &feed_data {
             if let Some(url_feed) = url_feeds.iter().find(|u| &u.url == f.borrow().url()) {
                 f.borrow_mut().update_with_url_data(
@@ -199,7 +199,6 @@ impl BuildController {
                 );
             }
         }
-        feed_data.sort_by(|a, b| a.borrow().order_idx().cmp(b.borrow().order_idx()));
         Ok(feed_data)
     }
 
@@ -249,7 +248,6 @@ impl BuildController {
             q.sort_items();
             result.push(q)
         }
-        result.sort_by(|a, b| a.order_idx().cmp(b.order_idx()));
         Ok(result)
     }
 
