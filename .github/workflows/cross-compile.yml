@@ -1,3 +1,7 @@
+name: cross-compile
+
+on: push
+
 jobs:
   release:
     name: Release - ${{ matrix.platform.os_name }}
