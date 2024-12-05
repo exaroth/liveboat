@@ -1,4 +1,3 @@
-use log::warn;
 use resolve_path::PathResolveExt;
 use std::fmt;
 use std::fs;
@@ -58,7 +57,7 @@ impl Paths {
             config_file_path,
             false,
             paths.config_dir.join(LIVEBOAT_DEFAULT_CONFIG_FILENAME),
-        )?;
+        );
         paths.build_dir = paths.home().join(LIVEBOAT_DEFAULT_BUILD_DIRNAME);
         let n_config = NConfig::new();
 
@@ -73,14 +72,15 @@ impl Paths {
 
     /// Update paths with those passed by the used when invoking via cli.
     pub fn update_with_args(&mut self, args: &Args) -> Result<(), FilesystemError> {
-        self.url_file = path_with_argval(&args.url_file, true, self.url_file.clone())?;
-        self.cache_file = path_with_argval(&args.cache_file, true, self.cache_file.clone())?;
-        self.build_dir = path_with_argval(&args.build_dir, false, self.build_dir.clone())?;
+        self.url_file = path_with_argval(&args.url_file, true, self.url_file.clone());
+        self.cache_file = path_with_argval(&args.cache_file, true, self.cache_file.clone());
+        self.build_dir = path_with_argval(&args.build_dir, false, self.build_dir.clone());
         self.template_path = path_with_argval(
             &args.template_path,
             true,
             self.template_dir().join(self.template_path()),
-        )?;
+        );
+        self.build_dir = path_with_argval(&args.build_target, false, self.build_dir.clone());
         Ok(())
     }
 
@@ -188,22 +188,20 @@ fn path_with_argval(
     arg: &Option<String>,
     check_exists: bool,
     default: PathBuf,
-) -> Result<PathBuf, FilesystemError> {
+) -> PathBuf {
     if let Some(argval) = arg {
-        match fs::canonicalize(&argval.resolve()) {
-            Err(e) => {
-                if check_exists {
-                    return Err(FilesystemError::InvalidPathProvided(argval.clone()));
+        let p = &argval.resolve();
+        if check_exists {
+            match fs::canonicalize(p) {
+                Err(_) => {
+                    println!("Path does not exist, defaulting to : {}", default.display());
+                    return default
                 }
-                warn!(
-                    "Error resolving path: {:?}, using default path: {}",
-                    e,
-                    default.display()
-                );
-                return Ok(default);
+                Ok(p) => return p
             }
-            Ok(p) => return Ok(p),
+        } else {
+            return p.as_ref().to_path_buf()
         }
     }
-    Ok(default)
+    return default
 }
