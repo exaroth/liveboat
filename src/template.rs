@@ -12,14 +12,13 @@ use crate::opts::Options;
 pub struct Context<'a> {
     build_time: u64,
     feeds: Vec<Feed>,
-    query_feeds: &'a Vec<Feed>,
     options: &'a Options,
 }
 
 impl<'a> Context<'a> {
     pub fn init(
         url_feeds: &'a Vec<Arc<RefCell<Feed>>>,
-        query_feeds: &'a Vec<Feed>,
+        query_feeds: &'a mut Vec<Feed>,
         options: &'a Options,
     ) -> Context<'a> {
         let mut feeds = Vec::new();
@@ -30,6 +29,8 @@ impl<'a> Context<'a> {
             }
             feeds.push(item);
         }
+        feeds.append(query_feeds);
+        feeds.sort_by(|a, b| a.order_idx().cmp(b.order_idx()));
 
         let start = SystemTime::now();
         let since_the_epoch = start
@@ -39,7 +40,6 @@ impl<'a> Context<'a> {
 
         Context {
             feeds,
-            query_feeds,
             build_time,
             options,
         }
@@ -52,11 +52,9 @@ impl fmt::Display for Context<'_> {
             f,
             "Ctx::
             feed_num {}:
-            q_feed_num: {}
             opts: {}
             build_time: {}",
             self.feeds.len(),
-            self.query_feeds.len(),
             self.options,
             self.build_time,
         )

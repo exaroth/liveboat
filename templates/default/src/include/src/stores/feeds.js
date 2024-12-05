@@ -3,9 +3,6 @@ import { defineStore } from 'pinia'
 
 export const useFeedsStore = defineStore('feeds', () => {
   var feeds = ref([])
-  window.queryFeeds.forEach((f) => {
-    feeds.value.push(f)
-  })
   window.feeds.forEach((f) => {
     feeds.value.push(f)
   })
