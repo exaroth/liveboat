@@ -18,7 +18,7 @@ pub struct Context<'a> {
 impl<'a> Context<'a> {
     pub fn init(
         url_feeds: &'a Vec<Arc<RefCell<Feed>>>,
-        query_feeds: &'a mut Vec<Feed>,
+        query_feeds: &'a  Vec<Feed>,
         options: &'a Options,
     ) -> Context<'a> {
         let mut feeds = Vec::new();
@@ -29,7 +29,9 @@ impl<'a> Context<'a> {
             }
             feeds.push(item);
         }
-        feeds.append(query_feeds);
+        for q_feed in query_feeds {
+            feeds.push(q_feed.clone());
+        }
         feeds.sort_by(|a, b| a.order_idx().cmp(b.order_idx()));
 
         let start = SystemTime::now();
