@@ -199,7 +199,6 @@ impl BuildController {
                 );
             }
         }
-        feed_data.sort_by(|a, b| a.borrow().order_idx().cmp(b.borrow().order_idx()));
         Ok(feed_data)
     }
 
@@ -249,7 +248,6 @@ impl BuildController {
             q.sort_items();
             result.push(q)
         }
-        result.sort_by(|a, b| a.order_idx().cmp(b.order_idx()));
         Ok(result)
     }
 
