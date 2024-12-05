@@ -1,0 +1,78 @@
+jobs:
+  release:
+    name: Release - ${{ matrix.platform.os_name }}
+    # if: startsWith( github.ref, 'refs/tags/v' ) || github.ref == 'refs/tags/test-release'
+    strategy:
+      matrix:
+        platform:
+          - os_name: FreeBSD-x86_64
+            os: ubuntu-20.04
+            target: x86_64-unknown-freebsd
+            bin: ubi
+            name: ubi-FreeBSD-x86_64.tar.gz
+            cross: true
+            cargo_command: ./cross
+
+          - os_name: Linux-x86_64
+            os: ubuntu-20.04
+            target: x86_64-unknown-linux-musl
+            bin: ubi
+            name: ubi-Linux-x86_64-musl.tar.gz
+            cross: false
+            cargo_command: cargo
+
+          - os_name: macOS-x86_64
+            os: macOS-latest
+            target: x86_64-apple-darwin
+            bin: ubi
+            name: ubi-Darwin-x86_64.tar.gz
+            cross: false
+            cargo_command: cargo
+
+    runs-on: ${{ matrix.platform.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install toolchain if not cross-compiling
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform.target }}
+        if: ${{ !matrix.platform.cross }}
+      - name: Install musl-tools on Linux
+        run: sudo apt-get update --yes && sudo apt-get install --yes musl-tools
+        if: contains(matrix.platform.os, 'ubuntu') && !matrix.platform.cross
+      - name: Install cross if cross-compiling (*nix)
+        id: cross-nix
+        shell: bash
+        run: |
+          set -e
+          export TARGET="$HOME/bin"
+          mkdir -p "$TARGET"
+          ./bootstrap/bootstrap-ubi.sh
+          "$HOME/bin/ubi" --project cross-rs/cross --matching musl --in .          
+        if: matrix.platform.cross && !contains(matrix.platform.os, 'windows')
+      - name: Strip binary
+        shell: bash
+        run: |
+          strip target/${{ matrix.platform.target }}/release/${{ matrix.platform.bin }}          
+        # strip doesn't work with cross-arch binaries on Linux or Windows.
+        if: ${{ !(matrix.platform.cross || matrix.platform.target == 'aarch64-pc-windows-msvc') }}
+      - name: Package as archive
+        shell: bash
+        run: |
+          cd target/${{ matrix.platform.target }}/release
+          tar czvf ../../../${{ matrix.platform.name }} ${{ matrix.platform.bin }}
+          cd -          
+      - name: Publish release artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ubi-${{ matrix.platform.os_name }}
+          path: "ubi*"
+        if: github.ref == 'refs/tags/test-release'
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          files: "ubi*"
+          body_path: Changes.md
+        if: startsWith( github.ref, 'refs/tags/v' )
