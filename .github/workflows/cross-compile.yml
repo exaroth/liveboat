@@ -43,8 +43,8 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: "--locked --release"
           strip: true
-      - name: Publish artifacts and release
-        uses: houseabsolute/actions-rust-release@v0
-        with:
-          executable-name: ubi
-          target: ${{ matrix.platform.target }}
+      # - name: Publish artifacts and release
+      #   uses: houseabsolute/actions-rust-release@v0
+      #   with:
+      #     executable-name: ubi
+      #     target: ${{ matrix.platform.target }}

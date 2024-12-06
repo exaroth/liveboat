@@ -64,6 +64,7 @@ const props = defineProps({
   right: 40px;
   cursor: pointer;
   z-index: 999;
+  opacity: .4;
 }
 
 @media (max-width: 1280px) {
@@ -78,6 +79,7 @@ const props = defineProps({
     height: 44px;
     top: 8px;
     right: 8px;
+    opacity: 1;
     background-color: var(--color-background);
   }
 }
