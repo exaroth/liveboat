@@ -74,10 +74,11 @@ const props = defineProps({
     height: 100vh;
   }
   #modal-close {
-    width: 40px;
-    height: 40px;
-    top: 36px;
-    right: 20px;
+    width: 44px;
+    height: 44px;
+    top: 8px;
+    right: 8px;
+    background-color: var(--color-background);
   }
 }
 </style>
