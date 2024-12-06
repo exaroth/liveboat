@@ -1,9 +1,11 @@
 <script setup>
 import { ref, watchEffect } from 'vue'
 import { useFiltersStore } from '../stores/filters'
+import { useEmbedStore } from '../stores/embed'
 import { RouterLink } from 'vue-router'
 
 const fStore = useFiltersStore()
+const embedStore = useEmbedStore()
 
 const props = defineProps({
   feed: {
@@ -94,11 +96,11 @@ const processFeedItems = (feedItems) => {
   var result = []
   for (let feedItem of feedItems) {
     let date = new Date(feedItem.date * 1000)
-    let url;
+    let url
     try {
       url = new URL(feedItem.url)
-    } catch  {
-      console.log("Could not fetch URL for article: ", feedItem)
+    } catch {
+      console.log('Could not fetch URL for article: ', feedItem)
       continue
     }
     result.push({
@@ -107,6 +109,7 @@ const processFeedItems = (feedItems) => {
       date: date,
       domain: url.hostname,
       author: feedItem.author,
+      enclosureUrl: feedItem.enclosureUrl,
     })
   }
   return result
@@ -144,6 +147,13 @@ watchEffect(async () => {
     filteredFeedItems.value = aggregateItems(feedItems.value)
   }
 })
+
+const showEmbedModal = (feedItem) => {
+  console.log('show embed modal')
+  embedStore.setEmbedUrl(feedItem.enclosureUrl)
+  embedStore.setEmbedFallbackUrl(feedItem.url)
+  embedStore.showEmbedModal()
+}
 </script>
 
 <template>
@@ -158,7 +168,13 @@ watchEffect(async () => {
       <ul v-for="(feedItem, index) in items" :key="index">
         <li class="feed-item">
           <span class="feed-item-link">
-            <a :href="feedItem.url" target="_blank">{{ truncate(feedItem.title) }}</a>
+            <a
+              v-if="embedStore.isEmbeddable(feedItem.enclosureUrl)"
+              @click="showEmbedModal(feedItem)"
+              target="_blank"
+              >{{ truncate(feedItem.title) }}</a
+            >
+            <a v-else :href="feedItem.url" target="_blank">{{ truncate(feedItem.title) }}</a>
           </span>
           <span class="feed-item-author" v-if="feedItem.author"> by {{ feedItem.author }}</span>
           <span class="feed-item-domain">({{ feedItem.domain }})</span>
@@ -196,6 +212,10 @@ watchEffect(async () => {
   border-radius: 3px 3px 0px 0px;
 }
 
+.feed-item-link a {
+  cursor: pointer;
+}
+
 .feed-title svg {
   width: 20px;
   height: 20px;
@@ -213,7 +233,7 @@ watchEffect(async () => {
   position: relative;
 }
 .feed-item-date {
-  width: 90px;
+  width: 94px;
   color: #73bed3;
   position: relative;
 }
@@ -222,7 +242,7 @@ watchEffect(async () => {
   .feed-item-date {
     text-align: right;
     position: absolute;
-    left: -90px;
+    left: -94px;
   }
 }
 </style>
