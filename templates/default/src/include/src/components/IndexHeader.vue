@@ -10,7 +10,7 @@ const sitePath = window.sitePath
 <template>
   <div class="header-crumbs">
     <span>
-      <h5>Page generated with <IconHeart /> using Liveboat</h5>
+      <h5>Page generated with <IconHeart /> by Liveboat</h5>
       <a href="https://github.com/exaroth/liveboat" target="_blank">
         <IconGithub id="github-link"></IconGithub>
       </a>
