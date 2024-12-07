@@ -4,14 +4,10 @@ help:
 	@echo "		  install dependencies"
 	@echo "make test"
 	@echo "		  run tests"
-	@echo "make build-release"
-	@echo "		  build release version"
-	@echo "make lint"
-	@echo "		  run flake8, mypy and bandit"
-	@echo "make run"
-	@echo "		  run adapter (requires .env file)"
-	@echo "make update"
-	@echo "		  pull latest branch/submodule"
+	@echo "make setup-default-template-dev"
+	@echo "		  setup default template for development (node required)"
+	@echo "make build-default-template"
+	@echo "		  build default template from source and update dist (node required)"
 
 .PHONY: install
 install:
@@ -19,6 +15,7 @@ install:
 
 .PHONY: setup-default-template-dev
 setup-default-template-dev:
+	cargo build;
 	cd ./templates/default/src/include && rm -Rf ./node_modules package-lock.json
 	./target/debug/liveboat --template-path templates/default/src templates/default/src/include && git restore ./templates/default/src
 	cd ./templates/default/src/include && npm install && npm run dev
