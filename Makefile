@@ -18,6 +18,8 @@ endif
 all: build install
 .DEFAULT_GOAL: help
 help:
+	@echo "make build"
+	@echo "		  build the liveboat binary"
 	@echo "make install"
 	@echo "		  install dependencies"
 	@echo "make test"
