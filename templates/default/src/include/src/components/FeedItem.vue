@@ -149,9 +149,7 @@ watchEffect(async () => {
 })
 
 const showEmbedModal = (feedItem) => {
-  console.log('show embed modal')
-  embedStore.setEmbedUrl(feedItem.enclosureUrl)
-  embedStore.setEmbedFallbackUrl(feedItem.url)
+  embedStore.setEmbedUrl(feedItem)
   embedStore.showEmbedModal()
 }
 </script>
@@ -169,7 +167,7 @@ const showEmbedModal = (feedItem) => {
         <li class="feed-item">
           <span class="feed-item-link">
             <a
-              v-if="embedStore.isEmbeddable(feedItem.enclosureUrl)"
+              v-if="embedStore.isEmbeddable(feedItem)"
               @click="showEmbedModal(feedItem)"
               target="_blank"
               >{{ truncate(feedItem.title) }}</a
