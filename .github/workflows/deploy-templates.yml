@@ -1,0 +1,44 @@
+name: template-builder
+
+on:
+  push:
+    branches:
+      - "builder"
+      - "main"
+    tags:
+      - "*"
+
+jobs:
+  template-builder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Compile templates
+        run:
+          make bundle-templates
+      - name: Upload templates for development
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./tmp/templates.tar.gz
+          asset_name: templates.tar.gz
+          tag: development
+          overwrite: true
+        if: github.ref_name == 'builder'
+      - name: Upload templates for tag
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./tmp/templates.tar.gz
+          asset_name: templates.tar.gz
+          tag: stable
+        if: github.ref_type == 'tag'
+      - name: Upload templates for release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./tmp/templates.tar.gz
+          asset_name: templates.tar.gz
+          tag: stable
+          overwrite: true
+        if: github.ref_name == 'main'
