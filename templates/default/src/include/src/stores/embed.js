@@ -2,11 +2,14 @@ import { defineStore } from 'pinia'
 
 const embedConfigs = {
   youtube: {
-    matches: [/www.youtube.com\/v\/(?<id>[a-zA-Z0-9_-]+)/],
+    matches: [
+      /www.youtube.com\/v\/(?<id>[a-zA-Z0-9_-]+)/,
+      /www.youtube.com\/watch\?v=(?<id>[a-zA-Z0-9_-]+)/
+    ],
     getEmbedCode: function (url) {
       for (const re of this.matches) {
         let tokens = url.match(re)
-        if (tokens.length < 2) {
+        if (!tokens || tokens.length < 2) {
           continue
         }
         let id = tokens[1]
@@ -25,28 +28,26 @@ export const useEmbedStore = defineStore('embed', {
     fallbackUrl: null,
   }),
   actions: {
-    isEmbeddable(url) {
+    isEmbeddable(feedItem) {
+      let url = feedItem.enclosureUrl || feedItem.url
       for (const embedCfg of Object.values(this.configs)) {
         for (let match of embedCfg.matches) {
           if (match.test(url)) {
             return true
           }
-          return false
         }
+        return false
       }
     },
-    setEmbedUrl(url) {
-      console.log('------> ', url)
+    setEmbedUrl(feedItem) {
+      let url = feedItem.enclosureUrl || feedItem.url
       for (const embedCfg of Object.values(this.configs)) {
         let code = embedCfg.getEmbedCode(url)
-        console.log('code', code)
         if (code != null) {
           this.modalEmbedCode = code
         }
+        this.fallbackUrl = feedItem.url
       }
-    },
-    setEmbedFallbackUrl(url) {
-      this.fallbackUrl = url
     },
     showEmbedModal() {
       this.showModal = true
