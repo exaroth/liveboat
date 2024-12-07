@@ -20,3 +20,11 @@ install:
 .PHONY: setup-default-template-dev
 setup-default-template-dev:
 	./target/debug/liveboat --template-path templates/default/src templates/default/src/include && git stash
+
+.PHONY: build-default-template
+build-default-template:
+	cd ./templates/default/src/include && rm -Rf ./node_modules package-lock.json
+	cd ./templates/default/src/include && npm install && npm run build
+	cd ./templates/default/src/include && cp -Rf ./dist/assets ../../dist/include
+
+
