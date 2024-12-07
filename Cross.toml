@@ -10,4 +10,4 @@ pre-build = [
     "apt-get update && apt-get --assume-yes install sqlite3:$CROSS_DEB_ARCH libsqlite3-dev:$CROSS_DEB_ARCH"
 ]                 
 build-std = true
-xargo = true
+xargo = false
