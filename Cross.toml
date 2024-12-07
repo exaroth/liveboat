@@ -5,9 +5,9 @@ zig = true
 default-target = "x86_64-unknown-linux-gnu"
 
 [target.aarch64-unknown-linux-gnu]
-pre-build = [
-    "dpkg --add-architecture $CROSS_DEB_ARCH", 
-    "apt-get update && apt-get --assume-yes install sqlite3:$CROSS_DEB_ARCH libsqlite3-dev:$CROSS_DEB_ARCH"
-]                 
+# pre-build = [
+#     "dpkg --add-architecture $CROSS_DEB_ARCH", 
+#     "apt-get update && apt-get --assume-yes install sqlite3:$CROSS_DEB_ARCH libsqlite3-dev:$CROSS_DEB_ARCH"
+# ]                 
 build-std = false
 xargo = false
