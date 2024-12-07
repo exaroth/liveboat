@@ -58,13 +58,13 @@ const props = defineProps({
 #modal-close {
   display: block;
   position: absolute;
-  width: 60px;
-  height: 60px;
-  top: 40px;
-  right: 40px;
+  width: 40px;
+  height: 40px;
+  top: 50px;
+  right: 50px;
   cursor: pointer;
   z-index: 999;
-  opacity: .4;
+  opacity: .6;
 }
 
 @media (max-width: 1280px) {
@@ -75,8 +75,6 @@ const props = defineProps({
     height: 100vh;
   }
   #modal-close {
-    width: 44px;
-    height: 44px;
     top: 8px;
     right: 8px;
     opacity: 1;
