@@ -37,7 +37,6 @@ watch(searchFeedsTerm, (val) => {
     }
   }, 600)
 })
-
 </script>
 
 <template>
@@ -75,7 +74,11 @@ watch(searchFeedsTerm, (val) => {
       </button></span
     >
     <span id="filter-search">
-      <input placeholder="Search" :value="searchFeedsTerm" @input="(event) => (searchFeedsTerm = event.target.value)" />
+      <input
+        placeholder="Search"
+        :value="searchFeedsTerm"
+        @input="(event) => (searchFeedsTerm = event.target.value)"
+      />
     </span>
   </div>
 </template>
@@ -97,24 +100,24 @@ watch(searchFeedsTerm, (val) => {
 .filter-box button,
 #filter-search input {
   width: 90px;
-  background-color: #3c5e8b;
+  background-color: var(--color-accent);
   border: none;
   line-height: 26px;
   outline: none;
   border-radius: 3px;
   font-weight: bold;
-  color: #c7cfcc;
+  color: var(--color-text-primary);
   outline: none;
 }
 .filter-box button,
 #filter-search span,
-#filter-search button{
+#filter-search button {
   cursor: pointer;
 }
 
 .filter-box button.selected {
   background-color: transparent;
-  outline: 1px solid #c7cfcc;
+  outline: 1px solid var(--color-text-primary);
   border: none;
 }
 
@@ -129,7 +132,7 @@ watch(searchFeedsTerm, (val) => {
   width: 164px;
   height: 29px;
   background-color: transparent;
-  outline: 1px solid #c7cfcc;
+  outline: 1px solid var(--color-text-primary);
   font-weight: normal;
   padding: 0px 0px 0px 6px;
 }
