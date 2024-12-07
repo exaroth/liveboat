@@ -1,3 +1,21 @@
+prog :=liveboat
+
+debug ?=
+
+$(info debug is $(debug))
+
+ifdef debug
+  release :=
+  target :=debug
+  extension :=-debug
+else
+  release :=--release
+  target :=release
+  extension :=
+endif
+
+
+all: build install
 .DEFAULT_GOAL: help
 help:
 	@echo "make install"
@@ -9,9 +27,14 @@ help:
 	@echo "make build-default-template"
 	@echo "		  build default template from source and update dist (node required)"
 
+.PHONY: build
+build:
+	cargo build $(release)
+
 .PHONY: install
 install:
 	git submodule update --init
+	cp target/$(target)/$(prog) ~/bin/$(prog)$(extension)
 
 .PHONY: setup-default-template-dev
 setup-default-template-dev:
