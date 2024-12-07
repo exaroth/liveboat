@@ -44,7 +44,6 @@ const sitePath = window.sitePath
   position: absolute;
   right: 20px;
   top: 10px;
-  color:;
 }
 .header-crumbs h5 {
   opacity: 0.5;

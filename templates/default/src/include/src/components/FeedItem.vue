@@ -163,8 +163,8 @@ const showEmbedModal = (feedItem) => {
     </div>
     <div class="feed-item-group" v-for="(items, dateStr) in filteredFeedItems" :key="dateStr">
       <span class="feed-item-date" v-if="dateStr">{{ dateStr }}</span>
-      <ul v-for="(feedItem, index) in items" :key="index">
-        <li class="feed-item">
+      <TransitionGroup name="items" tag="ul">
+        <li v-for="(feedItem, index) in items" :key="index" class="feed-item">
           <span class="feed-item-link">
             <a
               v-if="embedStore.isEmbeddable(feedItem)"
@@ -177,14 +177,14 @@ const showEmbedModal = (feedItem) => {
           <span class="feed-item-author" v-if="feedItem.author"> by {{ feedItem.author }}</span>
           <span class="feed-item-domain">({{ feedItem.domain }})</span>
         </li>
-      </ul>
+      </TransitionGroup>
     </div>
   </div>
 </template>
 
 <style scoped>
 .feed-item {
-  margin: 0px 0px 8px 0px;
+  margin: 0px 0px 10px 0px;
   width: 100%;
 }
 .feed-item-domain {
@@ -200,12 +200,12 @@ const showEmbedModal = (feedItem) => {
   padding: 0px 0px 0px 50px;
   margin: 0px 0px 14px 0px;
   width: 100%;
-  border-bottom: 2px solid #3c5e8b;
+  border-bottom: 2px solid var(--color-accent);
 }
 
 .feed-title a {
   display: inline-block;
-  background-color: #3c5e8b;
+  background-color: var(--color-accent);
   padding: 2px 20px 0px 20px;
   border-radius: 3px 3px 0px 0px;
 }
@@ -223,16 +223,17 @@ const showEmbedModal = (feedItem) => {
 }
 .feed-item-author {
   font-size: 12px;
-  color: #73bed3;
+  color: var(--color-highlight);
   opacity: 0.7;
 }
 
 .feed-item-group {
   position: relative;
+  transition: visibility 2s;
 }
 .feed-item-date {
   width: 94px;
-  color: #73bed3;
+  color: var(--color-highlight);
   position: relative;
 }
 
@@ -241,6 +242,9 @@ const showEmbedModal = (feedItem) => {
     text-align: right;
     position: absolute;
     left: -94px;
+  }
+  .feed-item {
+    margin: 0px 0px 8px 0px;
   }
 }
 </style>

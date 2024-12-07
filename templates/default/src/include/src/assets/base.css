@@ -21,34 +21,38 @@
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
 }
 
-/* semantic color variables for this project */
 :root {
-  --color-background: var(--vt-c-white);
-  --color-background-soft: var(--vt-c-white-soft);
-  --color-background-mute: var(--vt-c-white-mute);
+  --color-text-primary: #c7cfcc;
+  --color-highlight: #73bed3;
+  --color-accent: #3c5e8b;
+  --color-background: var(--vt-c-black);
+  --color-background-soft: var(--vt-c-black-soft);
+  --color-background-mute: var(--vt-c-black-mute);
 
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
+  --color-border: var(--vt-c-divider-dark-2);
+  --color-border-hover: var(--vt-c-divider-dark-1);
 
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-1);
-
-  --section-gap: 160px;
+  --color-heading: var(--vt-c-text-dark-1);
+  --color-text: var(--vt-c-text-dark-2);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
+/* semantic color variables for this project */
 
-    --color-border: var(--vt-c-divider-dark-2);
-    --color-border-hover: var(--vt-c-divider-dark-1);
+/* @media (prefers-color-scheme: light) { */
+/*   :root { */
+/*     --color-background: var(--vt-c-white); */
+/*     --color-background-soft: var(--vt-c-white-soft); */
+/*     --color-background-mute: var(--vt-c-white-mute); */
 
-    --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(--vt-c-text-dark-2);
-  }
-}
+/*     --color-border: var(--vt-c-divider-light-2); */
+/*     --color-border-hover: var(--vt-c-divider-light-1); */
+
+/*     --color-heading: var(--vt-c-text-light-1); */
+/*     --color-text: var(--vt-c-text-light-1); */
+
+/*     --section-gap: 160px; */
+/*   } */
+/* } */
 
 *,
 *::before,
@@ -59,12 +63,6 @@
 }
 
 
-ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0px 0px 0px 12px;
-}
-
 body {
   min-height: 100vh;
   color: var(--color-text);
@@ -73,13 +71,8 @@ body {
     color 0.5s,
     background-color 0.5s;
   line-height: 1.6;
-  font-family:
-    "Lucida Grande",
-    "Lucida Sans Unicode",
-    "Lucida Sans",
-    Verdana,
-    Tahoma,
-    sans-serif;
+
+  font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Verdana, Tahoma, sans-serif;
   font-size: 14px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
