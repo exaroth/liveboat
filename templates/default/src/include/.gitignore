@@ -29,4 +29,5 @@ coverage
 
 *.tsbuildinfo
 index.html
+feeds
 package-lock.json
