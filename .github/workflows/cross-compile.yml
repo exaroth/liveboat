@@ -44,6 +44,9 @@ jobs:
       - name: Install coreutils for macOS
         run: brew install coreutils
         if: contains(matrix.platform.target, 'darwin')
+      - name: Install sqlite3 for aarch64
+        run: apt-get update && apt-get install sqlite3
+        if: contains(matrix.platform.target, 'aarch64')
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
