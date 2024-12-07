@@ -19,7 +19,9 @@ install:
 
 .PHONY: setup-default-template-dev
 setup-default-template-dev:
-	./target/debug/liveboat --template-path templates/default/src templates/default/src/include && git stash
+	cd ./templates/default/src/include && rm -Rf ./node_modules package-lock.json
+	./target/debug/liveboat --template-path templates/default/src templates/default/src/include && git restore ./templates/default/src
+	cd ./templates/default/src/include && npm install && npm run dev
 
 .PHONY: build-default-template
 build-default-template:
