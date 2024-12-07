@@ -31,7 +31,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./tmp/templates.tar.gz
           asset_name: templates.tar.gz
-          tag: stable
+          tag: ${{ github.ref }}
         if: github.ref_type == 'tag'
       - name: Upload templates for release
         uses: svenstaro/upload-release-action@v2
