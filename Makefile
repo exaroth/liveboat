@@ -26,4 +26,6 @@ build-default-template:
 	cd ./templates/default/src/include && npm install && npm run build
 	cd ./templates/default/src/include && cp -Rf ./dist/assets ../../dist/include
 
-
+.PHONY: bundle-templates
+bundle-templates:
+	./scripts/bundle-templates.sh
