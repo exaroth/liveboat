@@ -35,7 +35,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install deps
-        run: make install
+        run: git submodule update --init
       - name: Install coreutils for macOS
         run: brew install coreutils
         if: contains(matrix.platform.target, 'darwin')
