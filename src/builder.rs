@@ -79,6 +79,10 @@ impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
     
     /// Copy data from tmp to build directory.
     pub fn copy_data(&self) -> Result<(), Box<dyn Error>> {
+        let include_dir = self.template_path.join(INCLUDE_DIRNAME);
+        info!("Copying include contents @ {}", include_dir.display());
+        copy_all(include_dir, &self.build_dir)?;
+
         let feeds_dir_tmp = self.tmp_dir.join(FEEDS_DIRNAME);
         let feeds_dir = self.build_dir.join(FEEDS_DIRNAME);
         info!(
@@ -91,10 +95,6 @@ impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
             _ = fs::remove_dir_all(&feeds_dir);
         }
         copy_all(feeds_dir_tmp, &feeds_dir)?;
-
-        let include_dir = self.template_path.join(INCLUDE_DIRNAME);
-        info!("Copying include contents @ {}", include_dir.display());
-        copy_all(include_dir, &self.build_dir)?;
 
         let tpl_index_path = self.tmp_dir.join(format!("{}.html", INDEX_FILENAME));
         let index_path = self.build_dir.join(format!("{}.html", INDEX_FILENAME));

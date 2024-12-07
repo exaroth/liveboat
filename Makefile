@@ -16,3 +16,7 @@ help:
 .PHONY: install
 install:
 	git submodule update --init
+
+.PHONY: setup-default-template-dev
+setup-default-template-dev:
+	./target/debug/liveboat --template-path templates/default/src templates/default/src/include && git stash
