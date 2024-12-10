@@ -1,6 +1,7 @@
 <script setup>
 import IconGithub from './icons/IconGithub.vue'
 import IconHeart from './icons/IconHeart.vue'
+import IconLiveboat from './icons/IconLiveboat.vue'
 
 const buildTime = new Date(window.buildTime * 1000)
 const pageTitle = window.pageTitle
@@ -18,7 +19,10 @@ const sitePath = window.sitePath
   </div>
   <div class="header-container">
     <div class="header-title">
-      <h2><a :href="sitePath">{{ pageTitle }}</a></h2>
+      <h2>
+
+    <IconLiveboat/>
+        <a :href="sitePath">{{ pageTitle }}</a></h2>
       <h5>Page last updated on {{ buildTime.toUTCString() }}</h5>
     </div>
   </div>
@@ -39,6 +43,15 @@ const sitePath = window.sitePath
 }
 .header-title h5 {
   opacity: 0.6;
+}
+.header-title svg {
+  position: relative;
+  top: 4px;
+  width: 28px;
+  height: 28px;
+  margin-right: 4px;
+  fill: var(--color-text-primary);
+
 }
 .header-crumbs {
   position: absolute;
