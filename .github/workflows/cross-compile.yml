@@ -48,7 +48,6 @@ jobs:
         run:
           export CROSS_CONFIG=$(pwd)/Cross.toml
           export CROSS_DEBUG=1
-          echo $CROSS_CONFIG
         if: contains(matrix.platform.target, 'aarch64')
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
