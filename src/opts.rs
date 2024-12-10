@@ -18,10 +18,6 @@ pub struct Options {
     pub time_threshold: u64,
     pub build_dir: String,
     template_name: String,
-
-    remote_url: String,
-    exclude_tags: Vec<String>,
-    exclude_feeds: Vec<String>,
 }
 
 impl Options {
@@ -39,12 +35,9 @@ impl Options {
         return Options {
             title: String::from("Liveboat feed page"),
             site_path: String::from("/"),
-            remote_url: String::new(),
             show_read_articles: true,
             template_name: String::from("default"),
             time_threshold: 20,
-            exclude_tags: Vec::new(),
-            exclude_feeds: Vec::new(),
             newsboat_urls_file: String::new(),
             newsboat_cache_file: String::new(),
             build_dir: String::new(),
