@@ -184,7 +184,7 @@ const showEmbedModal = (feedItem) => {
 
 <style scoped>
 .feed-item {
-  margin: 0px 0px 10px 0px;
+  margin: 0px 0px 12px 0px;
   width: 100%;
 }
 .feed-item-domain {
@@ -242,9 +242,6 @@ const showEmbedModal = (feedItem) => {
     text-align: right;
     position: absolute;
     left: -94px;
-  }
-  .feed-item {
-    margin: 0px 0px 8px 0px;
   }
 }
 </style>
