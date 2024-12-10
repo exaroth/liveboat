@@ -106,6 +106,7 @@ impl BuildController {
 
         builder.copy_data()?;
         builder.clean_up();
+        println!("Liveboat build saved into {}", self.paths.build_dir().display());
         Ok(())
     }
 

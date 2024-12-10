@@ -30,7 +30,6 @@ fn main() {
         eprintln!("Error: {}", e);
         std::process::exit(1);
     }
-    println!("Done");
     std::process::exit(0);
 }
 
