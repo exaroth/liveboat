@@ -47,8 +47,7 @@ setup-default-template-dev:
 
 .PHONY: build-default-template
 build-default-template:
-	cd ./templates/default/src/include && rm -Rf ./node_modules package-lock.json
-	cd ./templates/default/src/include && npm install && npm run build
+	cd ./templates/default/src/include && npm run build
 	cd ./templates/default/src/include && cp -Rf ./dist/assets ../../dist/include
 
 .PHONY: bundle-templates
