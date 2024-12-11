@@ -1,6 +1,6 @@
 /// This module contains logic related to processing Newsboat urls files.
-
 use log::info;
+use std::fmt;
 
 use libnewsboat::matcher::Matcher;
 use libnewsboat::utils as libutils;
@@ -19,11 +19,24 @@ pub struct URLFeed {
 /// Representation of query based feed.
 pub struct QueryFeed {
     pub title: String,
-    pub matcher: Matcher,
     pub line_no: usize,
+    pub matcher: Matcher,
 }
 
-/// Module used for operating on the 
+impl fmt::Display for QueryFeed {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Paths::
+            title {}:
+            line_no: {}",
+            self.title,
+            self.line_no,
+        )
+    }
+}
+
+/// Module used for operating on the
 /// Newsboat urls file.
 #[derive(Clone, Debug)]
 pub struct UrlReader {
@@ -37,14 +50,15 @@ impl UrlReader {
         u.read(url_file);
         return u;
     }
-    
-    /// Read the lines of the urls file, filtering out 
+
+    /// Read the lines of the urls file, filtering out
     /// comments and empty lines.
     fn read(&mut self, url_file: String) {
         let mut result: Vec<String> = Vec::new();
         for line in url_file.lines() {
             info!("Reading line {}", line);
-            if line.is_empty() || line.starts_with("#") {
+            let l = line.trim();
+            if l.is_empty() || l.starts_with("#") {
                 info!("Ignoring");
                 continue;
             }
@@ -52,7 +66,7 @@ impl UrlReader {
         }
         self.lines = result;
     }
-    
+
     /// Process tokens associated with single url feed.
     fn get_http_feed(&self, tokens: &Vec<String>, line_no: usize) -> URLFeed {
         info!("Processing http feed");
@@ -87,7 +101,6 @@ impl UrlReader {
         info!("URL feed after: {}", format!("{:?}", feed));
         return feed;
     }
-    
 
     /// Fetch all url feeds as defined in urls file.
     pub fn get_url_feeds(&self) -> Vec<URLFeed> {
@@ -103,7 +116,7 @@ impl UrlReader {
                 info!("Is empty, Skipping");
                 continue;
             }
-            if libutils::is_special_url(tokens[0].as_str()) {
+            if !libutils::is_http_url(tokens[0].as_str()) && !tokens[0].starts_with("file://") {
                 info!("Is special, skipping");
                 continue;
             }
@@ -112,7 +125,7 @@ impl UrlReader {
         }
         result
     }
-    
+
     /// Fetch all query urls as defined in urls file.
     pub fn get_query_urls(&self) -> Result<Vec<QueryFeed>, String> {
         info!("Retrieving query urls");
@@ -139,11 +152,180 @@ impl UrlReader {
                 Ok(r) => results.push(QueryFeed {
                     title: parts[1].clone(),
                     matcher: r,
-                    line_no: line_no
+                    line_no: line_no,
                 }),
                 Err(e) => return Err(e),
             };
         }
         Ok(results)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_reading_empty_or_commented_lines() {
+        let contents = "
+# Test
+
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        assert_eq!(reader.lines.len(), 0);
+    }
+
+    #[test]
+    fn test_reading_url_or_query_lines() {
+        let contents = "
+https://hnrss.org/best \"~HN\" dev
+exec:~/.scripts/pocket_atom
+file:///home/exaroth/.scripts/atom.xml \"~ Atom Pocket\"
+\"query:Youtube:tags # \\\"yt\\\"\"
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        assert_eq!(reader.lines.len(), 4);
+    }
+    #[test]
+    fn test_processing_url_feeds_simple() {
+        let contents = "
+https://hnrss.org/best
+http://aphyr.com/posts.atom
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        assert_eq!(reader.lines.len(), 2);
+        let feeds = reader.get_url_feeds();
+        assert_eq!(2, feeds.len());
+        assert_eq!(0, feeds[0].line_no);
+        assert_eq!("https://hnrss.org/best", feeds[0].url);
+        assert_eq!(false, feeds[0].hidden);
+        assert_eq!(0, feeds[0].tags.len());
+        assert_eq!(None, feeds[0].title_override);
+        assert_eq!(1, feeds[1].line_no);
+        assert_eq!("http://aphyr.com/posts.atom", feeds[1].url);
+        assert_eq!(false, feeds[1].hidden);
+        assert_eq!(None, feeds[1].title_override);
+        assert_eq!(0, feeds[1].tags.len());
+    }
+    #[test]
+    fn test_processing_url_feeds_with_title_override() {
+        let contents = "
+https://hnrss.org/best \"~Override\"
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        assert_eq!(reader.lines.len(), 1);
+        let feeds = reader.get_url_feeds();
+        assert_eq!(1, feeds.len());
+        assert!(feeds[0].title_override.is_some());
+        assert_eq!(Some(String::from("Override")), feeds[0].title_override);
+    }
+    #[test]
+    fn test_processing_url_feeds_with_title_with_tags() {
+        let contents = "
+https://hnrss.org/best \"~Override\" dev news
+https://techcrunch.com/feed/ tech
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        assert_eq!(reader.lines.len(), 2);
+        let feeds = reader.get_url_feeds();
+        assert_eq!(2, feeds.len());
+        assert_eq!(2, feeds[0].tags.len());
+        assert_eq!(Vec::from(["dev", "news"]), feeds[0].tags);
+        assert_eq!(1, feeds[1].tags.len());
+        assert_eq!(Vec::from(["tech"]), feeds[1].tags);
+
+    }
+    #[test]
+    fn test_processing_url_feeds_hidden() {
+        let contents = "
+https://hnrss.org/best \"~Override\" ! dev news
+https://techcrunch.com/feed/ ! tech
+https://kubernetes.io/feed.xml \"~Dev - Kubernetes Blog\" !
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        assert_eq!(reader.lines.len(), 3);
+        let feeds = reader.get_url_feeds();
+        assert_eq!(3, feeds.len());
+        assert_eq!(true, feeds[0].hidden);
+        assert_eq!(true, feeds[1].hidden);
+        assert_eq!(true, feeds[2].hidden);
+
+    }
+    #[test]
+    fn test_processing_invalid_url_feeds() {
+        let contents = "
+git+https://invalid.com
+gibberish
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        assert_eq!(reader.lines.len(), 2);
+        let feeds = reader.get_url_feeds();
+        assert_eq!(0, feeds.len());
+    }
+    #[test]
+    fn test_processing_file_based_feeds() {
+        let contents = "
+file:///home/exaroth/.scripts/atom.xml \"~Atom Pocket\"
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        assert_eq!(reader.lines.len(), 1);
+        let feeds = reader.get_url_feeds();
+        assert_eq!(1, feeds.len());
+        assert_eq!("file:///home/exaroth/.scripts/atom.xml".to_string(), feeds[0].url);
+        assert_eq!(Some("Atom Pocket".to_string()), feeds[0].title_override);
+
+    }
+    #[test]
+    fn test_processing_exec_statements() {
+        let contents = "
+exec:~/.scripts/pocket_atom
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        assert_eq!(reader.lines.len(), 1);
+        let feeds = reader.get_url_feeds();
+        assert_eq!(0, feeds.len());
+    }
+    #[test]
+    fn test_processing_query_urls_simple() {
+        let contents = "
+\"query:Youtube:tags # \\\"yt\\\"\"
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        assert_eq!(reader.lines.len(), 1);
+        let result = reader.get_query_urls();
+        assert!(result.is_ok());
+        let data = result.unwrap();
+        assert_eq!(1, data.len());
+        assert_eq!("Youtube".to_string(), data[0].title);
+        assert_eq!(0, data[0].line_no);
+
+    }
+    #[test]
+    fn test_processing_query_urls_with_multiple_filters() {
+        let contents = "
+\"query:News:tags # \\\"news\\\" and age < 1 and unread = \\\"yes\\\"\"
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        assert_eq!(reader.lines.len(), 1);
+        let result = reader.get_query_urls();
+        assert!(result.is_ok());
+        let data = result.unwrap();
+        assert_eq!(1, data.len());
+        assert_eq!("News".to_string(), data[0].title);
+        assert_eq!(0, data[0].line_no);
+    }
+    #[test]
+    fn test_processing_query_urls_invalid() {
+        let contents = "
+\"query:Gibberish\"
+            ";
+        let result = UrlReader::init(contents.to_string()).get_query_urls();
+        assert!(result.is_err());
+        let contents = "
+\"query:Youtube:tags # yt\"
+            ";
+        let result = UrlReader::init(contents.to_string()).get_query_urls();
+        assert!(result.is_err());
     }
 }
