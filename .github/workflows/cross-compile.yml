@@ -55,6 +55,11 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: "--locked --release"
           strip: true
+
+      - name: Set chmod for the binary
+        run: |
+          chmod +x target/${{ matrix.platform.target }}/release/liveboat
+
       - name: Save binary SHA
         run:
           mkdir checksums;
