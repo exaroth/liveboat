@@ -31,7 +31,6 @@ pub fn cold_start(args: &Args) -> Result<(), Box<dyn Error>> {
     info!("Default options are: {}", opts);
     initialization_wizard(&mut opts, &paths)?;
     fs::create_dir_all(paths.template_dir())?;
-    // TODO: check if opts file eists;
     if !paths.config_file().exists() {
         opts.save(paths.config_file())?;
         println!(

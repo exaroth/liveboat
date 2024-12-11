@@ -1,7 +1,7 @@
 use std::cell::RefCell;
+use std::fmt;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
-use std::fmt;
 
 use crate::feed::Feed;
 use crate::opts::Options;
@@ -18,7 +18,7 @@ pub struct Context<'a> {
 impl<'a> Context<'a> {
     pub fn init(
         url_feeds: &'a Vec<Arc<RefCell<Feed>>>,
-        query_feeds: &'a  Vec<Feed>,
+        query_feeds: &'a Vec<Feed>,
         options: &'a Options,
     ) -> Context<'a> {
         let mut feeds = Vec::new();
@@ -30,6 +30,9 @@ impl<'a> Context<'a> {
             feeds.push(item);
         }
         for q_feed in query_feeds {
+            if q_feed.is_empty() {
+                continue;
+            }
             feeds.push(q_feed.clone());
         }
         feeds.sort_by(|a, b| a.order_idx().cmp(b.order_idx()));
@@ -60,5 +63,56 @@ impl fmt::Display for Context<'_> {
             self.options,
             self.build_time,
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    use crate::feed_item::*;
+
+    #[test]
+    fn test_processing_feeds_for_template() {
+        let mut feeds = Vec::new();
+
+        let item1 = FeedItem::new("item1", "http://test.com", "", "", "", 123456, false, "", 1);
+
+        let mut f1 = Feed::init(
+            "http://example.com".to_string(),
+            "Url feed1".to_string(),
+            "http://testfeed.com".to_string(),
+        );
+
+        f1.update_with_url_data(Vec::new(), false, None, 4);
+        f1.add_item(item1.clone());
+
+        feeds.push(Arc::new(RefCell::new(f1)));
+        let mut f2 = Feed::init(
+            "http://example2.com".to_string(),
+            "Url feed2".to_string(),
+            "http://testfeed.com".to_string(),
+        );
+        f2.update_with_url_data(Vec::new(), true, None, 2);
+        feeds.push(Arc::new(RefCell::new(f2)));
+        let mut f3 = Feed::init(
+            "http://example3.com".to_string(),
+            "Url feed3".to_string(),
+            "http://testfeed.com".to_string(),
+        );
+        f3.update_with_url_data(Vec::new(), false, None, 1);
+        feeds.push(Arc::new(RefCell::new(f3)));
+
+        let mut query_feeds = Vec::new();
+        query_feeds.push(Feed::init_query_feed(String::from("Query feed1"), 10));
+        let mut qfeed = Feed::init_query_feed(String::from("Query feed2"), 2);
+        qfeed.add_item(item1.clone());
+        query_feeds.push(qfeed);
+        let opts = Options::default();
+        let ctx = Context::init(&feeds, &query_feeds, &opts);
+
+        assert_eq!(2, ctx.feeds.len());
+        assert_eq!(ctx.feeds[0].title(), "Query feed2");
+        assert_eq!(ctx.feeds[1].title(), "Url feed1");
     }
 }

@@ -73,6 +73,34 @@ impl FeedItem {
     pub fn is_unread(&self) -> bool {
         return self.unread;
     }
+
+    pub fn new(
+        title: &str,
+        url: &str,
+        feed_url: &str,
+        author: &str,
+        desc: &str,
+        date: i64,
+        unread: bool,
+        content: &str,
+        guid: i64,
+    ) -> FeedItem {
+        return FeedItem {
+            title: title.to_string(),
+            url: url.to_string(),
+            feed_url: feed_url.to_string(),
+            author: author.to_string(),
+            desc: desc.to_string(),
+            date: date,
+            unread: unread,
+            content: content.to_string(),
+            guid: guid,
+            enc_url: None,
+            enc_mime: None,
+            flags: None,
+            feed_ptr: None,
+        };
+    }
 }
 
 impl Matchable for FeedItem {

@@ -91,6 +91,10 @@ impl Feed {
         return &self.url;
     }
 
+    pub fn title(&self) -> &String {
+        return &self.title;
+    }
+
     pub fn is_sorted(&self) -> bool {
         return self._sorted;
     }
