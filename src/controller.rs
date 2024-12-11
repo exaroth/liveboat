@@ -1,13 +1,13 @@
 use log::{info, trace, warn};
 use std::cell::RefCell;
 use std::error::Error;
+use std::fs::read_to_string;
 use std::sync::Arc;
 
-use rusqlite::Error as SQLiteError;
-use rusqlite::{params_from_iter, Connection, Result, Rows};
 
 use crate::args::Args;
 use crate::builder::SinglePageBuilder;
+use crate::db::{get_feed_data, get_feed_item_data};
 use crate::errors::FilesystemError;
 use crate::feed::{Feed, FeedList};
 use crate::feed_item::FeedItem;
@@ -26,26 +26,6 @@ pub struct BuildController {
     url_reader: UrlReader,
     debug: bool,
 }
-
-const FEED_ITEMS_SQL: &str = "SELECT 
-    feed.rssurl AS feed_url,
-    feed.title AS feed_title,
-    items.title AS item_title,
-    items.url AS item_url,
-    items.author AS item_author,
-    items.enclosure_description AS item_desc,
-    items.pubDate AS pub_date,
-    items.unread AS unread,
-    items.content AS content,
-    items.id AS guid,
-    items.enclosure_url AS enc_url,
-    items.enclosure_description_mime_type AS enc_mime_type,
-    items.flags AS flags
-FROM rss_item AS items
-JOIN rss_feed AS feed ON feed.rssurl = items.feedurl
-WHERE datetime(items.pubDate, 'unixepoch') >= datetime('now', $days )
-AND items.deleted=0
-";
 
 impl BuildController {
     pub fn init(args: &Args) -> Result<BuildController, Box<dyn Error>> {
@@ -67,8 +47,8 @@ impl BuildController {
         paths.update_with_args(&args)?;
         info!("Paths after arg update {}", paths);
         paths.check_all()?;
-
-        let url_reader = UrlReader::init(paths.url_file());
+        let url_file = read_to_string(paths.url_file())?;
+        let url_reader = UrlReader::init(url_file);
         let ctrl = BuildController {
             paths: paths,
             options: opts,
@@ -87,7 +67,7 @@ impl BuildController {
     /// all the static page data to tmp dir and copy it to build directory.
     pub fn build(&self) -> Result<(), Box<dyn Error>> {
         info!("Processing feeds");
-        let feed_items = self.get_feed_item_data()?;
+        let feed_items = get_feed_item_data(self.paths.cache_file(), self.options.time_threshold)?;
         let feeds = self.get_url_feeds()?;
         self.populate_url_feeds(&feeds, &feed_items);
         let q_feeds = self.get_query_feeds(&feeds)?;
@@ -106,7 +86,10 @@ impl BuildController {
 
         builder.copy_data()?;
         builder.clean_up();
-        println!("Liveboat build saved into {}", self.paths.build_dir().display());
+        println!(
+            "Liveboat build saved to {}",
+            self.paths.build_dir().display()
+        );
         Ok(())
     }
 
@@ -189,34 +172,21 @@ impl BuildController {
         let url_feeds = self.url_reader.get_url_feeds();
         let urls = url_feeds.iter().map(|u| u.url.clone()).collect();
         trace!("List of urls to retrieve: {}", format!("{:?}", urls));
-        let feed_data = self.get_feed_data(urls)?;
-        for f in &feed_data {
-            if let Some(url_feed) = url_feeds.iter().find(|u| &u.url == f.borrow().url()) {
-                f.borrow_mut().update_with_url_data(
+        let mut result = Vec::new();
+                // Ok(f) => result.push(Arc::new(RefCell::new(f))),
+        let feed_data = get_feed_data(self.paths.cache_file(), urls)?;
+        for mut f in feed_data {
+            if let Some(url_feed) = url_feeds.iter().find(|u| &u.url == f.url()) {
+                f.update_with_url_data(
                     url_feed.tags.clone(),
                     url_feed.hidden,
                     url_feed.title_override.clone(),
                     url_feed.line_no,
                 );
+                result.push(Arc::new(RefCell::new(f)))
             }
         }
-        Ok(feed_data)
-    }
-
-    /// Retrieve article data from sqlite db.
-    fn get_feed_item_data(&self) -> Result<Vec<FeedItem>, Box<dyn Error>> {
-        let conn = &self.get_db_connection()?;
-        let mut stmt = conn.prepare(FEED_ITEMS_SQL)?;
-        info!(
-            "Prepared statement for feed retrieval: {}",
-            stmt.expanded_sql().unwrap()
-        );
-        // NOTE: we cant interpolate days integer directly with rusql
-        let days_s = format!("-{} days", self.options.time_threshold);
-        info!("Day threshold param == {}", days_s);
-        let mut r = stmt.query(rusqlite::named_params! {"$days": days_s})?;
-        let results = self.load_feed_items(&mut r)?;
-        Ok(results)
+        Ok(result)
     }
 
     /// Process query feed objects as defined in urls file - this is done by matching
@@ -252,49 +222,4 @@ impl BuildController {
         Ok(result)
     }
 
-    fn get_db_connection(&self) -> Result<Connection, SQLiteError> {
-        let conn = Connection::open(&self.paths.cache_file())?;
-        Ok(conn)
-    }
-
-    /// Instantiate feed objects based on the rows retrieved from db.
-    fn load_feed_items(&self, rows: &mut Rows<'_>) -> Result<Vec<FeedItem>, SQLiteError> {
-        let mut results: Vec<FeedItem> = Vec::new();
-        while let Some(row) = rows.next()? {
-            let feed_item = FeedItem::from_db_row(row)?;
-            trace!("load_feed_items:: Adding Feed item: {}", feed_item);
-            results.push(feed_item);
-        }
-        Ok(results)
-    }
-
-    /// Retrieve feed information from sqlite db, we do it only for feeds defined in urls file.
-    fn get_feed_data(&self, urls: Vec<String>) -> Result<Vec<Arc<RefCell<Feed>>>, SQLiteError> {
-        let repeat_vars = |c| {
-            assert_ne!(c, 0);
-            let mut s = "?,".repeat(c);
-            s.pop();
-            s
-        };
-        let sql = format!(
-            "SELECT rssurl, title, url FROM rss_feed where rssurl in ({});",
-            repeat_vars(urls.len())
-        );
-        trace!("Feed retrieval SQL: {}", sql);
-        let conn = &self.get_db_connection()?;
-        let mut stmt = conn.prepare(&sql)?;
-        let rows = stmt.query_map(params_from_iter(urls.iter()), |row| {
-            let f = Feed::init(row.get(0)?, row.get(1)?, row.get(2)?);
-            Ok(f)
-        })?;
-        let mut result = Vec::new();
-        for r in rows {
-            match r {
-                Ok(f) => result.push(Arc::new(RefCell::new(f))),
-                Err(e) => return Err(e),
-            }
-        }
-        trace!("Retrieved feeds: {}", format!("{:?}", result));
-        Ok(result)
-    }
 }

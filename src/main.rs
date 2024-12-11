@@ -10,6 +10,7 @@ mod paths;
 mod template;
 mod urls;
 mod utils;
+mod db;
 
 use clap::Parser;
 use std::error::Error;

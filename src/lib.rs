@@ -10,3 +10,4 @@ pub mod template;
 pub mod cli;
 pub mod errors;
 pub mod utils;
+pub mod db;

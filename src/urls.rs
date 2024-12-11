@@ -1,5 +1,5 @@
-use std::fs::read_to_string;
-use std::path::Path;
+/// This module contains logic related to processing Newsboat urls files.
+
 use log::info;
 
 use libnewsboat::matcher::Matcher;
@@ -31,18 +31,18 @@ pub struct UrlReader {
 }
 
 impl UrlReader {
-    pub fn init(url_fpath: &Path) -> UrlReader {
+    pub fn init(url_file: String) -> UrlReader {
         info!("Initializing reader");
         let mut u = UrlReader { lines: Vec::new() };
-        u.read(url_fpath);
+        u.read(url_file);
         return u;
     }
     
     /// Read the lines of the urls file, filtering out 
     /// comments and empty lines.
-    fn read(&mut self, path: &Path) {
+    fn read(&mut self, url_file: String) {
         let mut result: Vec<String> = Vec::new();
-        for line in read_to_string(path).unwrap().lines() {
+        for line in url_file.lines() {
             info!("Reading line {}", line);
             if line.is_empty() || line.starts_with("#") {
                 info!("Ignoring");

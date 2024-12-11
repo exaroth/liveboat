@@ -10,14 +10,22 @@ use std::fmt;
 /// available to the user.
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Options {
+    /// Title of the page
     pub title: String,
+    /// Root path for the feed site
     pub site_path: String,
+    /// Whether or not to show articles marked as read by Newsboat
     pub show_read_articles: bool,
+    /// Path to Newsboat urls file
     pub newsboat_urls_file: String,
+    /// Path to Newsboat cache file
     pub newsboat_cache_file: String,
+    /// Number of days in the past for which to process articles for
     pub time_threshold: u64,
+    /// Path to directory containing output files
     pub build_dir: String,
-    template_name: String,
+    /// Name of the template to use
+    pub template_name: String,
 }
 
 impl Options {
