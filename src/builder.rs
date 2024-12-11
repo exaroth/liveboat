@@ -13,7 +13,6 @@ const FEEDS_DIRNAME: &str = "feeds";
 const INCLUDE_DIRNAME: &str = "include";
 const INDEX_FILENAME: &str = "index";
 
-
 /// This represents default builder module
 /// used for processing single page Liveboat templates.
 pub struct SinglePageBuilder<'a, C> {
@@ -57,7 +56,7 @@ impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
             context,
         })
     }
-    
+
     /// Create tmp directory structure.
     pub fn create_tmp(&self) -> Result<(), io::Error> {
         info!("Creating tmp dir at {}", self.tmp_dir.display());
@@ -66,7 +65,7 @@ impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
         _ = fs::create_dir(self.tmp_dir.join(FEEDS_DIRNAME))?;
         Ok(())
     }
-    
+
     /// Save single feed data in tmp dir.
     pub fn save_feed_data(&self, name: &String, data: &[u8]) -> Result<(), Box<dyn Error>> {
         let feeds_dir = self.tmp_dir.join(FEEDS_DIRNAME);
@@ -76,7 +75,7 @@ impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
         file.write_all(data)?;
         Ok(())
     }
-    
+
     /// Copy data from tmp to build directory.
     pub fn copy_data(&self) -> Result<(), Box<dyn Error>> {
         let include_dir = self.template_path.join(INCLUDE_DIRNAME);
@@ -98,11 +97,15 @@ impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
 
         let tpl_index_path = self.tmp_dir.join(format!("{}.html", INDEX_FILENAME));
         let index_path = self.build_dir.join(format!("{}.html", INDEX_FILENAME));
-        info!("Copying rendered index @ {} to {}", tpl_index_path.display(), index_path.display());
+        info!(
+            "Copying rendered index @ {} to {}",
+            tpl_index_path.display(),
+            index_path.display()
+        );
         fs::copy(tpl_index_path, index_path)?;
         Ok(())
     }
-    
+
     /// Render template using context provided.
     pub fn render_template(&self) -> Result<(), Box<dyn Error>> {
         let tpl_file = self.template_path.join(format!("{}.hbs", INDEX_FILENAME));
@@ -120,7 +123,7 @@ impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
 
         Ok(())
     }
-        
+
     /// Clean up tmp directory.
     pub fn clean_up(&self) {
         info!("Cleanup");
