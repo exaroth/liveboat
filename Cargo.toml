@@ -31,3 +31,6 @@ pre-build = [
     "dpkg --add-architecture $CROSS_DEB_ARCH",
     "apt-get update && apt-get --assume-yes install sqlite3:$CROSS_DEB_ARCH"
 ]
+
+[dev-dependencies]
+mockall = "0.13.1"

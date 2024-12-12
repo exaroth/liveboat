@@ -219,19 +219,19 @@ mod tests {
         assert_eq!("/tmp/liveboat_test".to_string(), format!("{}", result.display()));
 
         // Empty path check
-        let mut result = path_with_argval(&None, true, temp_p.to_path_buf());
+        result = path_with_argval(&None, true, temp_p.to_path_buf());
         assert_eq!("/tmp/liveboat_test".to_string(), format!("{}", result.display()));
 
         // Path exists
-        let mut result = path_with_argval(&Some(format!("{}", temp_p.display())), true, PathBuf::from("/backup"));
+        result = path_with_argval(&Some(format!("{}", temp_p.display())), true, PathBuf::from("/backup"));
         assert_eq!("/tmp/liveboat_test".to_string(), format!("{}", result.display()));
 
         // Path doesnt exist, check exists
-        let mut result = path_with_argval(&Some("/fake".to_string()), true, PathBuf::from("/backup"));
+        result = path_with_argval(&Some("/fake".to_string()), true, PathBuf::from("/backup"));
         assert_eq!("/backup".to_string(), format!("{}", result.display()));
 
         // Path doesnt exist, no check
-        let mut result = path_with_argval(&Some("/fake".to_string()), false, PathBuf::from("/backup"));
+        result = path_with_argval(&Some("/fake".to_string()), false, PathBuf::from("/backup"));
         assert_eq!("/fake".to_string(), format!("{}", result.display()));
         
 

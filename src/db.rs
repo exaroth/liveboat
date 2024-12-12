@@ -1,3 +1,6 @@
+#[cfg(test)]
+use mockall::{automock, mock, predicate::*};
+
 use crate::feed::Feed;
 use crate::feed_item::FeedItem;
 use log::{info, trace};
@@ -27,6 +30,7 @@ WHERE datetime(items.pubDate, 'unixepoch') >= datetime('now', $days )
 AND items.deleted=0
 ";
 
+#[cfg_attr(test, automock)]
 pub trait Connector {
     fn get_feed_items(&self, days_back: u64) -> Result<Vec<FeedItem>, Box<dyn Error>>;
     fn get_feeds(&self, urls: Vec<String>) -> Result<Vec<Feed>, Box<dyn Error>>;

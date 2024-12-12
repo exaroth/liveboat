@@ -3,6 +3,8 @@ use std::cell::RefCell;
 use std::error::Error;
 use std::fs::read_to_string;
 use std::sync::Arc;
+#[cfg(test)]
+use mockall::Sequence;
 
 use crate::args::Args;
 use crate::builder::SinglePageBuilder;
@@ -404,7 +406,7 @@ mod tests {
             "".to_string(),
         )));
 
-        let mut item1 = FeedItem::new(
+        let item1 = FeedItem::new(
             "Feed1 Item1",
             "http://feed1.com/1",
             "http://feed1.com",
@@ -416,7 +418,7 @@ mod tests {
             2,
         );
 
-        let mut item2 = FeedItem::new(
+        let item2 = FeedItem::new(
             "Feed1 Item2",
             "http://feed1.com/2",
             "http://feed1.com",
@@ -428,7 +430,7 @@ mod tests {
             2,
         );
 
-        let mut item3 = FeedItem::new(
+        let item3 = FeedItem::new(
             "Feed2 item1",
             "http://feed2.com/1",
             "http://feed2.com",
@@ -476,7 +478,7 @@ mod tests {
             "".to_string(),
         )));
 
-        let mut item1 = FeedItem::new(
+        let item1 = FeedItem::new(
             "Feed1 Item1",
             "http://feed1.com/1",
             "http://feed1.com",
@@ -488,7 +490,7 @@ mod tests {
             2,
         );
 
-        let mut item2 = FeedItem::new(
+        let item2 = FeedItem::new(
             "Feed1 Item2",
             "http://feed1.com/2",
             "http://feed1.com",
@@ -507,5 +509,37 @@ mod tests {
         assert_eq!(1, f1.borrow().items.len());
     }
 
-    fn test_processing_url_feeds() {}
+    #[test]
+    fn test_processing_url_feeds() {
+        use crate::db::MockConnector;
+
+        let contents = "
+http://feed1.com \"~Some feed\" dev
+http://feed2.com \"~Some feed 2\"
+http://feed3.com
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        let ctrl = BuildController {
+            url_reader: reader,
+            paths: Paths::default(),
+            options: Options::default(),
+            debug: false,
+        };
+
+        let mut db_mock = MockConnector::new();
+        let mut seq = Sequence::new();
+        let f1 = Feed::init("http://feed1.com".to_string(), "Feed1".to_string(), "".to_string());
+        let f2 = Feed::init("http://feed2.com".to_string(), "Feed2".to_string(), "".to_string());
+        let f3 = Feed::init("http://feed3.com".to_string(), "Feed3".to_string(), "".to_string());
+        db_mock.expect_get_feeds().return_once_st(move |_| Ok(Vec::from([f1.clone(), f2.clone(), f3.clone()].clone())));
+        let results = ctrl.get_url_feeds(&db_mock);
+        assert!(results.is_ok());
+        let feeds = results.unwrap();
+        assert_eq!(3, feeds.len());
+        assert_eq!("Feed1", feeds[0].borrow().title());
+        assert_eq!("Some feed", feeds[0].borrow().display_title());
+        assert_eq!("Feed2", feeds[1].borrow().title());
+        assert_eq!("Some feed 2", feeds[1].borrow().display_title());
+        assert_eq!("Feed3", feeds[2].borrow().title());
+    }
 }
