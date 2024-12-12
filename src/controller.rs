@@ -4,7 +4,6 @@ use std::error::Error;
 use std::fs::read_to_string;
 use std::sync::Arc;
 
-
 use crate::args::Args;
 use crate::builder::SinglePageBuilder;
 use crate::db::{get_feed_data, get_feed_item_data};
@@ -173,7 +172,6 @@ impl BuildController {
         let urls = url_feeds.iter().map(|u| u.url.clone()).collect();
         trace!("List of urls to retrieve: {}", format!("{:?}", urls));
         let mut result = Vec::new();
-                // Ok(f) => result.push(Arc::new(RefCell::new(f))),
         let feed_data = get_feed_data(self.paths.cache_file(), urls)?;
         for mut f in feed_data {
             if let Some(url_feed) = url_feeds.iter().find(|u| &u.url == f.url()) {
@@ -221,5 +219,4 @@ impl BuildController {
         }
         Ok(result)
     }
-
 }

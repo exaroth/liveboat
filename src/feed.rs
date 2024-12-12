@@ -1,7 +1,8 @@
 use bs58::encode as bs58_encode;
+use std::fmt;
+
 use libnewsboat::matchable::Matchable;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
-use std::fmt;
 
 use crate::feed_item::FeedItem;
 
@@ -377,5 +378,16 @@ mod tests {
         assert_eq!(Some("2".to_string()), attr);
         attr = f.attribute_value("latest_article_age");
         assert_eq!(Some("9073".to_string()), attr);
+    }
+
+    #[test]
+    fn test_matching_nonexistent_attrs() {
+        let mut f = Feed::init(
+            "http://example.com".to_string(),
+            "Url feed".to_string(),
+            "http://testfeed.com".to_string(),
+        );
+        let mut attr = f.attribute_value("nonexistent");
+        assert!(attr.is_none());
     }
 }
