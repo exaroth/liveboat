@@ -52,4 +52,4 @@ build-default-template:
 
 .PHONY: bundle-templates
 bundle-templates:
-	./scripts/bundle-templates.sh
+	./scripts/bundle-templates

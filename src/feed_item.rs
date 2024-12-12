@@ -1,12 +1,23 @@
 use crate::feed::Feed;
-use chrono::{DateTime, Local};
+
 use libnewsboat::matchable::Matchable;
 use rusqlite::Error as SQLiteError;
+use chrono::{DateTime, Local, Utc};
 use rusqlite::Row;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 use std::cell::RefCell;
 use std::fmt;
 use std::sync::Arc;
+
+#[cfg(not(test))]
+fn now() -> DateTime<Local> {
+    Local::now()
+}
+
+#[cfg(test)]
+fn now() -> DateTime<Utc> {
+    DateTime::from_timestamp(1733974974, 0).unwrap()
+}
 
 /// Container for storing and operating
 /// on the newsboat article items.
@@ -52,6 +63,15 @@ impl FeedItem {
         return &self.feed_url;
     }
 
+    pub fn title(&self) -> &String {
+        return &self.title;
+    }
+
+    pub fn guid(&self) -> i64 {
+        return self.guid;
+    }
+
+
     /// set a pointer to feed associated with the article.
     pub fn set_ptr(&mut self, f_p: Arc<RefCell<Feed>>) {
         self.feed_ptr = Some(f_p)
@@ -63,9 +83,9 @@ impl FeedItem {
 
     /// Return age of the article (in days).
     pub fn age(&self) -> i64 {
-        let now = Local::now();
+        let tnow = now();
         if let Some(d) = DateTime::from_timestamp(self.date, 0) {
-            let delta = now.signed_duration_since(d);
+            let delta = tnow.signed_duration_since(d);
             return delta.num_days();
         };
         return 0;

@@ -110,7 +110,7 @@ impl Feed {
         return &self.id;
     }
     pub fn order_idx(&self) -> &usize {
-        return &self._order_idx
+        return &self._order_idx;
     }
 }
 
@@ -131,7 +131,8 @@ impl Matchable for Feed {
                 if !self.is_sorted() {
                     panic!("Matcher called against unsorted feed")
                 }
-                return Some(format!("{}", self.items[0].age()));
+                println!("{:?}", self.items[0].age());
+                return Some(format!("{:?}", self.items[0].age()));
             }
             "unread_count" => {
                 let n = self.items.iter().filter(|i| i.is_unread()).count();
@@ -231,5 +232,150 @@ impl FeedList {
 
     pub fn add_feed(&mut self, f: &Feed) {
         self.feeds.push(FeedCompact::from_feed(f))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    use crate::feed_item::*;
+
+    #[test]
+    fn test_adding_feed_item() {
+        let item = FeedItem::new("item1", "http://test.com", "", "", "", 123456, false, "", 1);
+        let mut f = Feed::init(
+            "http://example.com".to_string(),
+            "Url feed1".to_string(),
+            "http://testfeed.com".to_string(),
+        );
+        assert_eq!(0, f.items.len());
+        f.add_item(item);
+        assert_eq!(1, f.items.len());
+    }
+    #[test]
+    fn test_sorting_feed_items() {
+        let item1 = FeedItem::new(
+            "item1",
+            "http://test.com",
+            "",
+            "",
+            "",
+            970000000,
+            false,
+            "",
+            1,
+        );
+        let item2 = FeedItem::new(
+            "item2",
+            "http://test.com",
+            "",
+            "",
+            "",
+            960000000,
+            false,
+            "",
+            2,
+        );
+        let item3 = FeedItem::new(
+            "item3",
+            "http://test.com",
+            "",
+            "",
+            "",
+            950000000,
+            false,
+            "",
+            3,
+        );
+        let mut f = Feed::init(
+            "http://example.com".to_string(),
+            "Url feed1".to_string(),
+            "http://testfeed.com".to_string(),
+        );
+        f.add_item(item1);
+        f.add_item(item2);
+        f.add_item(item3);
+        assert_eq!(f._sorted, false);
+        assert_eq!(1, f.items[0].guid());
+        assert_eq!(2, f.items[1].guid());
+        assert_eq!(3, f.items[2].guid());
+        f.sort_items();
+        assert_eq!(f._sorted, true);
+        assert_eq!(1, f.items[2].guid());
+        assert_eq!(2, f.items[1].guid());
+        assert_eq!(3, f.items[0].guid());
+    }
+
+    #[test]
+    fn test_matching_basic_content() {
+        let mut f = Feed::init(
+            "http://example.com".to_string(),
+            "Url feed".to_string(),
+            "http://testfeed.com".to_string(),
+        );
+        f.tags.push("dev".to_string());
+        f.tags.push("tech".to_string());
+        f.tags.push("news".to_string());
+        let mut attr = f.attribute_value("feedtitle");
+        assert!(attr.is_some());
+        assert_eq!(attr, Some("Url feed".to_string()));
+        attr = f.attribute_value("feedlink");
+        assert!(attr.is_some());
+        assert_eq!(attr, Some("http://testfeed.com".to_string()));
+        attr = f.attribute_value("rssurl");
+        assert!(attr.is_some());
+        assert_eq!(attr, Some("http://example.com".to_string()));
+        attr = f.attribute_value("tags");
+        assert_eq!(attr, Some("dev tech news".to_string()));
+    }
+
+    #[test]
+    fn test_matching_feed_articles() {
+        let mut f = Feed::init("".to_string(), "".to_string(), "".to_string());
+        let item1 = FeedItem::new(
+            "item1",
+            "http://test.com",
+            "",
+            "",
+            "",
+            970000000,
+            false,
+            "",
+            1,
+        );
+        let item2 = FeedItem::new(
+            "item2",
+            "http://test.com",
+            "",
+            "",
+            "",
+            960000000,
+            true,
+            "",
+            2,
+        );
+        let item3 = FeedItem::new(
+            "item3",
+            "http://test.com",
+            "",
+            "",
+            "",
+            950000000,
+            true,
+            "",
+            3,
+        );
+        f.add_item(item1);
+        f.add_item(item3);
+        f.add_item(item2);
+        f.sort_items();
+
+        let mut attr = f.attribute_value("total_count");
+        assert_eq!(Some("3".to_string()), attr);
+        attr = f.attribute_value("unread_count");
+        assert_eq!(Some("2".to_string()), attr);
+        attr = f.attribute_value("latest_article_age");
+        assert_eq!(Some("9073".to_string()), attr);
     }
 }
