@@ -184,24 +184,61 @@ impl fmt::Display for Paths {
 
 /// Set path based on the argument passed by the user
 /// (if available), also resolves it to absolute path.
-fn path_with_argval(
-    arg: &Option<String>,
-    check_exists: bool,
-    default: PathBuf,
-) -> PathBuf {
+fn path_with_argval(arg: &Option<String>, check_exists: bool, default: PathBuf) -> PathBuf {
     if let Some(argval) = arg {
         let p = &argval.resolve();
         if check_exists {
             match fs::canonicalize(p) {
                 Err(_) => {
                     println!("Path does not exist, defaulting to : {}", default.display());
-                    return default
+                    return default;
                 }
-                Ok(p) => return p
+                Ok(p) => return p,
             }
         } else {
-            return p.as_ref().to_path_buf()
+            return p.as_ref().to_path_buf();
         }
     }
-    return default
+    return default;
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_setting_argval_path_with_default_val() {
+        let temp_p = Path::new("/tmp/liveboat_test");
+        let r = fs::create_dir_all(temp_p);
+        if r.is_err() {
+            panic!("Error creating temp dir {:?}", r)
+        }
+        // Empty path dont check
+        let mut result = path_with_argval(&None, false, temp_p.to_path_buf());
+        assert_eq!("/tmp/liveboat_test".to_string(), format!("{}", result.display()));
+
+        // Empty path check
+        let mut result = path_with_argval(&None, true, temp_p.to_path_buf());
+        assert_eq!("/tmp/liveboat_test".to_string(), format!("{}", result.display()));
+
+        // Path exists
+        let mut result = path_with_argval(&Some(format!("{}", temp_p.display())), true, PathBuf::from("/backup"));
+        assert_eq!("/tmp/liveboat_test".to_string(), format!("{}", result.display()));
+
+        // Path doesnt exist, check exists
+        let mut result = path_with_argval(&Some("/fake".to_string()), true, PathBuf::from("/backup"));
+        assert_eq!("/backup".to_string(), format!("{}", result.display()));
+
+        // Path doesnt exist, no check
+        let mut result = path_with_argval(&Some("/fake".to_string()), false, PathBuf::from("/backup"));
+        assert_eq!("/fake".to_string(), format!("{}", result.display()));
+        
+
+        let rr = fs::remove_dir(temp_p);
+        if rr.is_err() {
+            panic!("Error deleting temp dir")
+        }
+
+    }
 }
