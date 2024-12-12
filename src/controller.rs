@@ -79,14 +79,12 @@ impl BuildController {
             ctx,
         )?;
         builder.create_tmp()?;
-
         self.save_json_feeds(&builder, &q_feeds, &feeds)?;
         builder.render_template()?;
-
         builder.copy_data()?;
         builder.clean_up();
         println!(
-            "Liveboat build saved to {}",
+            "Liveboat feed page saved to {}",
             self.paths.build_dir().display()
         );
         Ok(())
@@ -115,6 +113,8 @@ impl BuildController {
         self.save_json_feedlist(&builder, &f_list, String::from("feeds"))?;
         Ok(())
     }
+
+    /// Save list of all feeds.
     fn save_json_feedlist(
         &self,
         builder: &SinglePageBuilder<Context>,
@@ -129,6 +129,7 @@ impl BuildController {
         Ok(())
     }
 
+    /// Save single feed items.
     fn save_json_feed(
         &self,
         builder: &SinglePageBuilder<Context>,
@@ -138,6 +139,7 @@ impl BuildController {
             info!("Skipping saving feed: {:?}", feed);
             return Ok(());
         }
+        //TODO: add archives
         if self.debug {
             builder.save_feed_data(feed.id(), serde_json::to_string_pretty(&feed)?.as_bytes())?;
         } else {
@@ -219,4 +221,279 @@ impl BuildController {
         }
         Ok(result)
     }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_processing_query_feeds_simple() {
+        let contents = "
+\"query:News:tags # \\\"news\\\"\"
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        let ctrl = BuildController {
+            url_reader: reader,
+            paths: Paths::default(),
+            options: Options::default(),
+            debug: false,
+        };
+
+        let f1 = Arc::new(RefCell::new(Feed::init(
+            "".to_string(),
+            "Feed1".to_string(),
+            "".to_string(),
+        )));
+
+        f1.borrow_mut()
+            .update_with_url_data(Vec::from(["news".to_string()]), false, None, 0);
+        let mut item1 = FeedItem::new(
+            "Feed1 Item1",
+            "http://feed1.com",
+            "",
+            "",
+            "",
+            970000000,
+            true,
+            "",
+            1,
+        );
+        item1.set_ptr(Arc::clone(&f1));
+        f1.borrow_mut().add_item(item1);
+
+        let f2 = Arc::new(RefCell::new(Feed::init(
+            "".to_string(),
+            "Feed2".to_string(),
+            "".to_string(),
+        )));
+
+        f2.borrow_mut()
+            .update_with_url_data(Vec::from(["other".to_string()]), false, None, 0);
+        let mut item2 = FeedItem::new(
+            "Feed2 Item1",
+            "http://feed1.com",
+            "",
+            "",
+            "",
+            970000000,
+            true,
+            "",
+            1,
+        );
+        item2.set_ptr(Arc::clone(&f2));
+        f2.borrow_mut().add_item(item2);
+
+        let feeds = Vec::from([f1, f2]);
+        let result = ctrl.get_query_feeds(&feeds);
+
+        assert!(result.is_ok());
+        let qfeeds = result.unwrap();
+        assert_eq!(1, qfeeds.len());
+        assert_eq!("News", qfeeds[0].title());
+        assert_eq!(1, qfeeds[0].items.len());
+    }
+
+    #[test]
+    fn test_processing_query_feeds_with_multiple_queries() {
+        let contents = "
+\"query:News:tags # \\\"news\\\" and age < 4 and unread = \\\"yes\\\"\"
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        let ctrl = BuildController {
+            url_reader: reader,
+            paths: Paths::default(),
+            options: Options::default(),
+            debug: false,
+        };
+
+        let f1 = Arc::new(RefCell::new(Feed::init(
+            "".to_string(),
+            "Feed1".to_string(),
+            "".to_string(),
+        )));
+
+        f1.borrow_mut()
+            .update_with_url_data(Vec::from(["news".to_string()]), false, None, 0);
+
+        let mut item1 = FeedItem::new(
+            "Feed1 Item1",
+            "http://feed1.com",
+            "",
+            "",
+            "",
+            1733974974,
+            true,
+            "",
+            1,
+        );
+        item1.set_ptr(Arc::clone(&f1));
+        f1.borrow_mut().add_item(item1);
+
+        // older than 4 days
+        let mut item2 = FeedItem::new(
+            "Feed1 Item2",
+            "http://feed1.com",
+            "",
+            "",
+            "",
+            1433974974,
+            true,
+            "",
+            2,
+        );
+        item2.set_ptr(Arc::clone(&f1));
+        f1.borrow_mut().add_item(item2);
+
+        // not unread
+        let mut item2 = FeedItem::new(
+            "Feed1 Item3",
+            "http://feed1.com",
+            "",
+            "",
+            "",
+            1733974974,
+            false,
+            "",
+            3,
+        );
+        item2.set_ptr(Arc::clone(&f1));
+        f1.borrow_mut().add_item(item2);
+
+        let feeds = Vec::from([f1]);
+        let result = ctrl.get_query_feeds(&feeds);
+        assert!(result.is_ok());
+        let qfeeds = result.unwrap();
+        assert_eq!(1, qfeeds.len());
+        let feed = qfeeds[0].clone();
+        assert_eq!(1, feed.items.len());
+        assert_eq!(&"Feed1 Item1".to_string(), feed.items[0].title());
+    }
+
+    #[test]
+    fn test_populating_url_feeds() {
+        let reader = UrlReader::init("".to_string());
+        let ctrl = BuildController {
+            url_reader: reader,
+            paths: Paths::default(),
+            options: Options::default(),
+            debug: false,
+        };
+
+        let f1 = Arc::new(RefCell::new(Feed::init(
+            "http://feed1.com".to_string(),
+            "Feed1".to_string(),
+            "".to_string(),
+        )));
+        let f2 = Arc::new(RefCell::new(Feed::init(
+            "http://feed2.com".to_string(),
+            "Feed2".to_string(),
+            "".to_string(),
+        )));
+
+        let mut item1 = FeedItem::new(
+            "Feed1 Item1",
+            "http://feed1.com/1",
+            "http://feed1.com",
+            "",
+            "",
+            1733974974,
+            true,
+            "",
+            2,
+        );
+
+        let mut item2 = FeedItem::new(
+            "Feed1 Item2",
+            "http://feed1.com/2",
+            "http://feed1.com",
+            "",
+            "",
+            1433974974,
+            true,
+            "",
+            2,
+        );
+
+        let mut item3 = FeedItem::new(
+            "Feed2 item1",
+            "http://feed2.com/1",
+            "http://feed2.com",
+            "",
+            "",
+            1733974974,
+            false,
+            "",
+            3,
+        );
+        let mut item4 = FeedItem::new(
+            "Feed0 item1 ",
+            "http://feed0.com/1",
+            "http://feed0.com",
+            "",
+            "",
+            1733974974,
+            false,
+            "",
+            4,
+        );
+        let feeds = Vec::from([f1.clone(), f2.clone()]);
+        let items = Vec::from([item1, item2, item3, item4]);
+
+        ctrl.populate_url_feeds(&feeds, &items);
+        assert_eq!(2, f1.borrow().items.len());
+        assert_eq!(1, f2.borrow().items.len());
+    }
+
+    #[test]
+    fn test_populating_url_feeds_with_unread_filtering() {
+        let reader = UrlReader::init("".to_string());
+        let mut opts = Options::default();
+        opts.show_read_articles = false;
+        let ctrl = BuildController {
+            url_reader: reader,
+            paths: Paths::default(),
+            options: opts,
+            debug: false,
+        };
+
+        let f1 = Arc::new(RefCell::new(Feed::init(
+            "http://feed1.com".to_string(),
+            "Feed1".to_string(),
+            "".to_string(),
+        )));
+
+        let mut item1 = FeedItem::new(
+            "Feed1 Item1",
+            "http://feed1.com/1",
+            "http://feed1.com",
+            "",
+            "",
+            1733974974,
+            true,
+            "",
+            2,
+        );
+
+        let mut item2 = FeedItem::new(
+            "Feed1 Item2",
+            "http://feed1.com/2",
+            "http://feed1.com",
+            "",
+            "",
+            1433974974,
+            false,
+            "",
+            2,
+        );
+
+        let feeds = Vec::from([f1.clone()]);
+        let items = Vec::from([item1, item2]);
+
+        ctrl.populate_url_feeds(&feeds, &items);
+        assert_eq!(1, f1.borrow().items.len());
+    }
+
+    fn test_processing_url_feeds() {}
 }

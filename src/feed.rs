@@ -132,7 +132,6 @@ impl Matchable for Feed {
                 if !self.is_sorted() {
                     panic!("Matcher called against unsorted feed")
                 }
-                println!("{:?}", self.items[0].age());
                 return Some(format!("{:?}", self.items[0].age()));
             }
             "unread_count" => {
@@ -382,12 +381,12 @@ mod tests {
 
     #[test]
     fn test_matching_nonexistent_attrs() {
-        let mut f = Feed::init(
+        let f = Feed::init(
             "http://example.com".to_string(),
             "Url feed".to_string(),
             "http://testfeed.com".to_string(),
         );
-        let mut attr = f.attribute_value("nonexistent");
+        let attr = f.attribute_value("nonexistent");
         assert!(attr.is_none());
     }
 }
