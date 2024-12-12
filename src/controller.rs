@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use crate::args::Args;
 use crate::builder::SinglePageBuilder;
-use crate::db::{get_feed_data, get_feed_item_data};
+use crate::db::{Connector, DBConnector};
 use crate::errors::FilesystemError;
 use crate::feed::{Feed, FeedList};
 use crate::feed_item::FeedItem;
@@ -66,8 +66,9 @@ impl BuildController {
     /// all the static page data to tmp dir and copy it to build directory.
     pub fn build(&self) -> Result<(), Box<dyn Error>> {
         info!("Processing feeds");
-        let feed_items = get_feed_item_data(self.paths.cache_file(), self.options.time_threshold)?;
-        let feeds = self.get_url_feeds()?;
+        let db_connector = DBConnector::init(self.paths.cache_file())?;
+        let feed_items = self.get_feed_items(&db_connector, self.options.time_threshold)?;
+        let feeds = self.get_url_feeds(&db_connector)?;
         self.populate_url_feeds(&feeds, &feed_items);
         let q_feeds = self.get_query_feeds(&feeds)?;
         let ctx = Context::init(&feeds, &q_feeds, &self.options);
@@ -88,6 +89,14 @@ impl BuildController {
             self.paths.build_dir().display()
         );
         Ok(())
+    }
+
+    fn get_feed_items(
+        &self,
+        db_connector: &impl Connector,
+        days_back: u64,
+    ) -> Result<Vec<FeedItem>, Box<dyn Error>> {
+        return db_connector.get_feed_items(days_back);
     }
 
     /// Generate json files for each feed.
@@ -169,12 +178,15 @@ impl BuildController {
     }
 
     /// Retrieve article data from db and populate it with data from urls.
-    fn get_url_feeds(&self) -> Result<Vec<Arc<RefCell<Feed>>>, Box<dyn Error>> {
+    fn get_url_feeds(
+        &self,
+        db_connector: &impl Connector,
+    ) -> Result<Vec<Arc<RefCell<Feed>>>, Box<dyn Error>> {
         let url_feeds = self.url_reader.get_url_feeds();
         let urls = url_feeds.iter().map(|u| u.url.clone()).collect();
         trace!("List of urls to retrieve: {}", format!("{:?}", urls));
         let mut result = Vec::new();
-        let feed_data = get_feed_data(self.paths.cache_file(), urls)?;
+        let feed_data = db_connector.get_feeds(urls)?;
         for mut f in feed_data {
             if let Some(url_feed) = url_feeds.iter().find(|u| &u.url == f.url()) {
                 f.update_with_url_data(
