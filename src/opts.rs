@@ -80,14 +80,14 @@ impl Options {
     /// Initialize default option settings.
     pub fn default() -> Options {
         return Options {
-            title: String::from("Liveboat feed page"),
-            site_path: String::from("/"),
+            title: default_title(),
+            site_path: default_site_path(),
             show_read_articles: true,
-            template_name: String::from("default"),
+            template_name: default_template_name(),
             time_threshold: 20,
-            newsboat_urls_file: String::new(),
-            newsboat_cache_file: String::new(),
-            build_dir: String::new(),
+            newsboat_urls_file: default_newsboat_url_file(),
+            newsboat_cache_file: default_newsboat_cache_file(),
+            build_dir: default_build_dir(),
         };
     }
 
