@@ -15,6 +15,7 @@ use crate::template::Context;
 const FEEDS_DIRNAME: &str = "feeds";
 const INCLUDE_DIRNAME: &str = "include";
 const INDEX_FILENAME: &str = "index";
+const BUILD_TIME_FILENAME: &str = "build_time.txt";
 
 /// This trait defines methods which every builder representation
 /// must implement.
@@ -56,6 +57,7 @@ where
     /// such as json feeds.
     fn generate_aux_data(&self) -> Result<(), Box<dyn Error>> {
         self.save_json_feeds()?;
+        self.save_build_time()?;
         Ok(())
     }
 
@@ -86,6 +88,9 @@ where
             index_path.display()
         );
         fs::copy(tpl_index_path, index_path)?;
+        let b_time_t_path = self.tmp_dir.join(BUILD_TIME_FILENAME);
+        let b_time_path = self.build_dir.join(BUILD_TIME_FILENAME);
+        fs::copy(b_time_t_path, b_time_path)?;
         Ok(())
     }
 
@@ -155,6 +160,15 @@ where
             debug,
         })
     }
+    
+    /// Save build time as text file.
+    fn save_build_time(&self) -> Result<(), Box<dyn Error>> {
+        let path = self.tmp_dir.join(BUILD_TIME_FILENAME);
+        let mut file = File::create(path)?;
+        file.write_all(format!("{}", self.context.build_time()).as_bytes())?;
+        Ok(())
+
+    }
 
     /// Save single feed data in tmp dir.
     fn save_feed_data(&self, name: &String, data: &[u8]) -> Result<(), Box<dyn Error>> {
@@ -175,12 +189,6 @@ where
                 self.save_json_feed(f)?;
             }
         }
-        // let q_list = FeedList::from_vec(query_feeds.clone());
-        // self.save_json_feedlist(&builder, &q_list, String::from("query_feeds"))?;
-        // for f in url_feeds {
-        //     let feed = f.borrow();
-        //     self.save_json_feed(&builder, &feed)?;
-        // }
         self.save_json_feedlist(&f_list, String::from("feeds"))?;
         Ok(())
     }

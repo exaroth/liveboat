@@ -9,6 +9,7 @@ use crate::opts::Options;
 pub trait Context {
     fn feeds(&self) -> &Vec<Feed>;
     fn options(&self) -> &Options;
+    fn build_time(&self) -> u64;
 }
 
 /// Representation of default context to be passed
@@ -26,6 +27,9 @@ impl<'a> Context for SimpleContext<'a> {
     }
     fn options(&self) -> &Options {
         return &self.options;
+    }
+    fn build_time(&self) -> u64 {
+        return self.build_time;
     }
 }
 
