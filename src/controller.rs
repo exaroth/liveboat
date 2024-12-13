@@ -1,20 +1,21 @@
 use log::{info, trace, warn};
+#[cfg(test)]
+use mockall::Sequence;
 use std::cell::RefCell;
 use std::error::Error;
 use std::fs::read_to_string;
+use std::path::Path;
 use std::sync::Arc;
-#[cfg(test)]
-use mockall::Sequence;
 
 use crate::args::Args;
-use crate::builder::SinglePageBuilder;
+use crate::builder::{Builder, SinglePageBuilder};
 use crate::db::{Connector, DBConnector};
 use crate::errors::FilesystemError;
 use crate::feed::{Feed, FeedList};
 use crate::feed_item::FeedItem;
 use crate::opts::Options;
 use crate::paths::Paths;
-use crate::template::Context;
+use crate::template::{Context, SimpleContext};
 use crate::urls::UrlReader;
 
 /// Build controller faciliates the process of parsing url
@@ -73,17 +74,11 @@ impl BuildController {
         let feeds = self.get_url_feeds(&db_connector)?;
         self.populate_url_feeds(&feeds, &feed_items);
         let q_feeds = self.get_query_feeds(&feeds)?;
-        let ctx = Context::init(&feeds, &q_feeds, &self.options);
-        let builder = SinglePageBuilder::init(
-            self.paths.tmp_dir(),
-            self.paths.build_dir(),
-            self.paths.template_path(),
-            self.options.template_name(),
-            ctx,
-        )?;
+        let ctx = SimpleContext::init(&feeds, &q_feeds, &self.options);
+        let builder = self.get_builder(&ctx)?;
         builder.create_tmp()?;
-        self.save_json_feeds(&builder, &q_feeds, &feeds)?;
-        builder.render_template()?;
+        builder.generate_aux_data()?;
+        builder.render_templates()?;
         builder.copy_data()?;
         builder.clean_up();
         println!(
@@ -93,70 +88,20 @@ impl BuildController {
         Ok(())
     }
 
-    fn get_feed_items(
-        &self,
-        db_connector: &impl Connector,
-        days_back: u64,
-    ) -> Result<Vec<FeedItem>, Box<dyn Error>> {
-        return db_connector.get_feed_items(days_back);
-    }
-
-    /// Generate json files for each feed.
-    fn save_json_feeds(
-        &self,
-        builder: &SinglePageBuilder<Context>,
-        query_feeds: &Vec<Feed>,
-        url_feeds: &Vec<Arc<RefCell<Feed>>>,
-    ) -> Result<(), Box<dyn Error>> {
-        for f in query_feeds {
-            self.save_json_feed(builder, f)?;
-        }
-        let q_list = FeedList::from_vec(query_feeds.clone());
-        self.save_json_feedlist(&builder, &q_list, String::from("query_feeds"))?;
-        let mut f_list = FeedList::new();
-        for f in url_feeds {
-            let feed = f.borrow();
-            self.save_json_feed(&builder, &feed)?;
-            if !feed.is_empty() && !feed.is_hidden() {
-                f_list.add_feed(&feed);
-            }
-        }
-        self.save_json_feedlist(&builder, &f_list, String::from("feeds"))?;
-        Ok(())
-    }
-
-    /// Save list of all feeds.
-    fn save_json_feedlist(
-        &self,
-        builder: &SinglePageBuilder<Context>,
-        feedlist: &FeedList,
-        name: String,
-    ) -> Result<(), Box<dyn Error>> {
-        if self.debug {
-            builder.save_feed_data(&name, serde_json::to_string_pretty(&feedlist)?.as_bytes())?;
-        } else {
-            builder.save_feed_data(&name, serde_json::to_string(&feedlist)?.as_bytes())?;
-        }
-        Ok(())
-    }
-
-    /// Save single feed items.
-    fn save_json_feed(
-        &self,
-        builder: &SinglePageBuilder<Context>,
-        feed: &Feed,
-    ) -> Result<(), Box<dyn Error>> {
-        if feed.is_empty() || feed.is_hidden() {
-            info!("Skipping saving feed: {:?}", feed);
-            return Ok(());
-        }
-        //TODO: add archives
-        if self.debug {
-            builder.save_feed_data(feed.id(), serde_json::to_string_pretty(&feed)?.as_bytes())?;
-        } else {
-            builder.save_feed_data(feed.id(), serde_json::to_string(&feed)?.as_bytes())?;
-        }
-        Ok(())
+    /// Retrieve builder instance to be used for generating static content.
+    /// At the moment there is only SPA builder implemented.
+    fn get_builder<'a>(
+        &'a self,
+        context: &'a SimpleContext,
+    ) -> Result<Box<dyn Builder + 'a>, Box<dyn Error>> {
+        let simple_builder = SinglePageBuilder::init(
+            self.paths.tmp_dir(),
+            self.paths.build_dir(),
+            self.paths.template_path(),
+            context,
+            self.debug,
+        )?;
+        return Ok(Box::new(simple_builder));
     }
 
     /// Populate feeds with article items, filter out read articles based on the opt value.
@@ -234,6 +179,15 @@ impl BuildController {
             result.push(q)
         }
         Ok(result)
+    }
+
+    /// Retrieve feeds from cache db.
+    fn get_feed_items(
+        &self,
+        db_connector: &impl Connector,
+        days_back: u64,
+    ) -> Result<Vec<FeedItem>, Box<dyn Error>> {
+        return db_connector.get_feed_items(days_back);
     }
 }
 
@@ -528,10 +482,24 @@ http://feed3.com
 
         let mut db_mock = MockConnector::new();
         let mut seq = Sequence::new();
-        let f1 = Feed::init("http://feed1.com".to_string(), "Feed1".to_string(), "".to_string());
-        let f2 = Feed::init("http://feed2.com".to_string(), "Feed2".to_string(), "".to_string());
-        let f3 = Feed::init("http://feed3.com".to_string(), "Feed3".to_string(), "".to_string());
-        db_mock.expect_get_feeds().return_once_st(move |_| Ok(Vec::from([f1.clone(), f2.clone(), f3.clone()].clone())));
+        let f1 = Feed::init(
+            "http://feed1.com".to_string(),
+            "Feed1".to_string(),
+            "".to_string(),
+        );
+        let f2 = Feed::init(
+            "http://feed2.com".to_string(),
+            "Feed2".to_string(),
+            "".to_string(),
+        );
+        let f3 = Feed::init(
+            "http://feed3.com".to_string(),
+            "Feed3".to_string(),
+            "".to_string(),
+        );
+        db_mock
+            .expect_get_feeds()
+            .return_once_st(move |_| Ok(Vec::from([f1.clone(), f2.clone(), f3.clone()].clone())));
         let results = ctrl.get_url_feeds(&db_mock);
         assert!(results.is_ok());
         let feeds = results.unwrap();

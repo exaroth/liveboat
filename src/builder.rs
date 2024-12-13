@@ -9,56 +9,42 @@ use std::{fs, io};
 
 use handlebars::Handlebars;
 
+use crate::feed::{Feed, FeedList};
+use crate::template::Context;
+
 const FEEDS_DIRNAME: &str = "feeds";
 const INCLUDE_DIRNAME: &str = "include";
 const INDEX_FILENAME: &str = "index";
 
+/// This trait defines methods which every builder representation
+/// must implement.
+pub trait Builder {
+    fn create_tmp(&self) -> Result<(), io::Error>;
+    fn generate_aux_data(&self) -> Result<(), Box<dyn Error>>;
+    fn render_templates(&self) -> Result<(), Box<dyn Error>>;
+    fn copy_data(&self) -> Result<(), Box<dyn Error>>;
+    fn clean_up(&self);
+}
+
 /// This represents default builder module
 /// used for processing single page Liveboat templates.
-pub struct SinglePageBuilder<'a, C> {
+pub struct SinglePageBuilder<'a, C>
+where
+    C: serde::Serialize + Context,
+{
     template_path: &'a Path,
     build_dir: &'a Path,
     tmp_dir: &'a Path,
-    context: C,
+    context: &'a C,
+    debug: bool,
 }
 
-impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
-    pub fn init(
-        tmp_dir: &'a Path,
-        build_dir: &'a Path,
-        template_path: &'a Path,
-        template_name: &String,
-        context: C,
-    ) -> Result<SinglePageBuilder<'a, C>, IOError> {
-        if !template_path.try_exists()? {
-            return Err(IOError::new(
-                ErrorKind::NotFound,
-                format!(
-                    "Template not found at path {}",
-                    template_path.to_str().unwrap()
-                ),
-            )
-            .into());
-        }
-        let tpl_file = template_path.join(format!("{}.hbs", INDEX_FILENAME));
-        if !tpl_file.try_exists()? {
-            return Err(IOError::new(
-                ErrorKind::NotFound,
-                format!("index.hpl does not exist for template {}", template_name),
-            )
-            .into());
-        };
-
-        Ok(SinglePageBuilder {
-            template_path,
-            build_dir,
-            tmp_dir,
-            context,
-        })
-    }
-
+impl<'a, C> Builder for SinglePageBuilder<'a, C>
+where
+    C: serde::Serialize + Context,
+{
     /// Create tmp directory structure.
-    pub fn create_tmp(&self) -> Result<(), io::Error> {
+    fn create_tmp(&self) -> Result<(), io::Error> {
         info!("Creating tmp dir at {}", self.tmp_dir.display());
         _ = fs::create_dir(self.tmp_dir)?;
         info!("Creating tmp feeds dir");
@@ -66,18 +52,15 @@ impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
         Ok(())
     }
 
-    /// Save single feed data in tmp dir.
-    pub fn save_feed_data(&self, name: &String, data: &[u8]) -> Result<(), Box<dyn Error>> {
-        let feeds_dir = self.tmp_dir.join(FEEDS_DIRNAME);
-        let path = feeds_dir.join(format!("{}.json", name));
-        info!("Saving feed at path {}", path.display());
-        let mut file = File::create(path)?;
-        file.write_all(data)?;
+    /// Generate any auxiliary data required for page generation,
+    /// such as json feeds.
+    fn generate_aux_data(&self) -> Result<(), Box<dyn Error>> {
+        self.save_json_feeds()?;
         Ok(())
     }
 
     /// Copy data from tmp to build directory.
-    pub fn copy_data(&self) -> Result<(), Box<dyn Error>> {
+    fn copy_data(&self) -> Result<(), Box<dyn Error>> {
         let include_dir = self.template_path.join(INCLUDE_DIRNAME);
         info!("Copying include contents @ {}", include_dir.display());
         copy_all(include_dir, &self.build_dir)?;
@@ -107,7 +90,7 @@ impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
     }
 
     /// Render template using context provided.
-    pub fn render_template(&self) -> Result<(), Box<dyn Error>> {
+    fn render_templates(&self) -> Result<(), Box<dyn Error>> {
         let tpl_file = self.template_path.join(format!("{}.hbs", INDEX_FILENAME));
         info!("Rendering template @ {}", &tpl_file.display());
         let raw = fs::read_to_string(tpl_file)?;
@@ -125,9 +108,106 @@ impl<'a, C: serde::Serialize> SinglePageBuilder<'a, C> {
     }
 
     /// Clean up tmp directory.
-    pub fn clean_up(&self) {
+    fn clean_up(&self) {
         info!("Cleanup");
         _ = fs::remove_dir_all(self.tmp_dir);
+    }
+}
+
+impl<'a, C> SinglePageBuilder<'a, C>
+where
+    C: serde::Serialize + Context,
+{
+    pub fn init(
+        tmp_dir: &'a Path,
+        build_dir: &'a Path,
+        template_path: &'a Path,
+        context: &'a C,
+        debug: bool,
+    ) -> Result<SinglePageBuilder<'a, C>, IOError> {
+        if !template_path.try_exists()? {
+            return Err(IOError::new(
+                ErrorKind::NotFound,
+                format!(
+                    "Template not found at path {}",
+                    template_path.to_str().unwrap()
+                ),
+            )
+            .into());
+        }
+        let tpl_file = template_path.join(format!("{}.hbs", INDEX_FILENAME));
+        if !tpl_file.try_exists()? {
+            return Err(IOError::new(
+                ErrorKind::NotFound,
+                format!(
+                    "index.hpl does not exist for path {}",
+                    template_path.display()
+                ),
+            )
+            .into());
+        };
+
+        Ok(SinglePageBuilder {
+            template_path,
+            build_dir,
+            tmp_dir,
+            context,
+            debug,
+        })
+    }
+
+    /// Save single feed data in tmp dir.
+    fn save_feed_data(&self, name: &String, data: &[u8]) -> Result<(), Box<dyn Error>> {
+        let feeds_dir = self.tmp_dir.join(FEEDS_DIRNAME);
+        let path = feeds_dir.join(format!("{}.json", name));
+        info!("Saving feed at path {}", path.display());
+        let mut file = File::create(path)?;
+        file.write_all(data)?;
+        Ok(())
+    }
+
+    /// Generate json files for each feed.
+    fn save_json_feeds(&self) -> Result<(), Box<dyn Error>> {
+        let mut f_list = FeedList::new();
+        for f in self.context.feeds() {
+            if !f.is_empty() && !f.is_hidden() {
+                f_list.add_feed(&f);
+                self.save_json_feed(f)?;
+            }
+        }
+        // let q_list = FeedList::from_vec(query_feeds.clone());
+        // self.save_json_feedlist(&builder, &q_list, String::from("query_feeds"))?;
+        // for f in url_feeds {
+        //     let feed = f.borrow();
+        //     self.save_json_feed(&builder, &feed)?;
+        // }
+        self.save_json_feedlist(&f_list, String::from("feeds"))?;
+        Ok(())
+    }
+
+    /// Save list of all feeds.
+    fn save_json_feedlist(&self, feedlist: &FeedList, name: String) -> Result<(), Box<dyn Error>> {
+        if self.debug {
+            self.save_feed_data(&name, serde_json::to_string_pretty(&feedlist)?.as_bytes())?;
+        } else {
+            self.save_feed_data(&name, serde_json::to_string(&feedlist)?.as_bytes())?;
+        }
+        Ok(())
+    }
+
+    /// Save single feed items.
+    fn save_json_feed(&self, feed: &Feed) -> Result<(), Box<dyn Error>> {
+        if feed.is_empty() || feed.is_hidden() {
+            info!("Skipping saving feed: {:?}", feed);
+            return Ok(());
+        }
+        //TODO: add archives
+        if self.debug {
+            self.save_feed_data(feed.id(), serde_json::to_string_pretty(&feed)?.as_bytes())?;
+        } else {
+            self.save_feed_data(feed.id(), serde_json::to_string(&feed)?.as_bytes())?;
+        }
+        Ok(())
     }
 }
 

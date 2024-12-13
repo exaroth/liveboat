@@ -6,21 +6,35 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::feed::Feed;
 use crate::opts::Options;
 
+pub trait Context {
+    fn feeds(&self) -> &Vec<Feed>;
+    fn options(&self) -> &Options;
+}
+
 /// Representation of default context to be passed
 /// when rendering index template.
 #[derive(serde::Serialize)]
-pub struct Context<'a> {
-    build_time: u64,
+pub struct SimpleContext<'a> {
     feeds: Vec<Feed>,
     options: &'a Options,
+    build_time: u64,
 }
 
-impl<'a> Context<'a> {
+impl<'a> Context for SimpleContext<'a> {
+    fn feeds(&self) -> &Vec<Feed> {
+        return &self.feeds;
+    }
+    fn options(&self) -> &Options {
+        return &self.options;
+    }
+}
+
+impl<'a> SimpleContext<'a> {
     pub fn init(
         url_feeds: &'a Vec<Arc<RefCell<Feed>>>,
         query_feeds: &'a Vec<Feed>,
         options: &'a Options,
-    ) -> Context<'a> {
+    ) -> SimpleContext<'a> {
         let mut feeds = Vec::new();
         for f in url_feeds {
             let item = <RefCell<Feed> as Clone>::clone(&f).into_inner();
@@ -35,23 +49,22 @@ impl<'a> Context<'a> {
             }
             feeds.push(q_feed.clone());
         }
-        feeds.sort_by(|a, b| a.order_idx().cmp(b.order_idx()));
-
         let start = SystemTime::now();
         let since_the_epoch = start
             .duration_since(UNIX_EPOCH)
             .expect("Time went backwards");
         let build_time = since_the_epoch.as_secs();
 
-        Context {
+        feeds.sort_by(|a, b| a.order_idx().cmp(b.order_idx()));
+        SimpleContext {
             feeds,
-            build_time,
             options,
+            build_time,
         }
     }
 }
 
-impl fmt::Display for Context<'_> {
+impl fmt::Display for SimpleContext<'_> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -109,7 +122,7 @@ mod tests {
         qfeed.add_item(item1.clone());
         query_feeds.push(qfeed);
         let opts = Options::default();
-        let ctx = Context::init(&feeds, &query_feeds, &opts);
+        let ctx = SimpleContext::init(&feeds, &query_feeds, &opts);
 
         assert_eq!(2, ctx.feeds.len());
         assert_eq!(ctx.feeds[0].title(), "Query feed2");
