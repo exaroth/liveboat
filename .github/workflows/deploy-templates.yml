@@ -24,7 +24,7 @@ jobs:
           asset_name: templates.tar.gz
           tag: development
           overwrite: true
-        if: github.ref_name == 'builder'
+        if: github.ref == 'refs/heads/develop'
       - name: Upload templates for tag
         uses: svenstaro/upload-release-action@v2
         with:

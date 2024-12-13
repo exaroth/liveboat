@@ -72,7 +72,7 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}
           tag: development
           overwrite: true
-        if: github.ref_name == 'develop'
+        if: github.ref == 'refs/heads/develop'
 
       - name: Upload checksums
         uses: svenstaro/upload-release-action@v2
@@ -82,7 +82,7 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}.sha256sum
           tag: development
           overwrite: true
-        if: github.ref_name == 'develop'
+        if: github.ref == 'refs/heads/develop'
 
       - name: Upload binaries for tag
         uses: svenstaro/upload-release-action@v2
