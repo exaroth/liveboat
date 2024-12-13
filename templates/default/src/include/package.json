@@ -1,6 +1,10 @@
 {
   "name": "liveboat-default-theme",
-  "version": "0.0.0",
+  "author": "Konrad Wasowicz <exaroth@gmail.com (https://konrad.website)>",
+  "homepage": "https://github.com/exaroth/liveboat",
+  "description": "Default Liveboat app template",
+  "license": "MIT",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {

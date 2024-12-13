@@ -2,15 +2,13 @@
 <img align="center" width="160" height="160" src="logo.png" alt="Liveboat"><br/>
 Liveboat
 </h1>
-TODO: change link
-<h1>See <a href="https://konrad.website/liveboat-demo" target="_blank">Demo</a></h1>
+<h1>See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo</a></h1>
 
 Liveboat generates static pages based on the Newsboat RSS Reader configuration, content which can be easily hosted online and reached even when away from the terminal.
 
 ## Running via Github actions
-TODO: change link
 For any existing Newsboat users the most straightforward way to generate Liveboat feed page is via Github Actions - the site will be uploaded to Github Pages on your account, available immediately and set up with automatic updates.
-For details follow instructions at [https://github.com/exaroth/liveboat-demo](https://github.com/exaroth/liveboat-demo)
+For details follow instructions at [https://github.com/exaroth/liveboat-github-runner](https://github.com/exaroth/liveboat-github-runner)
 
 ## Running locally
 
@@ -85,7 +83,8 @@ To manually rebuild Newsboat feeds and generate the page every 30 minutes
 
 Run `liveboat --help` for list of all available arguments
 
-__NOTE:__ During every update Liveboat will only regenerate template files and feed list, if you want to add additional files or directories such as git repository feel free to do so as these won't be overwritten in between builds.
+> [!IMPORTANT]
+> During every update Liveboat will only regenerate template files and feed list, if you want to add additional files or directories such as git repository feel free to do so as these won't be overwritten when rebuilding feed pages.
 
 ### Options file
 
@@ -95,7 +94,7 @@ Configuration file can be found at `~/.config/liveboat/config.toml` and stores o
 - `site_path` - This defines base path under which feed page will be hosted, unless deployed at the root domain this variable should be updated, eg. if hosted on the Github Pages (as a repository) this will need to be changed to `/<repo_name>/`.
 - `show_read_articles` - Whether or not to include articles marked as read by Newsboat.
 - `time_threshold` - Amount of time in the past (in days) for which Liveboat should look for when retrieving articles. 
-- `template_name` - Name of the template to use when generating the feed page, templates are stored at `~/.config/liveboat/templates`, if you want to use template hosted elsewhere use `--template-path` argument when invoking Liveboat.
+- `template_name` - Name of the template to use when generating the feed page, templates are stored at `~/.config/liveboat/templates`, if you want to use template located elsewhere use `--template-path` argument when invoking Liveboat.
 - `build_dir` - Default path to directory where Liveboat will output feed page files, can be overwritten via `--build-dir` argument.
 - `newsboat_urls_file` - Path to Newsboat urls file.
 - `newsboat_cache_file` - Path to file containing Newsboat cache db.
@@ -116,10 +115,12 @@ If your urls file contains any of the above filters these will be ignored when g
 
 ## Template development
 
-See [https://github.com/exaroth/liveboat/blob/readme-update/templates/README.md](https://github.com/exaroth/liveboat/blob/readme-update/templates/README.md) for details about developing your own template or modifying existing one.
+See [https://github.com/exaroth/liveboat/templates/README.md](https://github.com/exaroth/liveboat/tree/develop/templates) for details about developing your own template or modifying existing one.
 
 ## Acknowledgements
 - Team behind Newsboat/Newsbeuter RSS readers for making amazing app :)
  
 ## License
 Liveboat is provided under MIT License, see `LICENSE` file for details
+
+
