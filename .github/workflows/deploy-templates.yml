@@ -1,12 +1,6 @@
 name: template-builder
 
-on:
-  push:
-    branches:
-      - "builder"
-      - "main"
-    tags:
-      - "*"
+on: push
 
 jobs:
   template-builder:

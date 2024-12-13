@@ -1,12 +1,6 @@
 name: cross-compile
 
-on:
-  push:
-    branches:
-      - "builder"
-      - "main"
-    tags:
-      - "*"
+on: push
 
 jobs:
   release:
