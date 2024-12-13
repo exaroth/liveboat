@@ -6,6 +6,8 @@ use serde::ser::{Serialize, SerializeStruct, Serializer};
 
 use crate::feed_item::FeedItem;
 
+const MAX_TRUNCATED_FEED_ITEMS: usize = 50;
+
 /// Representation for single feed as retrieved from database.
 /// Used for storing both url and query based feeds.
 #[derive(Clone)]
@@ -70,6 +72,24 @@ impl Feed {
     pub fn sort_items(&mut self) {
         self.items.sort_by(|a, b| a.date().cmp(&b.date()));
         self._sorted = true
+    }
+
+    /// Compact list of articles to either 50 or week max so
+    /// that we dont have to load all the articles at the same time.
+    pub fn truncate_items(&mut self) {
+        if self.items.len() <= MAX_TRUNCATED_FEED_ITEMS {
+            return;
+        }
+        let items = self.items.clone();
+        let last_week_items = items
+            .into_iter()
+            .filter(|i| i.age() <= 7)
+            .collect::<Vec<FeedItem>>();
+        if last_week_items.len() >= MAX_TRUNCATED_FEED_ITEMS {
+            self.items = last_week_items;
+            return;
+        }
+        self.items = self.items[0..MAX_TRUNCATED_FEED_ITEMS].to_vec();
     }
 
     /// Update feed with data retrieved from urls file.

@@ -160,14 +160,13 @@ where
             debug,
         })
     }
-    
+
     /// Save build time as text file.
     fn save_build_time(&self) -> Result<(), Box<dyn Error>> {
         let path = self.tmp_dir.join(BUILD_TIME_FILENAME);
         let mut file = File::create(path)?;
         file.write_all(format!("{}", self.context.build_time()).as_bytes())?;
         Ok(())
-
     }
 
     /// Save single feed data in tmp dir.
@@ -209,11 +208,14 @@ where
             info!("Skipping saving feed: {:?}", feed);
             return Ok(());
         }
-        //TODO: add archives
+        let mut truncated = feed.clone();
+        truncated.truncate_items();
         if self.debug {
-            self.save_feed_data(feed.id(), serde_json::to_string_pretty(&feed)?.as_bytes())?;
+            self.save_feed_data(truncated.id(), serde_json::to_string_pretty(&truncated)?.as_bytes())?;
+            self.save_feed_data(&format!("{}_archive", feed.id()), serde_json::to_string_pretty(&feed)?.as_bytes())?;
         } else {
-            self.save_feed_data(feed.id(), serde_json::to_string(&feed)?.as_bytes())?;
+            self.save_feed_data(truncated.id(), serde_json::to_string(&truncated)?.as_bytes())?;
+            self.save_feed_data(&format!("{}_archive", feed.id()), serde_json::to_string(&feed)?.as_bytes())?;
         }
         Ok(())
     }
