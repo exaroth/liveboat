@@ -17,7 +17,7 @@ const setScrollToTop = () => {
   let offset = window.pageYOffset
   showScrollToTop.value = offset > vh
 }
-window.addEventListener('scroll', setScrollToTop)
+
 
 const scrollToTop = () => {
   window.scrollTo(0, 0)
@@ -33,6 +33,10 @@ const getBuildTime = async () => {
   return parseInt(await response.text())
 }
 
+setInterval(() => {
+  setScrollToTop()
+}, 300)
+
 let bTimeInterval = setInterval(async () => {
   let bTime = await getBuildTime()
   if (new Date(bTime * 1000) > buildTime) {
@@ -42,7 +46,7 @@ let bTimeInterval = setInterval(async () => {
 }, 10 * 1000)
 
 const refreshPage = () => {
-  window.location.reload();
+  window.location.reload()
 }
 </script>
 
@@ -124,8 +128,8 @@ const refreshPage = () => {
 
 #side-buttons {
   position: fixed;
-  right: 4rem;
-  top: 10%;
+  right: 40px;
+  top: 40px;
   width: 38px;
 }
 #side-buttons a {
