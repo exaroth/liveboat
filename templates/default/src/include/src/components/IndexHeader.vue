@@ -131,6 +131,7 @@ const refreshPage = () => {
   right: 40px;
   top: 40px;
   width: 38px;
+  z-index: 997;
 }
 #side-buttons a {
   float: right;
@@ -165,7 +166,6 @@ const refreshPage = () => {
   #side-buttons {
     top: 10px;
     right: 10px;
-    z-index: 997;
   }
 }
 </style>
