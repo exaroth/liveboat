@@ -184,7 +184,7 @@ const showEmbedModal = (feedItem) => {
 
 <style scoped>
 .feed-item {
-  margin: 0px 0px 12px 0px;
+  line-height: 34px;
   width: 100%;
 }
 .feed-item-domain {
@@ -209,7 +209,9 @@ const showEmbedModal = (feedItem) => {
   padding: 2px 20px 0px 20px;
   border-radius: 3px 3px 0px 0px;
 }
-
+.feed-item-link a {
+  padding: 6px 0;
+}
 .feed-item-link a {
   cursor: pointer;
 }

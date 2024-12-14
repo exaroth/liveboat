@@ -15,7 +15,9 @@ const props = defineProps({
 
 const embedStore = useEmbedStore()
 const feedsStore = useFeedsStore()
+
 const { feeds } = storeToRefs(feedsStore)
+
 </script>
 
 <template>

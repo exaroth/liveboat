@@ -31,3 +31,4 @@ coverage
 index.html
 feeds
 package-lock.json
+build_time.txt

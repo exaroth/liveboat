@@ -1,2 +1,9 @@
 builder = "spa"
 version = "1.0.0"
+
+template_settings = {
+    background-color = "#"
+    text-color-primary = "#"
+    text-color-secondary = "#"
+    color-accent = "#"
+}

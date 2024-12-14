@@ -1,11 +1,49 @@
 <script setup>
+import { ref } from 'vue'
 import IconGithub from './icons/IconGithub.vue'
 import IconHeart from './icons/IconHeart.vue'
+import IconTop from './icons/IconTop.vue'
 import IconLiveboat from './icons/IconLiveboat.vue'
+import IconRefresh from './icons/IconRefresh.vue'
 
 const buildTime = new Date(window.buildTime * 1000)
 const pageTitle = window.pageTitle
 const sitePath = window.sitePath
+const showScrollToTop = ref(false)
+const showRefresh = ref(false)
+
+const setScrollToTop = () => {
+  let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+  let offset = window.pageYOffset
+  showScrollToTop.value = offset > vh
+}
+window.addEventListener('scroll', setScrollToTop)
+
+const scrollToTop = () => {
+  window.scrollTo(0, 0)
+}
+const getBuildTime = async () => {
+  let basePath = 'build_time.txt'
+  let pathPrefix = window.sitePath || '/'
+  if (!pathPrefix.endsWith('/')) {
+    pathPrefix = pathPrefix + '/'
+  }
+  let url = pathPrefix + basePath
+  let response = await fetch(url)
+  return parseInt(await response.text())
+}
+
+let bTimeInterval = setInterval(async () => {
+  let bTime = await getBuildTime()
+  if (new Date(bTime * 1000) > buildTime) {
+    showRefresh.value = true
+    clearInterval(bTimeInterval)
+  }
+}, 10 * 1000)
+
+const refreshPage = () => {
+  window.location.reload();
+}
 </script>
 
 <template>
@@ -20,11 +58,15 @@ const sitePath = window.sitePath
   <div class="header-container">
     <div class="header-title">
       <h2>
-
-    <IconLiveboat/>
-        <a :href="sitePath">{{ pageTitle }}</a></h2>
+        <IconLiveboat />
+        <a :href="sitePath">{{ pageTitle }}</a>
+      </h2>
       <h5>Page last updated on {{ buildTime.toUTCString() }}</h5>
     </div>
+  </div>
+  <div id="side-buttons">
+    <a title="Scroll to top" v-if="showScrollToTop" @click="scrollToTop()"><IconTop /></a>
+    <a title="New feeds available" v-if="showRefresh" @click="refreshPage()"><IconRefresh /></a>
   </div>
 </template>
 
@@ -51,7 +93,6 @@ const sitePath = window.sitePath
   height: 28px;
   margin-right: 4px;
   fill: var(--color-text-primary);
-
 }
 .header-crumbs {
   position: absolute;
@@ -81,6 +122,28 @@ const sitePath = window.sitePath
   opacity: 1;
 }
 
+#side-buttons {
+  position: fixed;
+  right: 4rem;
+  top: 10%;
+  width: 38px;
+}
+#side-buttons a {
+  float: right;
+  width: 38px;
+  opacity: 0.8;
+  cursor: pointer;
+}
+#side-buttons a:hover {
+  opacity: 1;
+  background-color: none;
+  background: none;
+}
+#side-buttons svg {
+  width: 38px;
+  height: 38px;
+}
+
 @media (max-width: 640px) {
   .header-crumbs {
     top: 2px;
@@ -91,6 +154,14 @@ const sitePath = window.sitePath
   }
   #github-link {
     top: 12px;
+  }
+}
+
+@media (max-width: 900px) {
+  #side-buttons {
+    top: 10px;
+    right: 10px;
+    z-index: 997;
   }
 }
 </style>
