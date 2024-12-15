@@ -1,7 +1,6 @@
 name: cross-compile
 
 on:
-  workflow_dispatch:
   workflow_run:
     workflows:
       - test
@@ -42,6 +41,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Install deps
         run: git submodule update --init
+      - name: Debug
+        run: echo {{ github.event.workflow_run.head_branch }}
       - name: Install coreutils for macOS
         run: brew install coreutils
         if: contains(matrix.platform.target, 'darwin')
