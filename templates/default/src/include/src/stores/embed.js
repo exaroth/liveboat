@@ -51,9 +51,11 @@ export const useEmbedStore = defineStore('embed', {
     },
     showEmbedModal() {
       this.showModal = true
+      document.documentElement.style.overflow = 'hidden'
     },
     hideEmbedModal() {
       this.showModal = false
+      document.documentElement.style.overflow = 'auto'
     },
   },
   computed: {
