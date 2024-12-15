@@ -171,7 +171,8 @@ mod tests {
         qfeed.add_item(item1.clone());
         query_feeds.push(qfeed);
         let opts = Options::default();
-        let ctx = SimpleContext::init(&feeds, &query_feeds, &opts);
+        let settings = HashMap::new();
+        let ctx = SimpleContext::init(&feeds, &query_feeds, &opts, &settings);
 
         assert_eq!(2, ctx.feeds.len());
         assert_eq!(ctx.feeds[0].title(), "Query feed2");
