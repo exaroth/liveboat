@@ -54,7 +54,7 @@ Feeds directory contains `JSON` files (one per feed) with all the articles which
 > Feeds array is sorted so that the order corresponds to the order as defined in Newsboat urls file, article items within JSON files are sorted from latest to oldest.
 
 > [!NOTE]
-> Each JSON file holding feed data contains only limited number of articles - the formula is `min(<num_total_articles>, max(<num_articles_from_last_7_days>, 50))` - this is done in order to limit size of json files to be loaded by default. Each feed file does have corresponding archive version with suffix `_archive` which contains full non-truncated list of articles, note however that even this archive version is limited by particular Liveboat and Newsboat settings - `time_threshold` setting in case of Liveboat, 'and keep-articles-days' for Newsboat.
+> Each JSON file holding feed data contains only limited number of articles - the formula is `min(<num_total_articles>, max(<num_articles_from_last_7_days>, 50))` - this is done in order to limit size of json files to be loaded by default. Each feed file does have corresponding archive version with suffix `_archive` which contains full non-truncated list of articles, note however that even this archive version is limited by particular Liveboat and Newsboat settings - `time_threshold` setting in case of Liveboat and `keep-articles-days` for Newsboat.
 
 ## Template context
 
