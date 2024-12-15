@@ -7,7 +7,7 @@ Liveboat
 Liveboat generates static pages based on the Newsboat RSS Reader configuration, content which can be easily hosted online and reached even when away from the terminal.
 
 ## Running via Github actions
-For any existing Newsboat users the most straightforward way to generate Liveboat feed page is via Github Actions - the site will be uploaded to Github Pages on your account, available immediately and set up with automatic updates.
+The most straightforward way to generate Liveboat feed page is via Github Actions - the site will be uploaded to Github Pages on your account, available immediately and set up with automatic updates.
 For details follow instructions at [https://github.com/exaroth/liveboat-github-runner](https://github.com/exaroth/liveboat-github-runner)
 
 ## Running locally
