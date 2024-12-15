@@ -1,6 +1,12 @@
 name: cross-compile
 
-on: push
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - test
+    types:
+      - completed
 
 jobs:
   release:
@@ -104,7 +110,7 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}
           tag: stable
           overwrite: true
-        if: github.ref_name == 'main'
+        if: github.ref == 'refs/heads/main'
 
       - name: Upload checksums for release
         uses: svenstaro/upload-release-action@v2
@@ -114,4 +120,4 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}.sha256sum
           tag: stable
           overwrite: true
-        if: github.ref_name == 'main'
+        if: github.ref == 'refs/heads/main'

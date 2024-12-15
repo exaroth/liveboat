@@ -1,9 +1,16 @@
 name: template-builder
 
-on: push
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - test
+    types:
+      - completed
 
 jobs:
   template-builder:
+    name: Deploy templates
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -44,4 +51,4 @@ jobs:
           asset_name: VERSION
           tag: stable
           overwrite: true
-        if: github.ref_name == 'main'
+        if: github.ref == 'refs/heads/main'

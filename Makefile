@@ -14,6 +14,8 @@ else
   extension :=
 endif
 
+CARGO=cargo
+CARGO_TEST_FLAGS=--workspace
 
 all: build install
 .DEFAULT_GOAL: help
@@ -36,7 +38,11 @@ build:
 .PHONY: install
 install:
 	git submodule update --init
-	cp target/$(target)/$(prog) ~/bin/$(prog)$(extension)
+	# cp target/$(target)/$(prog) ~/bin/$(prog)$(extension)
+
+.PHONY: test
+test:
+	$(CARGO) test $(CARGO_TEST_FLAGS) --no-fail-fast src;
 
 .PHONY: setup-default-template-dev
 setup-default-template-dev:
