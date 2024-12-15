@@ -6,6 +6,6 @@ import IndexHeader from '@/components/IndexHeader.vue'
 <template>
   <main>
     <IndexHeader/>
-    <FeedList :filtered="true" />
+    <FeedList :filtered="true" :archived="false"/>
   </main>
 </template>

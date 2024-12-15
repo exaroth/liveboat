@@ -15,6 +15,6 @@ const feed = feedsStore.getFeedById(route.params.feedId)
 
 <template>
   <IndexHeader></IndexHeader>
-  <FeedItem :filtered="false" :feed="feed"></FeedItem>
+  <FeedItem :filtered="false" :archived="true" :feed="feed"></FeedItem>
   <EmbedModal v-if="embedStore.showModal" :embedCode="embedStore.modalEmbedCode" :fallbackUrl="embedStore.fallbackUrl"/>
 </template>

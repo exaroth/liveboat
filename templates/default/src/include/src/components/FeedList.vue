@@ -11,23 +11,30 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  archived: {
+    type: Boolean,
+    required: true,
+  },
 })
 
 const embedStore = useEmbedStore()
 const feedsStore = useFeedsStore()
 
 const { feeds } = storeToRefs(feedsStore)
-
 </script>
 
 <template>
   <FilterBox />
   <div class="feed-list-wrapper" v-for="feed in feeds" :key="feed.id">
     <Transition>
-    <FeedItem :feed="feed" :filtered="props.filtered"> </FeedItem>
+      <FeedItem :feed="feed" :filtered="props.filtered" :archived="props.archived"> </FeedItem>
     </Transition>
   </div>
-  <EmbedModal v-if="embedStore.showModal" :embedCode="embedStore.modalEmbedCode" :fallbackUrl="embedStore.fallbackUrl"/>
+  <EmbedModal
+    v-if="embedStore.showModal"
+    :embedCode="embedStore.modalEmbedCode"
+    :fallbackUrl="embedStore.fallbackUrl"
+  />
 </template>
 
 <style scoped>
@@ -41,5 +48,4 @@ const { feeds } = storeToRefs(feedsStore)
   opacity: 0;
   transform: translateY(30px);
 }
-
 </style>

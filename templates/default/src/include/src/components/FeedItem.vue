@@ -16,6 +16,10 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  archived: {
+    type: Boolean,
+    required: true,
+  },
 })
 
 const _dateOpts = {
@@ -125,12 +129,15 @@ const feedHasItems = () => {
 }
 
 const resolveFeedPath = (feedId) => {
-  let basePath = `feeds/${feedId}.json`
+  let basePath = `feeds/${feedId}`
+  if (props.archived) {
+    basePath = basePath + '_archive'
+  }
   let pathPrefix = window.sitePath || '/'
   if (!pathPrefix.endsWith('/')) {
     pathPrefix = pathPrefix + '/'
   }
-  let feedUrl = pathPrefix + basePath
+  let feedUrl = `${pathPrefix}${basePath}.json`
   return feedUrl
 }
 
