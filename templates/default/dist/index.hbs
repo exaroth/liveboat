@@ -22,7 +22,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="{{ options.title }}">
 
-    <link rel="stylesheet" href="./assets/index.css">
+    <link rel="stylesheet" href="./assets/index.css?tv={{template_version}}">
     <style>
         :root {
             {{#if template_settings.text-color}}
@@ -60,7 +60,7 @@
       </script>
       <div id="app"></div>
 
-    <script type="module" src="./assets/index.js"></script>
+    <script type="module" src="./assets/index.js?tv={{template_version}}"></script>
 
   </body>
 </html>

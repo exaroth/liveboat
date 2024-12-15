@@ -62,6 +62,7 @@ pub struct SimpleContext<'a> {
     options: &'a Options,
     build_time: u64,
     template_settings: &'a HashMap<String, String>,
+    template_version: String,
 }
 
 impl<'a> Context for SimpleContext<'a> {
@@ -82,6 +83,7 @@ impl<'a> SimpleContext<'a> {
         query_feeds: &'a Vec<Feed>,
         options: &'a Options,
         template_settings: &'a HashMap<String, String>,
+        template_version: String,
     ) -> SimpleContext<'a> {
         let mut feeds = Vec::new();
         for f in url_feeds {
@@ -109,6 +111,7 @@ impl<'a> SimpleContext<'a> {
             options,
             build_time,
             template_settings,
+            template_version,
         }
     }
 }
@@ -172,7 +175,13 @@ mod tests {
         query_feeds.push(qfeed);
         let opts = Options::default();
         let settings = HashMap::new();
-        let ctx = SimpleContext::init(&feeds, &query_feeds, &opts, &settings);
+        let ctx = SimpleContext::init(
+            &feeds,
+            &query_feeds,
+            &opts,
+            &settings,
+            String::from("1.0.0"),
+        );
 
         assert_eq!(2, ctx.feeds.len());
         assert_eq!(ctx.feeds[0].title(), "Query feed2");

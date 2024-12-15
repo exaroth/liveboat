@@ -79,6 +79,7 @@ impl BuildController {
             &q_feeds,
             &self.options,
             &tpl_config.template_settings,
+            tpl_config.version.clone(),
         );
         let builder = self.get_builder(&ctx)?;
         builder.create_tmp()?;
