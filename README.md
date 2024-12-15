@@ -54,6 +54,7 @@ After cloning repository run `make install && make build` to build the binary. R
 
 If you're not Newsboat user yet see [Newsboat documentation](https://newsboat.org/releases/2.10.2/docs/newsboat.html) for set up and configuration details.
 <br/>
+<br/>
 After installing Liveboat execute `liveboat -x init` to set up configuration and download the build templates.
 
 ### Running on every Newsboat update

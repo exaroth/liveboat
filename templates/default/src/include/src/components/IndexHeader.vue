@@ -1,16 +1,22 @@
 <script setup>
 import { ref } from 'vue'
+
+import { useEmbedStore } from '../stores/embed'
+
 import IconGithub from './icons/IconGithub.vue'
 import IconHeart from './icons/IconHeart.vue'
 import IconTop from './icons/IconTop.vue'
 import IconLiveboat from './icons/IconLiveboat.vue'
 import IconRefresh from './icons/IconRefresh.vue'
 
+
 const buildTime = new Date(window.buildTime * 1000)
 const pageTitle = window.pageTitle
 const sitePath = window.sitePath
 const showScrollToTop = ref(false)
 const showRefresh = ref(false)
+
+const embedStore = useEmbedStore()
 
 const setScrollToTop = () => {
   let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
@@ -68,7 +74,7 @@ const refreshPage = () => {
       <h5>Page last updated on {{ buildTime.toUTCString() }}</h5>
     </div>
   </div>
-  <div id="side-buttons">
+  <div v-if="!embedStore.showModal" id="side-buttons">
     <a title="Scroll to top" v-if="showScrollToTop" @click="scrollToTop()"><IconTop /></a>
     <a title="New feeds available" v-if="showRefresh" @click="refreshPage()"><IconRefresh /></a>
   </div>
