@@ -76,7 +76,7 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}
           tag: development
           overwrite: true
-        if: github.event.workflow_run.head_branch = "develop"
+        if: github.event.workflow_run.head_branch == "develop"
 
       - name: Upload checksums
         uses: svenstaro/upload-release-action@v2
@@ -86,7 +86,7 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}.sha256sum
           tag: development
           overwrite: true
-        if: github.event.workflow_run.head_branch = "develop"
+        if: github.event.workflow_run.head_branch == "develop"
 
       - name: Upload binaries for tag
         uses: svenstaro/upload-release-action@v2
@@ -114,7 +114,7 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}
           tag: stable
           overwrite: true
-        if: github.event.workflow_run.head_branch = "main"
+        if: github.event.workflow_run.head_branch == "main"
 
       - name: Upload checksums for release
         uses: svenstaro/upload-release-action@v2
@@ -124,4 +124,4 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}.sha256sum
           tag: stable
           overwrite: true
-        if: github.event.workflow_run.head_branch = "main"
+        if: github.event.workflow_run.head_branch == "main"
