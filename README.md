@@ -80,7 +80,7 @@ If you don't want to run Liveboat on every Newsboat rebuild you can set up a cro
 
 To manually rebuild Newsboat feeds and generate the page every 30 minutes
 
-### Execute manually
+### Executing manually
 
 Run `liveboat --help` for list of all available arguments
 
@@ -104,6 +104,23 @@ Configuration file can be found at `~/.config/liveboat/config.toml` and stores o
 
 Execute `liveboat -x update` to check for new versions of Liveboat and update if one exists, including templates.
 
+
+### Git integration
+
+Liveboat does not include any git integration if you want to automatically push newly generated page to Github or anywhere else you can wrap the execution in shell script. For example:
+``` sh
+#!/bin/sh
+build_dir="$HOME/liveboat_build";
+timestamp=$(date +%s);
+liveboat $build_dir;
+cd $build_dir && git add -A . && git commit -a -m "Liveboat build @ $timestamp" && git push;
+cd -
+```
+
+## Template development
+
+See [https://github.com/exaroth/liveboat/templates/README.md](https://github.com/exaroth/liveboat/tree/develop/templates) for details about developing your own template or modifying existing one.
+
 ### Compatibility
 
 Newsboat is compatible with Newsboat urls filtering and aggregation syntax, generated pages will contain same attributes as those displayed in the terminal. It supports query filter syntax as well, with following exceptions:
@@ -113,10 +130,6 @@ Newsboat is compatible with Newsboat urls filtering and aggregation syntax, gene
 - `article_index` `<rss_article_attribute>`
 
 If your urls file contains any of the above filters these will be ignored when generating the page. 
-
-## Template development
-
-See [https://github.com/exaroth/liveboat/templates/README.md](https://github.com/exaroth/liveboat/tree/develop/templates) for details about developing your own template or modifying existing one.
 
 ## Acknowledgements
 - Team behind Newsboat/Newsbeuter RSS readers for making amazing app :)
