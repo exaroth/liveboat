@@ -1,0 +1,8 @@
+builder = "spa"
+version = "1.0.0"
+
+[template_settings]
+text-color = "#c7cfcc"
+highlight-color = "#73bed3"
+accent-color = "#3c5e8b"
+background-color = "#181818"

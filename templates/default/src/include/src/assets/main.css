@@ -1,0 +1,48 @@
+@import './base.css';
+
+a,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+span,
+li {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0px 0px 0px 12px;
+}
+
+#app {
+  width: 100vw;
+  margin: 0 auto;
+  padding: .8rem;
+  font-weight: normal;
+  min-height: 100vh;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: rgb(from var(--color-accent) r g b / 50%);
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2rem;
+    width: 1024px;
+  }
+}

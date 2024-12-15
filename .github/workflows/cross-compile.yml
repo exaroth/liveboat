@@ -1,0 +1,124 @@
+name: cross-compile
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - test
+    types:
+      - completed
+
+jobs:
+  release:
+    name: Build - ${{ matrix.platform.os-name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - os-name: Linux-x86_64-musl
+            runs-on: ubuntu-20.04
+            target: x86_64-unknown-linux-musl
+            binary_name: liveboat-linux-musl
+
+          - os-name: Linux-x86_64-gnu
+            runs-on: ubuntu-20.04
+            target: x86_64-unknown-linux-gnu
+            binary_name: liveboat-linux-gnu
+
+          - os-name: macOS-x86_64
+            runs-on: macOS-latest
+            target: x86_64-apple-darwin
+            binary_name: liveboat-darwin
+
+          - os-name: Linux-aarch64
+            runs-on: ubuntu-20.04
+            target: aarch64-unknown-linux-gnu
+            binary_name: liveboat-aarch64
+
+    runs-on: ${{ matrix.platform.runs-on }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install deps
+        run: git submodule update --init
+      - name: Install coreutils for macOS
+        run: brew install coreutils
+        if: contains(matrix.platform.target, 'darwin')
+      - name: Install sqlite3 for aarch64
+        run:
+          export CROSS_CONFIG=$(pwd)/Cross.toml
+          export CROSS_DEBUG=1
+        if: contains(matrix.platform.target, 'aarch64')
+      - name: Build binary
+        uses: houseabsolute/actions-rust-cross@v0
+        with:
+          target: ${{ matrix.platform.target }}
+          args: "--locked --release"
+          strip: true
+
+      - name: Set chmod for the binary
+        run: |
+          chmod +x target/${{ matrix.platform.target }}/release/liveboat
+
+      - name: Save binary SHA
+        run:
+          mkdir checksums;
+          echo -n target/${{ matrix.platform.target }}/release/liveboat | sha256sum > checksums/${{ matrix.platform.binary_name }};
+      - name: Upload development binaries
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/${{ matrix.platform.target }}/release/liveboat
+          asset_name: ${{ matrix.platform.binary_name }}
+          tag: development
+          overwrite: true
+        if: github.ref == 'refs/heads/develop'
+
+      - name: Upload checksums
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: checksums/${{ matrix.platform.binary_name }}
+          asset_name: ${{ matrix.platform.binary_name }}.sha256sum
+          tag: development
+          overwrite: true
+        if: github.ref == 'refs/heads/develop'
+
+      - name: Upload binaries for tag
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/${{ matrix.platform.target }}/release/liveboat
+          asset_name: ${{ matrix.platform.binary_name }}
+          tag: ${{ github.ref }}
+        if: github.ref_type == 'tag'
+
+      - name: Upload checksums for tag
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: checksums/${{ matrix.platform.binary_name }}
+          asset_name: ${{ matrix.platform.binary_name }}.sha256sum
+          tag: ${{ github.ref }}
+        if: github.ref_type == 'tag'
+
+      - name: Upload binaries for release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/${{ matrix.platform.target }}/release/liveboat
+          asset_name: ${{ matrix.platform.binary_name }}
+          tag: stable
+          overwrite: true
+        if: github.ref == 'refs/heads/main'
+
+      - name: Upload checksums for release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: checksums/${{ matrix.platform.binary_name }}
+          asset_name: ${{ matrix.platform.binary_name }}.sha256sum
+          tag: stable
+          overwrite: true
+        if: github.ref == 'refs/heads/main'
