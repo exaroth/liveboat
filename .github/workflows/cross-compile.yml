@@ -44,7 +44,7 @@ jobs:
       - name: Install deps
         run: git submodule update --init
       - name: Debug
-        run: echo ${{ github.event.workflow_run }}
+        run: echo  ${{ toJson(github.event.workflow_run) }}
       - name: Install coreutils for macOS
         run: brew install coreutils
         if: contains(matrix.platform.target, 'darwin')
