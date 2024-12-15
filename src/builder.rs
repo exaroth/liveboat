@@ -211,11 +211,23 @@ where
         let mut truncated = feed.clone();
         truncated.truncate_items();
         if self.debug {
-            self.save_feed_data(truncated.id(), serde_json::to_string_pretty(&truncated)?.as_bytes())?;
-            self.save_feed_data(&format!("{}_archive", feed.id()), serde_json::to_string_pretty(&feed)?.as_bytes())?;
+            self.save_feed_data(
+                truncated.id(),
+                serde_json::to_string_pretty(&truncated)?.as_bytes(),
+            )?;
+            self.save_feed_data(
+                &format!("{}_archive", feed.id()),
+                serde_json::to_string_pretty(&feed)?.as_bytes(),
+            )?;
         } else {
-            self.save_feed_data(truncated.id(), serde_json::to_string(&truncated)?.as_bytes())?;
-            self.save_feed_data(&format!("{}_archive", feed.id()), serde_json::to_string(&feed)?.as_bytes())?;
+            self.save_feed_data(
+                truncated.id(),
+                serde_json::to_string(&truncated)?.as_bytes(),
+            )?;
+            self.save_feed_data(
+                &format!("{}_archive", feed.id()),
+                serde_json::to_string(&feed)?.as_bytes(),
+            )?;
         }
         Ok(())
     }

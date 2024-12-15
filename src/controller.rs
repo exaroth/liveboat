@@ -4,18 +4,17 @@ use mockall::Sequence;
 use std::cell::RefCell;
 use std::error::Error;
 use std::fs::read_to_string;
-use std::path::Path;
 use std::sync::Arc;
 
 use crate::args::Args;
 use crate::builder::{Builder, SinglePageBuilder};
 use crate::db::{Connector, DBConnector};
 use crate::errors::FilesystemError;
-use crate::feed::{Feed, FeedList};
+use crate::feed::Feed;
 use crate::feed_item::FeedItem;
 use crate::opts::Options;
 use crate::paths::Paths;
-use crate::template::{Context, SimpleContext};
+use crate::template::{SimpleContext, TemplateConfig};
 use crate::urls::UrlReader;
 
 /// Build controller faciliates the process of parsing url
@@ -74,7 +73,13 @@ impl BuildController {
         let feeds = self.get_url_feeds(&db_connector)?;
         self.populate_url_feeds(&feeds, &feed_items);
         let q_feeds = self.get_query_feeds(&feeds)?;
-        let ctx = SimpleContext::init(&feeds, &q_feeds, &self.options);
+        let tpl_config = TemplateConfig::get_config_for_template(self.paths.template_path())?;
+        let ctx = SimpleContext::init(
+            &feeds,
+            &q_feeds,
+            &self.options,
+            &tpl_config.template_settings,
+        );
         let builder = self.get_builder(&ctx)?;
         builder.create_tmp()?;
         builder.generate_aux_data()?;

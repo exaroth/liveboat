@@ -1,10 +1,52 @@
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::fmt;
+use std::fs::read_to_string;
+use std::path::Path;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::feed::Feed;
 use crate::opts::Options;
+
+const TEMPLATE_CONFIG_FNAME: &str = "config.toml";
+
+fn default_template_settings() -> HashMap<String, String> {
+    return HashMap::new();
+}
+
+fn default_builder() -> String {
+    String::from("spa")
+}
+
+/// This is representation of per template
+/// configuration which is attached to every template
+#[derive(serde::Deserialize, Debug)]
+pub struct TemplateConfig {
+    pub version: String,
+    #[serde(default = "default_builder")]
+    pub builder: String,
+    #[serde(default = "default_template_settings")]
+    pub template_settings: HashMap<String, String>,
+}
+impl TemplateConfig {
+    /// Instantiate template settings from TOML file.
+    pub fn get_config_for_template(
+        tpl_path: &Path,
+    ) -> Result<TemplateConfig, Box<dyn std::error::Error>> {
+        let cfg_path = tpl_path.join(TEMPLATE_CONFIG_FNAME);
+        if !cfg_path.exists() {
+            return Err(format!(
+                "No config.toml file found for template at {}",
+                cfg_path.display()
+            )
+            .into());
+        }
+        let raw = read_to_string(cfg_path)?;
+        let cfg = toml::from_str(raw.as_str())?;
+        return Ok(cfg);
+    }
+}
 
 pub trait Context {
     fn feeds(&self) -> &Vec<Feed>;
@@ -19,6 +61,7 @@ pub struct SimpleContext<'a> {
     feeds: Vec<Feed>,
     options: &'a Options,
     build_time: u64,
+    template_settings: &'a HashMap<String, String>,
 }
 
 impl<'a> Context for SimpleContext<'a> {
@@ -38,6 +81,7 @@ impl<'a> SimpleContext<'a> {
         url_feeds: &'a Vec<Arc<RefCell<Feed>>>,
         query_feeds: &'a Vec<Feed>,
         options: &'a Options,
+        template_settings: &'a HashMap<String, String>,
     ) -> SimpleContext<'a> {
         let mut feeds = Vec::new();
         for f in url_feeds {
@@ -64,6 +108,7 @@ impl<'a> SimpleContext<'a> {
             feeds,
             options,
             build_time,
+            template_settings,
         }
     }
 }

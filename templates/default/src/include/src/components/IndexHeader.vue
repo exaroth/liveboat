@@ -147,7 +147,7 @@ const refreshPage = () => {
 #side-buttons a {
   float: right;
   width: 38px;
-  opacity: 0.8;
+  opacity: 0.6;
   cursor: pointer;
 }
 #side-buttons a:hover {
