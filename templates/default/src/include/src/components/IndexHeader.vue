@@ -9,7 +9,6 @@ import IconTop from './icons/IconTop.vue'
 import IconLiveboat from './icons/IconLiveboat.vue'
 import IconRefresh from './icons/IconRefresh.vue'
 
-
 const buildTime = new Date(window.buildTime * 1000)
 const pageTitle = window.pageTitle
 const sitePath = window.sitePath
@@ -23,7 +22,6 @@ const setScrollToTop = () => {
   let offset = window.pageYOffset
   showScrollToTop.value = offset > vh
 }
-
 
 const scrollToTop = () => {
   window.scrollTo(0, 0)
@@ -74,9 +72,11 @@ const refreshPage = () => {
       <h5>Page last updated on {{ buildTime.toUTCString() }}</h5>
     </div>
   </div>
+  <div id="side-buttons-wrapper">
   <div v-if="!embedStore.showModal" id="side-buttons">
     <a title="Scroll to top" v-if="showScrollToTop" @click="scrollToTop()"><IconTop /></a>
     <a title="New feeds available" v-if="showRefresh" @click="refreshPage()"><IconRefresh /></a>
+  </div>
   </div>
 </template>
 
@@ -132,12 +132,17 @@ const refreshPage = () => {
   opacity: 1;
 }
 
-#side-buttons {
+#side-buttons-wrapper {
   position: fixed;
   right: 40px;
-  top: 40px;
-  width: 38px;
   z-index: 997;
+  top: 40%;
+  transform: translateY(-40%);
+}
+
+#side-buttons {
+  position: sticky;
+  width: 38px;
 }
 #side-buttons a {
   float: right;
@@ -169,9 +174,9 @@ const refreshPage = () => {
 }
 
 @media (max-width: 900px) {
-  #side-buttons {
-    top: 10px;
-    right: 10px;
+  #side-buttons-wrapper {
+    right: 16px;
+    top: 16px;
   }
 }
 </style>
