@@ -96,7 +96,7 @@ const refreshPage = () => {
   width: 28px;
   height: 28px;
   margin-right: 4px;
-  fill: var(--color-text-primary);
+  fill: var(--color-text);
 }
 .header-crumbs {
   position: absolute;

@@ -10,7 +10,7 @@ h5,
 h6,
 span,
 li {
-  color: #c7cfcc;
+  color: var(--color-text);
   text-decoration: none;
 }
 
@@ -30,7 +30,7 @@ ul {
 
 @media (hover: hover) {
   a:hover {
-    background-color: rgba(60, 94, 139, 0.4);
+    background-color: rgb(from var(--color-accent) r g b / 50%);
   }
 }
 

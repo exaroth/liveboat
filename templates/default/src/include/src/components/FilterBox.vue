@@ -106,7 +106,7 @@ watch(searchFeedsTerm, (val) => {
   outline: none;
   border-radius: 3px;
   font-weight: bold;
-  color: var(--color-text-primary);
+  color: var(--color-text);
   outline: none;
 }
 .filter-box button,
@@ -117,7 +117,7 @@ watch(searchFeedsTerm, (val) => {
 
 .filter-box button.selected {
   background-color: transparent;
-  outline: 1px solid var(--color-text-primary);
+  outline: 1px solid var(--color-text);
   border: none;
 }
 
@@ -132,7 +132,7 @@ watch(searchFeedsTerm, (val) => {
   width: 164px;
   height: 29px;
   background-color: transparent;
-  outline: 1px solid var(--color-text-primary);
+  outline: 1px solid var(--color-text);
   font-weight: normal;
   padding: 0px 0px 0px 6px;
 }
