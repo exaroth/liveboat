@@ -1,0 +1,39 @@
+name: test
+
+on: [push, pull_request]
+
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-24.04
+    env:
+      # PROFILE: 1
+      CARGO_INCREMENTAL: 0
+      RUSTFLAGS: '-A warnings -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort'
+    steps:
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install --assume-yes --no-install-suggests libsqlite3-dev; 
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@nightly
+
+      - uses: actions/checkout@v4
+
+      - name: Install submodules
+        run: make install
+
+      - name: Cache ~/.cargo
+        uses: actions/cache@v4
+        id: cargo_cache
+        with:
+          key: cargo2-${{ hashFiles('Cargo.lock', '**/Cargo.toml') }}
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/git
+            ~/.cargo/registry
+
+      - name: Run tests
+        run: make test

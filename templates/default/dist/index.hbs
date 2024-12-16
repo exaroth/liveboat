@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+
+    <title>{{ options.title }}</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="{{ options.title }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <link rel='icon' href='./assets/favicon.ico' type='image/x-icon'>
+    <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="./assets/android-chrome-192x192.png">
+
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="{{ options.title }}">
+
+    <link rel="stylesheet" href="./assets/index.css?tv={{template_version}}">
+    <style>
+        :root {
+            {{#if template_settings.text-color}}
+            --color-text: {{template_settings.text-color}};
+            {{/if}}
+            {{#if template_settings.highlight-color}}
+            --color-highlight: {{template_settings.highlight-color}};
+            {{/if}}
+            {{#if template_settings.accent-color}}
+            --color-accent: {{template_settings.accent-color}};
+            {{/if}}
+            {{#if template_settings.background-color}}
+            --color-background: {{template_settings.background-color}};
+            {{/if}}
+        }
+    </style>
+
+  </head>
+  <body>
+      <script>
+      window.buildTime = {{ build_time }};
+      window.pageTitle = '{{ options.title }}';
+      window.sitePath = '{{ options.site_path }}';
+      window.feeds = [
+          {{#each feeds}}
+          {
+            id: "{{this.id}}",
+            url: "{{this.url}}",
+            title: "{{this.title}}",
+            displayTitle: "{{this.displayTitle}}",
+            feedLink: "{{this.feedLink}}",
+          },
+          {{/each}}
+          ];
+      </script>
+      <div id="app"></div>
+
+    <script type="module" src="./assets/index.js?tv={{template_version}}"></script>
+
+  </body>
+</html>
+
