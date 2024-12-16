@@ -26,15 +26,18 @@ jobs:
           asset_name: templates.tar.gz
           tag: development
           overwrite: true
-        if: github.ref == 'refs/heads/develop'
+        if: |
+          github.event.workflow_run.head_branch == 'develop' ||
+          startsWith(github.event.workflow_run.head_branch, 'feature/') ||
+          startsWith(github.event.workflow_run.head_branch, 'release/')
       - name: Upload templates for tag
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./tmp/templates.tar.gz
           asset_name: templates.tar.gz
-          tag: ${{ github.ref }}
-        if: github.ref_type == 'tag'
+          tag: ${{ github.event.workflow_run.head_branch }}
+        if: startsWith(github.event.workflow_run.head_branch, 'v')
       - name: Upload templates for release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -43,7 +46,7 @@ jobs:
           asset_name: templates.tar.gz
           tag: stable
           overwrite: true
-        if: github.ref_name == 'main'
+        if: github.event.workflow_run.head_branch == 'main'
       - name: Upload VERSION file
         uses: svenstaro/upload-release-action@v2
         with:
@@ -52,4 +55,4 @@ jobs:
           asset_name: VERSION
           tag: stable
           overwrite: true
-        if: github.ref == 'refs/heads/main'
+        if: github.event.workflow_run.head_branch == 'main'
