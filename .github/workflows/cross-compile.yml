@@ -6,6 +6,7 @@ on:
       - test
     types:
       - completed
+    branches: ["v*.*.*", "main", "develop", "release/*", "feature/*"]
 
 jobs:
   release:
@@ -73,6 +74,8 @@ jobs:
           tag: development
           overwrite: true
         if: github.event.workflow_run.head_branch == 'develop'
+        if: startsWith(github.event.workflow_run.head_branch, 'feature/')
+        if: startsWith(github.event.workflow_run.head_branch, 'release/')
 
       - name: Upload checksums
         uses: svenstaro/upload-release-action@v2
@@ -83,6 +86,8 @@ jobs:
           tag: development
           overwrite: true
         if: github.event.workflow_run.head_branch == 'develop'
+        if: startsWith(github.event.workflow_run.head_branch, 'feature/')
+        if: startsWith(github.event.workflow_run.head_branch, 'release/')
 
       - name: Upload binaries for tag
         uses: svenstaro/upload-release-action@v2
@@ -91,7 +96,7 @@ jobs:
           file: target/${{ matrix.platform.target }}/release/liveboat
           asset_name: ${{ matrix.platform.binary_name }}
           tag: ${{ github.event.workflow_run.head_branch }}
-        if: github.event.workflow_run.head_branch =~ 'v[0-9]+\.[0-9]+\.[0-9]+$'
+        if: startsWith(github.event.workflow_run.head_branch, 'v')
 
       - name: Upload checksums for tag
         uses: svenstaro/upload-release-action@v2
@@ -100,7 +105,7 @@ jobs:
           file: checksums/${{ matrix.platform.binary_name }}
           asset_name: ${{ matrix.platform.binary_name }}.sha256sum
           tag: ${{ github.event.workflow_run.head_branch }}
-        if: github.event.workflow_run.head_branch =~ 'v[0-9]+\.[0-9]+\.[0-9]+$'
+        if: startsWith(github.event.workflow_run.head_branch, 'v')
 
       - name: Upload binaries for release
         uses: svenstaro/upload-release-action@v2
