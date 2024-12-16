@@ -73,9 +73,10 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}
           tag: development
           overwrite: true
-        if: github.event.workflow_run.head_branch == 'develop'
-        if: startsWith(github.event.workflow_run.head_branch, 'feature/')
-        if: startsWith(github.event.workflow_run.head_branch, 'release/')
+        if: |
+          github.event.workflow_run.head_branch == 'develop' ||
+          startsWith(github.event.workflow_run.head_branch, 'feature/') ||
+          startsWith(github.event.workflow_run.head_branch, 'release/')
 
       - name: Upload checksums
         uses: svenstaro/upload-release-action@v2
@@ -85,9 +86,10 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}.sha256sum
           tag: development
           overwrite: true
-        if: github.event.workflow_run.head_branch == 'develop'
-        if: startsWith(github.event.workflow_run.head_branch, 'feature/')
-        if: startsWith(github.event.workflow_run.head_branch, 'release/')
+        if: |
+          github.event.workflow_run.head_branch == 'develop' ||
+          startsWith(github.event.workflow_run.head_branch, 'feature/') ||
+          startsWith(github.event.workflow_run.head_branch, 'release/')
 
       - name: Upload binaries for tag
         uses: svenstaro/upload-release-action@v2
