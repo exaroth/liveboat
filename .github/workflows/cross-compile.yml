@@ -6,6 +6,7 @@ on:
       - test
     types:
       - completed
+    branches: ["v*.*.*", "main", "develop", "release/*"]
 
 jobs:
   release:
@@ -49,8 +50,7 @@ jobs:
         run: brew install coreutils
         if: contains(matrix.platform.target, 'darwin')
       - name: Install sqlite3 for aarch64
-        run:
-          export CROSS_CONFIG=$(pwd)/Cross.toml
+        run: export CROSS_CONFIG=$(pwd)/Cross.toml
           export CROSS_DEBUG=1
         if: contains(matrix.platform.target, 'aarch64')
       - name: Build binary
@@ -65,8 +65,7 @@ jobs:
           chmod +x target/${{ matrix.platform.target }}/release/liveboat
 
       - name: Save binary SHA
-        run:
-          mkdir checksums;
+        run: mkdir checksums;
           echo -n target/${{ matrix.platform.target }}/release/liveboat | sha256sum > checksums/${{ matrix.platform.binary_name }};
       - name: Upload development binaries
         uses: svenstaro/upload-release-action@v2
@@ -94,8 +93,8 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: target/${{ matrix.platform.target }}/release/liveboat
           asset_name: ${{ matrix.platform.binary_name }}
-          tag: ${{ github.ref }}
-        if: github.ref_type == 'tag'
+          tag: ${{ github.event.workflow_run.head_branch }}
+        if: github.event.workflow_run.head_branch =~ 'v[0-9]+\.[0-9]+\.[0-9]+$'
 
       - name: Upload checksums for tag
         uses: svenstaro/upload-release-action@v2
@@ -103,8 +102,8 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: checksums/${{ matrix.platform.binary_name }}
           asset_name: ${{ matrix.platform.binary_name }}.sha256sum
-          tag: ${{ github.ref }}
-        if: github.ref_type == 'tag'
+          tag: ${{ github.event.workflow_run.head_branch }}
+        if: github.event.workflow_run.head_branch =~ 'v[0-9]+\.[0-9]+\.[0-9]+$'
 
       - name: Upload binaries for release
         uses: svenstaro/upload-release-action@v2
