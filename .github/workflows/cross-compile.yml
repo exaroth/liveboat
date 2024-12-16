@@ -6,7 +6,6 @@ on:
       - test
     types:
       - completed
-    branches: ["v*.*.*", "main", "develop", "release/*"]
 
 jobs:
   release:
