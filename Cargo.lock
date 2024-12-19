@@ -855,6 +855,7 @@ dependencies = [
  "rand",
  "resolve-path",
  "rusqlite",
+ "rustc_version",
  "serde",
  "serde_json",
  "thiserror 2.0.6",
@@ -1282,6 +1283,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "719b953e2095829ee67db738b3bfa9fa368c94900df327b3f07fe6e794d2fe1f"
 
 [[package]]
+name = "rustc_version"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cfcb3a22ef46e85b45de6ee7e79d063319ebb6594faafcf1c225ea92ab6e9b92"
+dependencies = [
+ "semver",
+]
+
+[[package]]
 name = "rustix"
 version = "0.38.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1317,6 +1327,12 @@ name = "section_testing"
 version = "0.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5fd2493b68af689f4863060b240cbdffb350cee9ed69e2c50f8d71a62ca2aea1"
+
+[[package]]
+name = "semver"
+version = "1.0.24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3cb6eb87a131f756572d7fb904f6e7b68633f09cca868c5df1c4b8d1a694bbba"
 
 [[package]]
 name = "serde"

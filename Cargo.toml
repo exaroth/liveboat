@@ -21,6 +21,7 @@ thiserror = "2.0.3"
 console = "0.15.8"
 env_logger = "0.11.5"
 log = "0.4.22"
+rustc_version = "0.4.1"
 
 [[bin]]
 name = "liveboat"

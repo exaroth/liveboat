@@ -44,6 +44,14 @@ pub fn cold_start(args: &Args) -> Result<(), Box<dyn Error>> {
         );
     }
     // TODO: download templates to template dir
+    // can be reused between loader 
+    // fetch templates zip from stable -> untar
+    // iterate over tpls get config.toml
+    //  load config -> get version parse into tuple(u64, u64, u64)
+    //  get templates from template dir
+    //  if template does not exists -> overwrite
+    //  if version upstream is larger -> update, print msg to user about update
+    //  for templates that dont match from upstream dont do anything (might print message about it)
     Ok(())
 }
 

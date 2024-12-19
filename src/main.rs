@@ -21,10 +21,11 @@ use crate::utils::cold_start;
 use log::info;
 fn main() {
 
-    println!("{:?}",env!("CARGO_CFG_TARGET_VENDOR"));
-    println!("{:?}",env!("CARGO_CFG_TARGET_OS"));
-    println!("{:?}",env!("CARGO_CFG_TARGET_ARCH"));
-    println!("{:?}",env!("CARGO_CFG_TARGET_ENV"));
+    // println!("{:?}",env!("CARGO_CFG_TARGET_VENDOR"));
+    // println!("{:?}",env!("CARGO_CFG_TARGET_OS"));
+    // println!("{:?}",env!("CARGO_CFG_TARGET_ARCH"));
+    // println!("{:?}",env!("CARGO_CFG_TARGET_ENV"));
+    println!("{:?}",env!("TARGET"));
 
     let args = Args::parse();
     utils::init_logger(args.debug);
