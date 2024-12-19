@@ -48,9 +48,15 @@ jobs:
         run: brew install coreutils
         if: contains(matrix.platform.target, 'darwin')
       - name: Install sqlite3 for aarch64
-        run: export CROSS_CONFIG=$(pwd)/Cross.toml
+        run: |
+          export CROSS_CONFIG=$(pwd)/Cross.toml
           export CROSS_DEBUG=1
         if: contains(matrix.platform.target, 'aarch64')
+      - name: Set build vars
+        run: |
+          echo "TARGET=${{matrix.platform.target}}" >> $GITHUB_ENV
+          echo "BIN_NAME=${{matrix.platform.binary_name}}" >> $GITHUB_ENV
+          echo "CI_RELEASE=1" >> $GITHUB_ENV
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
