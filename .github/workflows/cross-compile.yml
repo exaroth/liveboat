@@ -55,6 +55,7 @@ jobs:
       - name: Set config.toml vars
         run: |
           cat config.toml.source | target="${{matrix.platform.target}}" bin_name="${{matrix.platform.binary_name}}" envsubst > config.toml
+          cat config.toml
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
@@ -72,6 +73,15 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}
           tag: development
           overwrite: true
+        if: |
+          github.event.workflow_run.head_branch == 'develop' ||
+          startsWith(github.event.workflow_run.head_branch, 'feature/') ||
+          startsWith(github.event.workflow_run.head_branch, 'release/')
+
+      - name: Debug
+        run: |
+          chmod +x target/${{ matrix.platform.target }}/release/liveboat;
+          ./target/${{ matrix.platform.target }}/release/liveboat --version;
         if: |
           github.event.workflow_run.head_branch == 'develop' ||
           startsWith(github.event.workflow_run.head_branch, 'feature/') ||

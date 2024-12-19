@@ -21,6 +21,10 @@ use crate::utils::cold_start;
 use log::info;
 
 fn main() {
+    let target = option_env!("TARGET");
+    let bin_name = option_env!("BIN_NAME");
+    println!("target {:?}", target);
+    println!("bin {:?}", bin_name);
     let args = Args::parse();
     utils::init_logger(args.debug);
     let exec_result = match args.command {
