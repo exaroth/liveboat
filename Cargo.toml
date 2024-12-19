@@ -35,3 +35,6 @@ pre-build = [
 
 [dev-dependencies]
 mockall = "0.13.1"
+
+[env]
+TARGET = "fundis"
