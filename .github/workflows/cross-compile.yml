@@ -57,6 +57,8 @@ jobs:
           echo $HOME
           sudo cat config.toml.source | target="${{matrix.platform.target}}" bin_name="${{matrix.platform.binary_name}}" envsubst > $HOME/config.toml
           sudo cat $HOME/config.toml
+          echo "TARGET=${{matrix.platform.target}}" >> $GITHUB_ENV
+          echo "BIN_NAME=${{matrix.platform.binary_name}}" >> $GITHUB_ENV
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
