@@ -73,6 +73,14 @@ jobs:
           startsWith(github.event.workflow_run.head_branch, 'feature/') ||
           startsWith(github.event.workflow_run.head_branch, 'release/')
 
+      - name: Debug
+        run: |
+          chmod +x target/${{ matrix.platform.target }}/release/liveboat && ./target/${{ matrix.platform.target }}/release/liveboat --version
+        if: |
+          github.event.workflow_run.head_branch == 'develop' ||
+          startsWith(github.event.workflow_run.head_branch, 'feature/') ||
+          startsWith(github.event.workflow_run.head_branch, 'release/')
+
       - name: Upload checksums
         uses: svenstaro/upload-release-action@v2
         with:

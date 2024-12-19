@@ -19,8 +19,13 @@ use crate::args::{Args, Command};
 use crate::controller::BuildController;
 use crate::utils::cold_start;
 use log::info;
-
 fn main() {
+
+    println!("{:?}",env!("CARGO_CFG_TARGET_VENDOR"));
+    println!("{:?}",env!("CARGO_CFG_TARGET_OS"));
+    println!("{:?}",env!("CARGO_CFG_TARGET_ARCH"));
+    println!("{:?}",env!("CARGO_CFG_TARGET_ENV"));
+
     let args = Args::parse();
     utils::init_logger(args.debug);
     let exec_result = match args.command {
