@@ -37,6 +37,8 @@ jobs:
 
     runs-on: ${{ matrix.platform.runs-on }}
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    env:
+      TARGET: ${{ matrix.platform.target }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
