@@ -1,12 +1,13 @@
 name: cross-compile
 
 on:
-  workflow_run:
-    workflows:
-      - test
-    types:
-      - completed
-    branches: ["v*.*.*", "main", "develop", "release/*", "feature/*"]
+  push
+  # workflow_run:
+  #   workflows:
+  #     - test
+  #   types:
+  #     - completed
+  #   branches: ["v*.*.*", "main", "develop", "release/*", "feature/*"]
 
 jobs:
   release:
