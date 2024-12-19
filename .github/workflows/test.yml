@@ -13,6 +13,7 @@ jobs:
       CARGO_CFG_TARGET_OS: 'test'
       CARGO_CFG_TARGET_ARCH: 'test'
       CARGO_CFG_TARGET_ENV: 'test'
+      TARGET: 'test'
       CARGO_INCREMENTAL: 0
       RUSTFLAGS: '-A warnings -Ccodegen-units=1 -Copt-level=0 -Clink-dead-code -Coverflow-checks=off -Zpanic_abort_tests -Cpanic=abort'
     steps:
