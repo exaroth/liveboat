@@ -54,8 +54,8 @@ jobs:
         if: contains(matrix.platform.target, 'aarch64')
       - name: Set config.toml vars
         run: |
-          cat config.toml.source | target="${{matrix.platform.target}}" bin_name="${{matrix.platform.binary_name}}" envsubst > $CARGO_HOME/config.toml
-          cat config.toml
+          sudo cat config.toml.source | target="${{matrix.platform.target}}" bin_name="${{matrix.platform.binary_name}}" envsubst > $CARGO_HOME/config.toml
+          sudo cat $CARGO_HOME/config.toml
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
