@@ -1,5 +1,6 @@
 use bs58::encode as bs58_encode;
 use std::fmt;
+use std::cmp::Reverse;
 
 use libnewsboat::matchable::Matchable;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
@@ -70,7 +71,7 @@ impl Feed {
 
     /// Sort feed items from newest to oldest.
     pub fn sort_items(&mut self) {
-        self.items.sort_by(|a, b| a.date().cmp(&b.date()));
+        self.items.sort_by_key(|w| Reverse(w.date()));
         self._sorted = true
     }
 
@@ -285,7 +286,7 @@ mod tests {
             "",
             "",
             "",
-            970000000,
+            950000000,
             false,
             "",
             1,
@@ -307,7 +308,7 @@ mod tests {
             "",
             "",
             "",
-            950000000,
+            970000000,
             false,
             "",
             3,
@@ -326,9 +327,9 @@ mod tests {
         assert_eq!(3, f.items[2].guid());
         f.sort_items();
         assert_eq!(f._sorted, true);
-        assert_eq!(1, f.items[2].guid());
-        assert_eq!(2, f.items[1].guid());
         assert_eq!(3, f.items[0].guid());
+        assert_eq!(2, f.items[1].guid());
+        assert_eq!(1, f.items[2].guid());
     }
 
     #[test]
@@ -400,7 +401,7 @@ mod tests {
         attr = f.attribute_value("unread_count");
         assert_eq!(Some("2".to_string()), attr);
         attr = f.attribute_value("latest_article_age");
-        assert_eq!(Some("9073".to_string()), attr);
+        assert_eq!(Some("8842".to_string()), attr);
     }
 
     #[test]

@@ -24,8 +24,8 @@ impl std::fmt::Display for Command {
 }
 
 impl std::str::FromStr for Command {
-    type Err = String;
 
+    type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "init" => Ok(Self::Init),
@@ -51,7 +51,7 @@ pub struct Args {
     /// Path to build directory.
     #[arg(long)]
     pub build_dir: Option<String>,
-    /// Path to directory containing template.
+    /// Path to directory containing Liveboat template.
     #[arg(long)]
     pub template_path: Option<String>,
     /// path to liveboat config file.
@@ -62,7 +62,7 @@ pub struct Args {
         default_value_t = false
         )]
     pub debug: bool,
-    /// Command to execute.
+    /// Command to execute [available options: build, init, update]
     #[arg(
         short = 'x',
         default_value_t = Command::Build,
