@@ -1,3 +1,0 @@
-[env]
-TARGET = '${target}'
-BIN_NAME = '${bin_name}'

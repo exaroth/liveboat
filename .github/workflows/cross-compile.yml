@@ -52,13 +52,11 @@ jobs:
           export CROSS_CONFIG=$(pwd)/Cross.toml
           export CROSS_DEBUG=1
         if: contains(matrix.platform.target, 'aarch64')
-      - name: Set config.toml vars
+      - name: Set build vars
         run: |
-          echo $HOME
-          sudo cat config.toml.source | target="${{matrix.platform.target}}" bin_name="${{matrix.platform.binary_name}}" envsubst > $HOME/config.toml
-          sudo cat $HOME/config.toml
           echo "TARGET=${{matrix.platform.target}}" >> $GITHUB_ENV
           echo "BIN_NAME=${{matrix.platform.binary_name}}" >> $GITHUB_ENV
+          echo "CI_RELEASE=1" >> $GITHUB_ENV
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
@@ -76,15 +74,6 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}
           tag: development
           overwrite: true
-        if: |
-          github.event.workflow_run.head_branch == 'develop' ||
-          startsWith(github.event.workflow_run.head_branch, 'feature/') ||
-          startsWith(github.event.workflow_run.head_branch, 'release/')
-
-      - name: Debug
-        run: |
-          chmod +x target/${{ matrix.platform.target }}/release/liveboat;
-          ./target/${{ matrix.platform.target }}/release/liveboat --version;
         if: |
           github.event.workflow_run.head_branch == 'develop' ||
           startsWith(github.event.workflow_run.head_branch, 'feature/') ||
