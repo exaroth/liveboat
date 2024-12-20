@@ -1,15 +1,16 @@
 prog :=liveboat
-
+target_t :=x86_64-unknown-linux-musl
+bin_name :=liveboat-linux-musl 
 debug ?=
 
 $(info debug is $(debug))
 
 ifdef debug
-  release :=
+  release :=--target=$(target_t)
   target :=debug
   extension :=-debug
 else
-  release :=--release
+  release :=--release --target=$(target_t)
   target :=release
   extension :=
 endif
@@ -31,14 +32,18 @@ help:
 	@echo "make build-default-template"
 	@echo "		  build default template from source and update dist (node required)"
 
+.PHONY: setup
+setup:
+	git submodule update --init
+	rustup target add x86_64-unknown-linux-musl
+
 .PHONY: build
 build:
-	cargo build $(release)
+	TARGET=$(target_t) BIN_NAME=$(bin_name) cargo build $(release)
 
 .PHONY: install
 install:
-	git submodule update --init
-	# cp target/$(target)/$(prog) ~/bin/$(prog)$(extension)
+	sudo cp target/$(target)/$(prog) /usr/local/bin/$(prog)$(extension)
 
 .PHONY: test
 test:
