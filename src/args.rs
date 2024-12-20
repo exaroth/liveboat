@@ -7,8 +7,7 @@ use clap::Parser;
 pub enum Command {
     Init,
     Build,
-    // Deploy,
-    // Update,
+    Update,
 }
 
 impl std::fmt::Display for Command {
@@ -16,8 +15,7 @@ impl std::fmt::Display for Command {
         let s = match self {
             Self::Init => "init",
             Self::Build => "build",
-            // Self::Deploy => "deploy",
-            // Self::Update => "update",
+            Self::Update => "update",
         };
         s.fmt(f)
     }
@@ -30,8 +28,7 @@ impl std::str::FromStr for Command {
         match s {
             "init" => Ok(Self::Init),
             "build" => Ok(Self::Build),
-            // "deploy" => Ok(Self::Deploy),
-            // "update" => Ok(Self::Update),
+            "update" => Ok(Self::Update),
             _ => Err(format!("Unknown command: {s}")),
         }
     }

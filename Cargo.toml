@@ -1,6 +1,6 @@
 [package]
 name = "liveboat"
-version = "0.9.0"
+version = "0.9.6"
 edition = "2021"
 
 [dependencies]
@@ -21,6 +21,11 @@ thiserror = "2.0.3"
 console = "0.15.8"
 env_logger = "0.11.5"
 log = "0.4.22"
+anyhow = "1.0.94"
+reqwest = { version = "0.12.9", features = ["blocking", "native-tls-vendored"] }
+self-replace = "1.5.0"
+tar = "0.4.43"
+flate2 = "1.0.35"
 
 [[bin]]
 name = "liveboat"

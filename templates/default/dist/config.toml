@@ -1,5 +1,7 @@
+name = "Default Template"
 builder = "spa"
-version = "1.0.0"
+version = "1.0.1"
+author = "Konrad Wasowicz (exaroth@gmail.com)"
 
 [template_settings]
 text-color = "#c7cfcc"

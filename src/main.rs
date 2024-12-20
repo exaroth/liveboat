@@ -2,6 +2,7 @@ mod args;
 mod builder;
 mod cli;
 mod controller;
+mod db;
 mod errors;
 mod feed;
 mod feed_item;
@@ -10,28 +11,25 @@ mod paths;
 mod template;
 mod urls;
 mod utils;
-mod db;
 
+use anyhow::Result;
 use clap::Parser;
-use std::error::Error;
 
 use crate::args::{Args, Command};
 use crate::controller::BuildController;
-use crate::utils::cold_start;
+use crate::paths::Paths;
+use crate::utils::{cold_start, tidy_up, update_files};
 use log::info;
 
 fn main() {
-    let target = option_env!("TARGET");
-    let bin_name = option_env!("BIN_NAME");
-    println!("target {:?}", target);
-    println!("bin {:?}", bin_name);
     let args = Args::parse();
     utils::init_logger(args.debug);
     let exec_result = match args.command {
         Command::Init => init(&args),
         Command::Build => build(&args),
+        Command::Update => update(&args),
     };
-    if let Some(e) = exec_result {
+    if let Err(e) = exec_result {
         eprintln!("Error: {}", e);
         std::process::exit(1);
     }
@@ -39,23 +37,29 @@ fn main() {
 }
 
 /// Initialize configuration and fetch auxiliary data.
-fn init(args: &Args) -> Option<Box<dyn Error>> {
-    match cold_start(args) {
-        Err(e)=> Some(e),
-        _ => None
-    }
+fn init(args: &Args) -> Result<()> {
+    cold_start(args)?;
+    Ok(())
+}
+
+/// Update binary and templates when available.
+fn update(args: &Args) -> Result<()> {
+    let paths = Paths::new(&args.config_file)?;
+    let result = update_files(args.debug, &paths);
+    tidy_up(paths.tmp_dir());
+    return result;
 }
 
 /// Faciliate building and outputting feeds and template
 /// data.
-fn build(args: &Args) -> Option<Box<dyn Error>> {
+fn build(args: &Args) -> Result<()> {
     info!("Build command called");
     let controller = match BuildController::init(&args) {
-        Err(e) => return Some(e),
+        Err(e) => return Err(e),
         Ok(ctrl) => ctrl,
     };
     match controller.build() {
-        Err(e) => return Some(e),
-        _ => return None,
+        Err(e) => return Err(e),
+        _ => return Ok(()),
     };
 }
