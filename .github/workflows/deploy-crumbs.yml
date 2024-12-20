@@ -31,6 +31,6 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./VERSION
           asset_name: VERSION
-          tag: development
+          tag: nightly
           overwrite: true
         if: github.event.workflow_run.head_branch == 'develop'

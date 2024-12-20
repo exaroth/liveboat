@@ -137,7 +137,7 @@ pub fn update_files(debug: bool, paths: &Paths) -> Result<()> {
     match debug {
         true => {
             println!("Debug mode enabled, using dev channel for updates");
-            release_channel = format!("{}/development", release_channel);
+            release_channel = format!("{}/nightly", release_channel);
         }
         false => release_channel = format!("{}/stable", release_channel),
     }

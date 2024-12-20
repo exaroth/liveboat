@@ -72,7 +72,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: target/${{ matrix.platform.target }}/release/liveboat
           asset_name: ${{ matrix.platform.binary_name }}
-          tag: development
+          tag: nightly
           overwrite: true
         if: |
           github.event.workflow_run.head_branch == 'develop' ||
@@ -85,7 +85,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: checksums/${{ matrix.platform.binary_name }}
           asset_name: ${{ matrix.platform.binary_name }}.sha256sum
-          tag: development
+          tag: nightly
           overwrite: true
         if: |
           github.event.workflow_run.head_branch == 'develop' ||
