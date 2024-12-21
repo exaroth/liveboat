@@ -10,6 +10,7 @@ use std::io;
 use std::io::copy as ioCopy;
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
+use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
 use env_logger::Env;
@@ -22,6 +23,16 @@ use crate::opts::Options;
 use crate::paths::Paths;
 use crate::template::TemplateConfig;
 
+// Static map of target->release bin name.
+lazy_static::lazy_static!{
+    static ref SUPPORTED_TARGETS: HashMap<&'static str, &'static str> = [
+        ("x86_64-unknown-linux-musl", "liveboat-linux-musl"),
+        ("x86_64-unknown-linux-gnu", "liveboat-linux-gnu"),
+        ("x86_64-apple-darwin", "liveboat-darwin"),
+        ("aarch64-unknown-linux-gnu", "liveboat-aarch64"),
+    ].iter().copied().collect();
+}
+
 const VERSION_FNAME: &str = "VERSION";
 const LIVEBOAT_FNAME: &str = "liveboat";
 
@@ -33,13 +44,6 @@ const STABLE_CHANNEL_NAME: &str = "stable";
 
 pub const LIVEBOAT_UPDATE_BIN_PATH_ENV: &str = "LIVEBOAT_UPDATE_BIN_PATH";
 const UPDATER_TEMP_BIN_PATH: &str = "/tmp/liveboat.__u_temp__";
-
-static SUPPORTED_TARGETS: &'static [&str] = &[
-    "x86_64-unknown-linux-musl",
-    "x86_64-unknown-linux-gnu",
-    "x86_64-apple-darwin",
-    "aarch64-unknown-linux-gnu",
-];
 
 /// Representation of Versioning used by liveboat,
 /// conforming to <major>.<minor>.<patch> format.
@@ -136,7 +140,7 @@ pub fn cold_start(use_nightly: bool, paths: &Paths) -> Result<()> {
         paths.tmp_dir().join("update").as_path(),
         paths.template_dir(),
     )?;
-
+    println!("Done");
     Ok(())
 }
 
@@ -178,6 +182,9 @@ pub fn update_files(debug: bool, use_nightly: bool, paths: &Paths) -> Result<boo
         }
     }
     fetch_templates(&release_channel, dl_path.as_path(), paths.template_dir())?;
+    if !restart_required {
+        println!("Update completed");
+    }
     Ok(restart_required)
 }
 
@@ -185,19 +192,19 @@ pub fn update_files(debug: bool, use_nightly: bool, paths: &Paths) -> Result<boo
 /// indicating whether to attempt to propagate to sudo in order to replace the binary.
 fn update_liveboat_binary(release_chan: &String, dl_path: &Path) -> Result<bool> {
     let target_r = option_env!("TARGET");
-    let bin_name_r = option_env!("BIN_NAME");
-    if target_r.is_none() || bin_name_r.is_none() {
+    if target_r.is_none() {
         println!("Looks like your version of Liveboat cannot be updated");
         println!("Use package manager to update or compile manually");
         return Ok(false);
     }
     let target = target_r.unwrap();
-    if !SUPPORTED_TARGETS.contains(&target) {
+    if !SUPPORTED_TARGETS.contains_key(target) {
         println!("Version of Liveboat you're using does not support automatic updates");
         println!("Use package manager to update or compile manually");
         return Ok(false);
     }
-    let bin_name = bin_name_r.unwrap();
+    let bin_name = SUPPORTED_TARGETS.get(target).unwrap();
+
     let d_url = format!("{}/{}", release_chan, bin_name);
     info!("Download url for binary is {}", d_url);
     let d_dl_path = dl_path.join(LIVEBOAT_FNAME);
@@ -264,8 +271,8 @@ fn fetch_templates(release_chan: &String, dl_path: &Path, tpl_dir: &Path) -> Res
                 println!("Skipping update");
                 continue;
             }
+            println!("Updating to new version...");
         }
-        println!("Updating to new version...");
         copy_all(&dirpath, out_t)?;
     }
 
