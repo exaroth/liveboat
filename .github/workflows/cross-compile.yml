@@ -65,7 +65,7 @@ jobs:
           strip: true
       - name: Save binary SHA
         run: mkdir checksums;
-          echo -n target/${{ matrix.platform.target }}/release/liveboat | sha256sum > checksums/${{ matrix.platform.binary_name }};
+          echo -n target/${{ matrix.platform.target }}/release/liveboat | shasum -a 256 > checksums/${{ matrix.platform.binary_name }};
       - name: Upload development binaries
         uses: svenstaro/upload-release-action@v2
         with:
