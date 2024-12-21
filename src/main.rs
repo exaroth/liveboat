@@ -43,7 +43,7 @@ fn main() {
 /// Initialize configuration and fetch auxiliary data.
 fn init(args: &Args) -> Result<()> {
     let paths = Paths::new(&args.config_file)?;
-    let result = cold_start(&paths);
+    let result = cold_start(args.use_nightly, &paths);
     tidy_up(paths.tmp_dir());
     return result;
 }
@@ -68,7 +68,7 @@ fn update(args: &Args) -> Result<()> {
         return Ok(());
     }
     let paths = Paths::new(&args.config_file)?;
-    let result = update_files(args.debug, &paths);
+    let result = update_files(args.debug, args.use_nightly, &paths);
     if result.is_err() {
         tidy_up(paths.tmp_dir());
         return Err(result.unwrap_err());

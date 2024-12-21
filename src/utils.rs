@@ -27,6 +27,9 @@ const LIVEBOAT_FNAME: &str = "liveboat";
 
 const RELEASE_CHANNEL: &str = "https://github.com/exaroth/liveboat/releases/download";
 const TEMPLATES_ARCHIVE_FNAME: &str = "templates.tar.gz";
+const NIGHTLY_CHANNEL_NAME: &str = "nightly";
+const STABLE_CHANNEL_NAME: &str = "stable";
+
 
 pub const LIVEBOAT_UPDATE_BIN_PATH_ENV: &str = "LIVEBOAT_UPDATE_BIN_PATH";
 const UPDATER_TEMP_BIN_PATH: &str = "/tmp/liveboat.__u_temp__";
@@ -96,13 +99,14 @@ pub fn init_logger(debug: bool) {
 }
 
 /// Initialize configuration for the app, prompting user for input.
-pub fn cold_start(paths: &Paths) -> Result<()> {
+pub fn cold_start(use_nightly: bool, paths: &Paths) -> Result<()> {
     info!("Initializing cold start");
     info!("Paths are: {}", paths);
     let mut opts = Options::default();
     info!("Default options are: {}", opts);
     initialization_wizard(&mut opts, &paths)?;
     fs::create_dir_all(paths.template_dir())?;
+
     if !paths.config_file().exists() {
         opts.save(paths.config_file())?;
         println!(
@@ -115,9 +119,18 @@ pub fn cold_start(paths: &Paths) -> Result<()> {
             paths.config_file().display()
         );
     }
+
     let dl_path = paths.tmp_dir().join("update");
     fs::create_dir_all(&dl_path)?;
-    let release_channel = format!("{}/stable", RELEASE_CHANNEL);
+
+    let release_channel: String;
+    if use_nightly {
+        release_channel = format!("{}/{}", RELEASE_CHANNEL, NIGHTLY_CHANNEL_NAME);
+    } else {
+        release_channel = format!("{}/{}", RELEASE_CHANNEL, STABLE_CHANNEL_NAME);
+    }
+    println!("Using {} as release channel", release_channel);
+
     fetch_templates(
         &release_channel,
         paths.tmp_dir().join("update").as_path(),
@@ -129,20 +142,23 @@ pub fn cold_start(paths: &Paths) -> Result<()> {
 
 /// Check for Liveboat updates, if there is new version available
 /// fetch both liveboat binary as template files.
-pub fn update_files(debug: bool, paths: &Paths) -> Result<bool> {
+pub fn update_files(debug: bool, use_nightly: bool, paths: &Paths) -> Result<bool> {
     if !paths.initialized() {
         Err(FilesystemError::NotInitialized)?;
     }
     let dl_path = paths.tmp_dir().join("update");
     fs::create_dir_all(&dl_path)?;
-    let mut release_channel = RELEASE_CHANNEL.to_string();
-    match debug {
+
+    let release_channel: String; 
+    match use_nightly {
         true => {
-            println!("Debug mode enabled, using dev channel for updates");
-            release_channel = format!("{}/nightly", release_channel);
+            println!("Nightly mode enabled, using dev channel for updates");
+            release_channel = format!("{}/{}", RELEASE_CHANNEL, NIGHTLY_CHANNEL_NAME);
         }
-        false => release_channel = format!("{}/stable", release_channel),
+        false => release_channel = format!("{}/{}", RELEASE_CHANNEL, STABLE_CHANNEL_NAME),
     }
+    println!("Using {} as release channel", release_channel);
+
     let mut restart_required = false;
 
     let new_version_available =
@@ -200,6 +216,7 @@ fn update_liveboat_binary(release_chan: &String, dl_path: &Path) -> Result<bool>
     println!("Liveboat binary updated");
     Ok(false)
 }
+
 
 /// Download and update local templates, taking versions in config.toml under consideration.
 fn fetch_templates(release_chan: &String, dl_path: &Path, tpl_dir: &Path) -> Result<()> {

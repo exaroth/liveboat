@@ -54,11 +54,18 @@ pub struct Args {
     /// path to liveboat config file.
     #[arg(long)]
     pub config_file: Option<String>,
+    /// Print verbose code execution info.
     #[arg(
         long,
         default_value_t = false
         )]
     pub debug: bool,
+    /// If set will use nightly channel for updates.
+    #[arg(
+        long,
+        default_value_t = false
+        )]
+    pub use_nightly: bool,
     /// Command to execute [available options: build, init, update]
     #[arg(
         short = 'x',
