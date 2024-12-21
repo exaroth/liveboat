@@ -188,16 +188,16 @@ fn update_liveboat_binary(release_chan: &String, dl_path: &Path) -> Result<bool>
     info!("Download path for binary is {}", d_dl_path.display());
     download_file(&d_url, &d_dl_path.as_path())?;
     let exe_path = current_exe()?;
-    println!("{:?}", exe_path.display());
     fs::set_permissions(&d_dl_path, fs::Permissions::from_mode(0o755))?;
     info!("Copying binary to {}", exe_path.display());
     let replace_result = self_replace(&d_dl_path);
-    println!("{:?}", replace_result);
     if replace_result.is_err() {
+        info!("Retrying update as superuser");
         fs::copy(&d_dl_path, UPDATER_TEMP_BIN_PATH)?;
         std::env::set_var(LIVEBOAT_UPDATE_BIN_PATH_ENV, UPDATER_TEMP_BIN_PATH);
         return Ok(true);
     }
+    println!("Liveboat binary updated");
     Ok(false)
 }
 
