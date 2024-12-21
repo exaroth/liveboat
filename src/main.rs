@@ -11,7 +11,6 @@ mod paths;
 mod template;
 mod urls;
 mod utils;
-use fs;
 
 use anyhow::Result;
 use clap::Parser;
@@ -62,8 +61,8 @@ fn update(args: &Args) -> Result<()> {
                 new_exec_path.display()
             );
         }
-        self_replace(new_exec_path)?;
-        fs::remove_file(new_exec_path);
+        self_replace(&new_exec_path)?;
+        _ = std::fs::remove_file(&new_exec_path);
         std::env::remove_var(utils::LIVEBOAT_UPDATE_BIN_PATH_ENV);
         println!("Liveboat binary updated");
         return Ok(());
