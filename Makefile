@@ -35,7 +35,7 @@ help:
 .PHONY: setup
 setup:
 	git submodule update --init
-	rustup target add x86_64-unknown-linux-musl
+	rustup target add ${target_t}
 
 .PHONY: build
 build:

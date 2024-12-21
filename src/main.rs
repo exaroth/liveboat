@@ -11,9 +11,14 @@ mod paths;
 mod template;
 mod urls;
 mod utils;
+use fs;
 
 use anyhow::Result;
 use clap::Parser;
+use nix::unistd::Uid;
+use self_replace::self_replace;
+use std::path::PathBuf;
+use sudo;
 
 use crate::args::{Args, Command};
 use crate::controller::BuildController;
@@ -41,15 +46,41 @@ fn init(args: &Args) -> Result<()> {
     let paths = Paths::new(&args.config_file)?;
     let result = cold_start(&paths);
     tidy_up(paths.tmp_dir());
-    return result
+    return result;
 }
 
 /// Update binary and templates when available.
 fn update(args: &Args) -> Result<()> {
+    let update_bin_path_r = std::env::var(utils::LIVEBOAT_UPDATE_BIN_PATH_ENV);
+    info!("Update path env is {:?}", update_bin_path_r);
+    if update_bin_path_r.is_ok() && Uid::effective().is_root() {
+        info!("Updating binary as root");
+        let new_exec_path = PathBuf::from(update_bin_path_r.unwrap());
+        if !new_exec_path.exists() {
+            panic!(
+                "Temporary binary not found for path: {}",
+                new_exec_path.display()
+            );
+        }
+        self_replace(new_exec_path)?;
+        fs::remove_file(new_exec_path);
+        std::env::remove_var(utils::LIVEBOAT_UPDATE_BIN_PATH_ENV);
+        println!("Liveboat binary updated");
+        return Ok(());
+    }
     let paths = Paths::new(&args.config_file)?;
     let result = update_files(args.debug, &paths);
+    if result.is_err() {
+        tidy_up(paths.tmp_dir());
+        return Err(result.unwrap_err());
+    }
+    let restart_required = result.unwrap();
     tidy_up(paths.tmp_dir());
-    return result;
+    if restart_required {
+        info!("Restarting update process with root privileges");
+        sudo::with_env(&["LIVEBOAT_UPDATE_"]).unwrap();
+    }
+    Ok(())
 }
 
 /// Faciliate building and outputting feeds and template

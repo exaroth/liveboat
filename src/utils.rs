@@ -16,7 +16,6 @@ use env_logger::Env;
 use self_replace::self_replace;
 use tar::Archive;
 
-use crate::args::Args;
 use crate::cli;
 use crate::errors::FilesystemError;
 use crate::opts::Options;
@@ -28,6 +27,9 @@ const LIVEBOAT_FNAME: &str = "liveboat";
 
 const RELEASE_CHANNEL: &str = "https://github.com/exaroth/liveboat/releases/download";
 const TEMPLATES_ARCHIVE_FNAME: &str = "templates.tar.gz";
+
+pub const LIVEBOAT_UPDATE_BIN_PATH_ENV: &str = "LIVEBOAT_UPDATE_BIN_PATH";
+const UPDATER_TEMP_BIN_PATH: &str = "/tmp/liveboat.__u_temp__";
 
 static SUPPORTED_TARGETS: &'static [&str] = &[
     "x86_64-unknown-linux-musl",
@@ -127,7 +129,7 @@ pub fn cold_start(paths: &Paths) -> Result<()> {
 
 /// Check for Liveboat updates, if there is new version available
 /// fetch both liveboat binary as template files.
-pub fn update_files(debug: bool, paths: &Paths) -> Result<()> {
+pub fn update_files(debug: bool, paths: &Paths) -> Result<bool> {
     if !paths.initialized() {
         Err(FilesystemError::NotInitialized)?;
     }
@@ -141,41 +143,43 @@ pub fn update_files(debug: bool, paths: &Paths) -> Result<()> {
         }
         false => release_channel = format!("{}/stable", release_channel),
     }
+    let mut restart_required = false;
 
     let new_version_available =
         check_newer_binary_version_available(&release_channel, dl_path.as_path())?;
     match new_version_available {
         true => {
             println!("Newer version of Liveboat found. Fetching...");
-            update_liveboat_binary(&release_channel, dl_path.as_path())?;
+            restart_required = update_liveboat_binary(&release_channel, dl_path.as_path())?;
         }
         false => {
             if debug {
                 println!("Debug mode enabled, forcing redownload...");
-                update_liveboat_binary(&release_channel, dl_path.as_path())?;
+                restart_required = update_liveboat_binary(&release_channel, dl_path.as_path())?;
             } else {
                 println!("Latest version of Liveboat is already installed.")
             }
         }
     }
     fetch_templates(&release_channel, dl_path.as_path(), paths.template_dir())?;
-    Ok(())
+    Ok(restart_required)
 }
 
-/// Download and update local liveboat binary.
-fn update_liveboat_binary(release_chan: &String, dl_path: &Path) -> Result<()> {
+/// Download and update local liveboat binary. We return bool in result
+/// indicating whether to attempt to propagate to sudo in order to replace the binary.
+fn update_liveboat_binary(release_chan: &String, dl_path: &Path) -> Result<bool> {
     let target_r = option_env!("TARGET");
     let bin_name_r = option_env!("BIN_NAME");
     if target_r.is_none() || bin_name_r.is_none() {
         println!("Looks like your version of Liveboat cannot be updated");
         println!("Use package manager to update or compile manually");
-        return Ok(());
+        return Ok(false);
     }
     let target = target_r.unwrap();
     if !SUPPORTED_TARGETS.contains(&target) {
         println!("Version of Liveboat you're using does not support automatic updates");
         println!("Use package manager to update or compile manually");
-        return Ok(());
+        return Ok(false);
     }
     let bin_name = bin_name_r.unwrap();
     let d_url = format!("{}/{}", release_chan, bin_name);
@@ -187,8 +191,14 @@ fn update_liveboat_binary(release_chan: &String, dl_path: &Path) -> Result<()> {
     println!("{:?}", exe_path.display());
     fs::set_permissions(&d_dl_path, fs::Permissions::from_mode(0o755))?;
     info!("Copying binary to {}", exe_path.display());
-    self_replace(&d_dl_path)?;
-    Ok(())
+    let replace_result = self_replace(&d_dl_path);
+    println!("{:?}", replace_result);
+    if replace_result.is_err() {
+        fs::copy(&d_dl_path, UPDATER_TEMP_BIN_PATH)?;
+        std::env::set_var(LIVEBOAT_UPDATE_BIN_PATH_ENV, UPDATER_TEMP_BIN_PATH);
+        return Ok(true);
+    }
+    Ok(false)
 }
 
 /// Download and update local templates, taking versions in config.toml under consideration.
@@ -227,7 +237,10 @@ fn fetch_templates(release_chan: &String, dl_path: &Path, tpl_dir: &Path) -> Res
         if out_t.exists() {
             let remote_config = TemplateConfig::get_config_for_template(&dirpath.as_path())?;
             let local_config = TemplateConfig::get_config_for_template(&out_t.as_path())?;
-            println!("Remote template has version: {}, local: {}", remote_config.version, local_config.version);
+            println!(
+                "Remote template has version: {}, local: {}",
+                remote_config.version, local_config.version
+            );
             let remote_v = Version::from_str(remote_config.version)?;
             let local_v = Version::from_str(local_config.version)?;
             if local_v.cmp(&remote_v) != Ordering::Less {
