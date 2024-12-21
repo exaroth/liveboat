@@ -94,10 +94,8 @@ pub fn init_logger(debug: bool) {
 }
 
 /// Initialize configuration for the app, prompting user for input.
-pub fn cold_start(args: &Args) -> Result<()> {
+pub fn cold_start(paths: &Paths) -> Result<()> {
     info!("Initializing cold start");
-    let mut paths = Paths::new(&args.config_file)?;
-    paths.update_with_args(args)?;
     info!("Paths are: {}", paths);
     let mut opts = Options::default();
     info!("Default options are: {}", opts);
@@ -115,6 +113,8 @@ pub fn cold_start(args: &Args) -> Result<()> {
             paths.config_file().display()
         );
     }
+    let dl_path = paths.tmp_dir().join("update");
+    fs::create_dir_all(&dl_path)?;
     let release_channel = format!("{}/stable", RELEASE_CHANNEL);
     fetch_templates(
         &release_channel,
@@ -226,9 +226,8 @@ fn fetch_templates(release_chan: &String, dl_path: &Path, tpl_dir: &Path) -> Res
         info!("Local template path: {}", out_t.display());
         if out_t.exists() {
             let remote_config = TemplateConfig::get_config_for_template(&dirpath.as_path())?;
-            println!("Remote template has version {}", remote_config.version);
             let local_config = TemplateConfig::get_config_for_template(&out_t.as_path())?;
-            println!("Local template has version {}", local_config.version);
+            println!("Remote template has version: {}, local: {}", remote_config.version, local_config.version);
             let remote_v = Version::from_str(remote_config.version)?;
             let local_v = Version::from_str(local_config.version)?;
             if local_v.cmp(&remote_v) != Ordering::Less {

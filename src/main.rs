@@ -38,8 +38,10 @@ fn main() {
 
 /// Initialize configuration and fetch auxiliary data.
 fn init(args: &Args) -> Result<()> {
-    cold_start(args)?;
-    Ok(())
+    let paths = Paths::new(&args.config_file)?;
+    let result = cold_start(&paths);
+    tidy_up(paths.tmp_dir());
+    return result
 }
 
 /// Update binary and templates when available.

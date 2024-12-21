@@ -43,7 +43,7 @@ build:
 
 .PHONY: install
 install:
-	sudo cp target/$(target)/$(prog) /usr/local/bin/$(prog)$(extension)
+	sudo cp target/$(target_t)/$(target)/$(prog) /usr/local/bin/$(prog)$(extension)
 
 .PHONY: test
 test:
