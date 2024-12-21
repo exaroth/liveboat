@@ -45,6 +45,7 @@ sh -c 'curl -o /usr/local/bin/liveboat https://github.com/exaroth/liveboat/relea
 OSX:
 
 ``` sh
+brew tap exaroth/liveboat
 brew install liveboat
 ```
 
