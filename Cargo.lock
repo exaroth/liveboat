@@ -1117,7 +1117,7 @@ checksum = "4ee93343901ab17bd981295f2cf0026d4ad018c7c31ba84549a4ddbb47a45104"
 
 [[package]]
 name = "liveboat"
-version = "0.9.7"
+version = "0.9.8"
 dependencies = [
  "anyhow",
  "bs58",
