@@ -48,9 +48,15 @@ jobs:
         run: brew install coreutils
         if: contains(matrix.platform.target, 'darwin')
       - name: Install sqlite3 for aarch64
-        run: export CROSS_CONFIG=$(pwd)/Cross.toml
+        run: |
+          export CROSS_CONFIG=$(pwd)/Cross.toml
           export CROSS_DEBUG=1
         if: contains(matrix.platform.target, 'aarch64')
+      - name: Set build vars
+        run: |
+          echo "TARGET=${{matrix.platform.target}}" >> $GITHUB_ENV
+          echo "BIN_NAME=${{matrix.platform.binary_name}}" >> $GITHUB_ENV
+          echo "CI_RELEASE=1" >> $GITHUB_ENV
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
@@ -59,14 +65,14 @@ jobs:
           strip: true
       - name: Save binary SHA
         run: mkdir checksums;
-          echo -n target/${{ matrix.platform.target }}/release/liveboat | sha256sum > checksums/${{ matrix.platform.binary_name }};
+          echo -n target/${{ matrix.platform.target }}/release/liveboat | shasum -a 256 > checksums/${{ matrix.platform.binary_name }};
       - name: Upload development binaries
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: target/${{ matrix.platform.target }}/release/liveboat
           asset_name: ${{ matrix.platform.binary_name }}
-          tag: development
+          tag: nightly
           overwrite: true
         if: |
           github.event.workflow_run.head_branch == 'develop' ||
@@ -79,7 +85,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: checksums/${{ matrix.platform.binary_name }}
           asset_name: ${{ matrix.platform.binary_name }}.sha256sum
-          tag: development
+          tag: nightly
           overwrite: true
         if: |
           github.event.workflow_run.head_branch == 'develop' ||

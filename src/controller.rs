@@ -1,10 +1,13 @@
-use log::{info, trace, warn};
 #[cfg(test)]
+#[allow(unused_imports)]
 use mockall::Sequence;
+
 use std::cell::RefCell;
-use std::error::Error;
 use std::fs::read_to_string;
 use std::sync::Arc;
+use log::{info, trace, warn};
+
+use anyhow::Result;
 
 use crate::args::Args;
 use crate::builder::{Builder, SinglePageBuilder};
@@ -29,7 +32,7 @@ pub struct BuildController {
 }
 
 impl BuildController {
-    pub fn init(args: &Args) -> Result<BuildController, Box<dyn Error>> {
+    pub fn init(args: &Args) -> Result<BuildController> {
         info!("Initializing controller");
         let mut paths = Paths::new(&args.config_file)?;
         info!("Default paths are {}", paths);
@@ -66,7 +69,7 @@ impl BuildController {
     /// using matching rules provided by the latter and populate feed objects
     /// with the articles. Finally we utilize builder module to first output
     /// all the static page data to tmp dir and copy it to build directory.
-    pub fn build(&self) -> Result<(), Box<dyn Error>> {
+    pub fn build(&self) -> Result<()> {
         info!("Processing feeds");
         let db_connector = DBConnector::init(self.paths.cache_file())?;
         let feed_items = self.get_feed_items(&db_connector, self.options.time_threshold)?;
@@ -99,7 +102,7 @@ impl BuildController {
     fn get_builder<'a>(
         &'a self,
         context: &'a SimpleContext,
-    ) -> Result<Box<dyn Builder + 'a>, Box<dyn Error>> {
+    ) -> Result<Box<dyn Builder + 'a>> {
         let simple_builder = SinglePageBuilder::init(
             self.paths.tmp_dir(),
             self.paths.build_dir(),
@@ -134,7 +137,7 @@ impl BuildController {
     fn get_url_feeds(
         &self,
         db_connector: &impl Connector,
-    ) -> Result<Vec<Arc<RefCell<Feed>>>, Box<dyn Error>> {
+    ) -> Result<Vec<Arc<RefCell<Feed>>>> {
         let url_feeds = self.url_reader.get_url_feeds();
         let urls = url_feeds.iter().map(|u| u.url.clone()).collect();
         trace!("List of urls to retrieve: {}", format!("{:?}", urls));
@@ -160,7 +163,7 @@ impl BuildController {
     fn get_query_feeds(
         &self,
         feeds: &Vec<Arc<RefCell<Feed>>>,
-    ) -> Result<Vec<Feed>, Box<dyn Error>> {
+    ) -> Result<Vec<Feed>> {
         let mut result = Vec::new();
         let query_feeds = &self.url_reader.get_query_urls()?;
         for query_f in query_feeds {
@@ -192,7 +195,7 @@ impl BuildController {
         &self,
         db_connector: &impl Connector,
         days_back: u64,
-    ) -> Result<Vec<FeedItem>, Box<dyn Error>> {
+    ) -> Result<Vec<FeedItem>> {
         return db_connector.get_feed_items(days_back);
     }
 }
@@ -401,7 +404,7 @@ mod tests {
             "",
             3,
         );
-        let mut item4 = FeedItem::new(
+        let item4 = FeedItem::new(
             "Feed0 item1 ",
             "http://feed0.com/1",
             "http://feed0.com",
@@ -487,7 +490,6 @@ http://feed3.com
         };
 
         let mut db_mock = MockConnector::new();
-        let mut seq = Sequence::new();
         let f1 = Feed::init(
             "http://feed1.com".to_string(),
             "Feed1".to_string(),

@@ -1,4 +1,5 @@
 use resolve_path::PathResolveExt;
+use std::env;
 use std::fmt;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -50,7 +51,12 @@ impl Paths {
         };
 
         paths.config_dir = paths.home().join(LIVEBOAT_DEFAULT_CONFIG_DIRNAME);
-        paths.template_dir = paths.config_dir.join(LIVEBOAT_DEFAULT_TEMPLATES_DIRNAME);
+        let tpl_dir_override = env::var("LIVEBOAT_TEMPLATE_DIR");
+        if tpl_dir_override.is_err() {
+            paths.template_dir = paths.config_dir.join(LIVEBOAT_DEFAULT_TEMPLATES_DIRNAME);
+        } else {
+            paths.template_dir = tpl_dir_override.unwrap().resolve().to_path_buf();
+        }
         paths.tmp_dir =
             std::env::temp_dir().join(format!("liveboat-{}", generate_random_string(5)));
         paths.config_file = path_with_argval(
@@ -167,6 +173,7 @@ impl fmt::Display for Paths {
             config_file {}:
             config_dir: {}
             tmp_dir: {}
+            template_dir: {}
             template_path: {}
             build_dir: {}
             cache_file: {}
@@ -174,6 +181,7 @@ impl fmt::Display for Paths {
             self.config_file.display(),
             self.config_dir.display(),
             self.tmp_dir.display(),
+            self.template_dir.display(),
             self.template_path.display(),
             self.build_dir.display(),
             self.cache_file.display(),
@@ -216,15 +224,28 @@ mod tests {
         }
         // Empty path dont check
         let mut result = path_with_argval(&None, false, temp_p.to_path_buf());
-        assert_eq!("/tmp/liveboat_test".to_string(), format!("{}", result.display()));
+        assert_eq!(
+            "/tmp/liveboat_test".to_string(),
+            format!("{}", result.display())
+        );
 
         // Empty path check
         result = path_with_argval(&None, true, temp_p.to_path_buf());
-        assert_eq!("/tmp/liveboat_test".to_string(), format!("{}", result.display()));
+        assert_eq!(
+            "/tmp/liveboat_test".to_string(),
+            format!("{}", result.display())
+        );
 
         // Path exists
-        result = path_with_argval(&Some(format!("{}", temp_p.display())), true, PathBuf::from("/backup"));
-        assert_eq!("/tmp/liveboat_test".to_string(), format!("{}", result.display()));
+        result = path_with_argval(
+            &Some(format!("{}", temp_p.display())),
+            true,
+            PathBuf::from("/backup"),
+        );
+        assert_eq!(
+            "/tmp/liveboat_test".to_string(),
+            format!("{}", result.display())
+        );
 
         // Path doesnt exist, check exists
         result = path_with_argval(&Some("/fake".to_string()), true, PathBuf::from("/backup"));
@@ -233,12 +254,10 @@ mod tests {
         // Path doesnt exist, no check
         result = path_with_argval(&Some("/fake".to_string()), false, PathBuf::from("/backup"));
         assert_eq!("/fake".to_string(), format!("{}", result.display()));
-        
 
         let rr = fs::remove_dir(temp_p);
         if rr.is_err() {
             panic!("Error deleting temp dir")
         }
-
     }
 }

@@ -1,14 +1,14 @@
 use resolve_path::PathResolveExt;
-use std::error::Error;
 use log::info;
 
+use anyhow::Result;
 use console::Style;
 use dialoguer::{theme::ColorfulTheme, Confirm, Input};
 
 use std::path::Path;
 
 /// Prompt for input containing string value.
-pub fn prompt_string(default: String, prompt: &str) -> Result<String, Box<dyn Error>> {
+pub fn prompt_string(default: String, prompt: &str) -> Result<String> {
     let theme: ColorfulTheme = ColorfulTheme {
         values_style: Style::new().yellow().dim(),
         ..ColorfulTheme::default()
@@ -25,7 +25,7 @@ pub fn prompt_path(
     default: &Path,
     check_exists: bool,
     prompt: &str,
-) -> Result<String, Box<dyn Error>> {
+) -> Result<String> {
     let theme: ColorfulTheme = ColorfulTheme {
         values_style: Style::new().green().dim(),
         ..ColorfulTheme::default()
@@ -52,7 +52,7 @@ pub fn prompt_path(
 }
 
 /// Prompt for input containing integer.
-pub fn prompt_int(default: u64, prompt: &str) -> Result<u64, Box<dyn Error>> {
+pub fn prompt_int(default: u64, prompt: &str) -> Result<u64> {
     loop {
         let prompt_result = prompt_string(default.to_string(), prompt)?;
         match prompt_result.parse::<u64>() {

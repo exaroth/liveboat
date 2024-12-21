@@ -4,6 +4,8 @@ use std::fs::{read_to_string, File};
 use std::io::Write;
 use std::path::Path;
 use std::str;
+
+use anyhow::Result;
 use toml;
 
 const fn default_bool<const V: bool>() -> bool {
@@ -69,7 +71,7 @@ pub struct Options {
 }
 
 impl Options {
-    pub fn init(path: &Path) -> Result<Options, Box<dyn std::error::Error>> {
+    pub fn init(path: &Path) -> Result<Options> {
         if !path.exists() {
             return Ok(Options::default());
         };
@@ -92,7 +94,7 @@ impl Options {
     }
 
     /// Output data to TOML and save.
-    pub fn save(&self, path: &Path) -> Result<String, Box<dyn std::error::Error>> {
+    pub fn save(&self, path: &Path) -> Result<String> {
         let t = toml::to_string(&self)?;
 
         if !path.exists() {
@@ -104,7 +106,7 @@ impl Options {
     }
 
     /// Instantiate options from TOML file.
-    pub fn load(path: &Path) -> Result<Options, Box<dyn std::error::Error>> {
+    pub fn load(path: &Path) -> Result<Options> {
         let raw = read_to_string(path)?;
         let opts: Options = toml::from_str(raw.as_str())?;
         return Ok(opts);

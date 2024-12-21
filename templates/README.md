@@ -45,7 +45,7 @@ Will become:
 └── index.html
 ```
 
-Feeds directory contains `JSON` files (one per feed) with all the articles which matched the criteria. Query feeds are treated same way as ordinary URL based feeds (with the exception of `is_query` flag). On top of that list of feeds and query feeds will be saved in `feeds.json` and `query_feeds.json`. See `Serializer` reference at [https://github.com/exaroth/liveboat/src/feed_item.rs](https://github.com/exaroth/liveboat/blob/develop/src/feed_item.rs) for details about available  fields in each feed article rendered in `JSON` file.
+Feeds directory contains `JSON` files (one per feed) with all the articles which matched the criteria. Query feeds are treated same way as ordinary URL based feeds (with the exception of `is_query` flag). On top of that list of feeds and query feeds will be saved in `feeds.json`. See `Serializer` reference at [https://github.com/exaroth/liveboat/src/feed_item.rs](https://github.com/exaroth/liveboat/blob/develop/src/feed_item.rs) for details about available fields in each feed article rendered in `JSON` file.
 
 > [!NOTE]
 > `JSON` files are minified by default unless template is built with `--debug` options. <br/>

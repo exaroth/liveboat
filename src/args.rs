@@ -7,8 +7,7 @@ use clap::Parser;
 pub enum Command {
     Init,
     Build,
-    // Deploy,
-    // Update,
+    Update,
 }
 
 impl std::fmt::Display for Command {
@@ -16,22 +15,20 @@ impl std::fmt::Display for Command {
         let s = match self {
             Self::Init => "init",
             Self::Build => "build",
-            // Self::Deploy => "deploy",
-            // Self::Update => "update",
+            Self::Update => "update",
         };
         s.fmt(f)
     }
 }
 
 impl std::str::FromStr for Command {
-    type Err = String;
 
+    type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "init" => Ok(Self::Init),
             "build" => Ok(Self::Build),
-            // "deploy" => Ok(Self::Deploy),
-            // "update" => Ok(Self::Update),
+            "update" => Ok(Self::Update),
             _ => Err(format!("Unknown command: {s}")),
         }
     }
@@ -51,18 +48,25 @@ pub struct Args {
     /// Path to build directory.
     #[arg(long)]
     pub build_dir: Option<String>,
-    /// Path to directory containing template.
+    /// Path to directory containing Liveboat template.
     #[arg(long)]
     pub template_path: Option<String>,
     /// path to liveboat config file.
     #[arg(long)]
     pub config_file: Option<String>,
+    /// Print verbose code execution info.
     #[arg(
         long,
         default_value_t = false
         )]
     pub debug: bool,
-    /// Command to execute.
+    /// If set will use nightly channel for updates.
+    #[arg(
+        long,
+        default_value_t = false
+        )]
+    pub use_nightly: bool,
+    /// Command to execute [available options: build, init, update]
     #[arg(
         short = 'x',
         default_value_t = Command::Build,

@@ -1,5 +1,4 @@
 use log::info;
-use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::Error as IOError;
@@ -7,10 +6,12 @@ use std::io::ErrorKind;
 use std::path::Path;
 use std::{fs, io};
 
+use anyhow::Result;
 use handlebars::Handlebars;
 
 use crate::feed::{Feed, FeedList};
 use crate::template::Context;
+use crate::utils::copy_all;
 
 const FEEDS_DIRNAME: &str = "feeds";
 const INCLUDE_DIRNAME: &str = "include";
@@ -21,9 +22,9 @@ const BUILD_TIME_FILENAME: &str = "build_time.txt";
 /// must implement.
 pub trait Builder {
     fn create_tmp(&self) -> Result<(), io::Error>;
-    fn generate_aux_data(&self) -> Result<(), Box<dyn Error>>;
-    fn render_templates(&self) -> Result<(), Box<dyn Error>>;
-    fn copy_data(&self) -> Result<(), Box<dyn Error>>;
+    fn generate_aux_data(&self) -> Result<()>;
+    fn render_templates(&self) -> Result<()>;
+    fn copy_data(&self) -> Result<()>;
     fn clean_up(&self);
 }
 
@@ -55,14 +56,14 @@ where
 
     /// Generate any auxiliary data required for page generation,
     /// such as json feeds.
-    fn generate_aux_data(&self) -> Result<(), Box<dyn Error>> {
+    fn generate_aux_data(&self) -> Result<()> {
         self.save_json_feeds()?;
         self.save_build_time()?;
         Ok(())
     }
 
     /// Copy data from tmp to build directory.
-    fn copy_data(&self) -> Result<(), Box<dyn Error>> {
+    fn copy_data(&self) -> Result<()> {
         let include_dir = self.template_path.join(INCLUDE_DIRNAME);
         info!("Copying include contents @ {}", include_dir.display());
         copy_all(include_dir, &self.build_dir)?;
@@ -95,7 +96,7 @@ where
     }
 
     /// Render template using context provided.
-    fn render_templates(&self) -> Result<(), Box<dyn Error>> {
+    fn render_templates(&self) -> Result<()> {
         let tpl_file = self.template_path.join(format!("{}.hbs", INDEX_FILENAME));
         info!("Rendering template @ {}", &tpl_file.display());
         let raw = fs::read_to_string(tpl_file)?;
@@ -162,7 +163,7 @@ where
     }
 
     /// Save build time as text file.
-    fn save_build_time(&self) -> Result<(), Box<dyn Error>> {
+    fn save_build_time(&self) -> Result<()> {
         let path = self.tmp_dir.join(BUILD_TIME_FILENAME);
         let mut file = File::create(path)?;
         file.write_all(format!("{}", self.context.build_time()).as_bytes())?;
@@ -170,7 +171,7 @@ where
     }
 
     /// Save single feed data in tmp dir.
-    fn save_feed_data(&self, name: &String, data: &[u8]) -> Result<(), Box<dyn Error>> {
+    fn save_feed_data(&self, name: &String, data: &[u8]) -> Result<()> {
         let feeds_dir = self.tmp_dir.join(FEEDS_DIRNAME);
         let path = feeds_dir.join(format!("{}.json", name));
         info!("Saving feed at path {}", path.display());
@@ -180,7 +181,7 @@ where
     }
 
     /// Generate json files for each feed.
-    fn save_json_feeds(&self) -> Result<(), Box<dyn Error>> {
+    fn save_json_feeds(&self) -> Result<()> {
         let mut f_list = FeedList::new();
         for f in self.context.feeds() {
             if !f.is_empty() && !f.is_hidden() {
@@ -193,7 +194,7 @@ where
     }
 
     /// Save list of all feeds.
-    fn save_json_feedlist(&self, feedlist: &FeedList, name: String) -> Result<(), Box<dyn Error>> {
+    fn save_json_feedlist(&self, feedlist: &FeedList, name: String) -> Result<()> {
         if self.debug {
             self.save_feed_data(&name, serde_json::to_string_pretty(&feedlist)?.as_bytes())?;
         } else {
@@ -203,7 +204,7 @@ where
     }
 
     /// Save single feed items.
-    fn save_json_feed(&self, feed: &Feed) -> Result<(), Box<dyn Error>> {
+    fn save_json_feed(&self, feed: &Feed) -> Result<()> {
         if feed.is_empty() || feed.is_hidden() {
             info!("Skipping saving feed: {:?}", feed);
             return Ok(());
@@ -231,20 +232,4 @@ where
         }
         Ok(())
     }
-}
-
-/// Helper func for copying all the contents of directory
-/// to another.
-fn copy_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<()> {
-    fs::create_dir_all(&dst)?;
-    for entry in fs::read_dir(src)? {
-        let entry = entry?;
-        let ty = entry.file_type()?;
-        if ty.is_dir() {
-            copy_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
-        } else {
-            fs::copy(entry.path(), dst.as_ref().join(entry.file_name()))?;
-        }
-    }
-    Ok(())
 }

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   workflow_run:
     workflows:
-      - test
+      - cross-compile
     types:
       - completed
     branches: ["v*.*.*", "main", "develop", "release/*", "feature/*"]
@@ -15,17 +15,17 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Compile templates
         run:
           make bundle-templates
-      - name: Upload templates for development
+      - name: Upload templates for nightly
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./tmp/templates.tar.gz
           asset_name: templates.tar.gz
-          tag: development
+          tag: nightly
           overwrite: true
         if: |
           github.event.workflow_run.head_branch == 'develop' ||
@@ -45,15 +45,6 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./tmp/templates.tar.gz
           asset_name: templates.tar.gz
-          tag: stable
-          overwrite: true
-        if: github.event.workflow_run.head_branch == 'main'
-      - name: Upload VERSION file
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./VERSION
-          asset_name: VERSION
           tag: stable
           overwrite: true
         if: github.event.workflow_run.head_branch == 'main'

@@ -1,14 +1,15 @@
 #[cfg(test)]
-use mockall::{automock, mock, predicate::*};
+use mockall::{automock, predicate::*};
 
 use crate::feed::Feed;
 use crate::feed_item::FeedItem;
+
+use anyhow::Result;
 use log::{info, trace};
-use std::error::Error;
 use std::path::Path;
 
 use rusqlite::Error as SQLiteError;
-use rusqlite::{params_from_iter, Connection, Result, Rows};
+use rusqlite::{params_from_iter, Connection, Rows};
 
 const FEED_ITEMS_SQL: &str = "SELECT 
     feed.rssurl AS feed_url,
@@ -32,8 +33,8 @@ AND items.deleted=0
 
 #[cfg_attr(test, automock)]
 pub trait Connector {
-    fn get_feed_items(&self, days_back: u64) -> Result<Vec<FeedItem>, Box<dyn Error>>;
-    fn get_feeds(&self, urls: Vec<String>) -> Result<Vec<Feed>, Box<dyn Error>>;
+    fn get_feed_items(&self, days_back: u64) -> Result<Vec<FeedItem>>;
+    fn get_feeds(&self, urls: Vec<String>) -> Result<Vec<Feed>>;
 }
 
 pub struct DBConnector {
@@ -41,7 +42,7 @@ pub struct DBConnector {
 }
 
 impl DBConnector {
-    pub fn init(db_path: &Path) -> Result<DBConnector, Box<dyn Error>> {
+    pub fn init(db_path: &Path) -> Result<DBConnector> {
         let connector = DBConnector {
             conn: Connection::open(db_path)?,
         };
@@ -61,7 +62,7 @@ impl DBConnector {
 
 impl Connector for DBConnector {
     /// Retrieve article data from sqlite db.
-    fn get_feed_items(&self, days_back: u64) -> Result<Vec<FeedItem>, Box<dyn Error>> {
+    fn get_feed_items(&self, days_back: u64) -> Result<Vec<FeedItem>> {
         let mut stmt = self.conn.prepare(FEED_ITEMS_SQL)?;
         info!(
             "Prepared statement for feed retrieval: {}",
@@ -76,7 +77,7 @@ impl Connector for DBConnector {
     }
 
     /// Retrieve feed information from sqlite db, we do it only for feeds defined in urls file.
-    fn get_feeds(&self, urls: Vec<String>) -> Result<Vec<Feed>, Box<dyn Error>> {
+    fn get_feeds(&self, urls: Vec<String>) -> Result<Vec<Feed>> {
         let repeat_vars = |c| {
             assert_ne!(c, 0);
             let mut s = "?,".repeat(c);

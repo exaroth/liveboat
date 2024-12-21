@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] 2024-12-21
+### Fixed
+- Fix sorting article items in proper descending order
+ 
+### Added
+- Add build time query param to feed calls make sure no calls are cached by the browser
+- Add modules for updating Liveboat binaries and templates
+- Add ability to override template_dir with env variable
+ 
 ## [0.9.0] 2024-12-15
 
 ### Added

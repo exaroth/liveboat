@@ -1,0 +1,36 @@
+name: aux-deployer
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - cross-compile
+    types:
+      - completed
+    branches: ["v*.*.*", "main", "develop", "release/*", "feature/*"]
+
+jobs:
+  template-builder:
+    name: Deploy auxiliary data
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upload VERSION file for release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./VERSION
+          asset_name: VERSION
+          tag: stable
+          overwrite: true
+        if: github.event.workflow_run.head_branch == 'main'
+      - name: Upload VERSION file for nightly
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./VERSION
+          asset_name: VERSION
+          tag: nightly
+          overwrite: true
+        if: github.event.workflow_run.head_branch == 'develop'

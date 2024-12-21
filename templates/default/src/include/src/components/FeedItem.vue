@@ -137,7 +137,7 @@ const resolveFeedPath = (feedId) => {
   if (!pathPrefix.endsWith('/')) {
     pathPrefix = pathPrefix + '/'
   }
-  let feedUrl = `${pathPrefix}${basePath}.json`
+  let feedUrl = `${pathPrefix}${basePath}.json?bt=${window.buildTime}`
   return feedUrl
 }
 

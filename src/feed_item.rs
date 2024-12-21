@@ -71,10 +71,12 @@ impl FeedItem {
         return &self.feed_url;
     }
 
+    #[allow(dead_code)]
     pub fn title(&self) -> &String {
         return &self.title;
     }
 
+    #[allow(dead_code)]
     pub fn guid(&self) -> i64 {
         return self.guid;
     }
@@ -101,6 +103,7 @@ impl FeedItem {
         return self.unread;
     }
 
+    #[allow(dead_code)]
     pub fn new(
         title: &str,
         url: &str,

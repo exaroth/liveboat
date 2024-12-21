@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install submodules
-        run: make install
+        run: make setup
 
       - name: Cache ~/.cargo
         uses: actions/cache@v4

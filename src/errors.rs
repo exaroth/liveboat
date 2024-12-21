@@ -15,3 +15,13 @@ pub enum FilesystemError {
     #[error("Unknown filesystem error `{0}`")]
     Unknown(String),
 }
+
+/// Errors returned during url reader processing
+#[derive(Error, Debug)]
+pub enum UrlReaderError {
+    #[error("Invalid query found: {0}")]
+    InvalidQueryError(String),
+
+    #[error("Error matching query feed {0}")]
+    MatcherError(String),
+}

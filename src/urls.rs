@@ -2,8 +2,12 @@
 use log::info;
 use std::fmt;
 
+use anyhow::Result;
+
 use libnewsboat::matcher::Matcher;
 use libnewsboat::utils as libutils;
+
+use crate::errors::UrlReaderError;
 
 /// Representation of single url based feed,
 /// this will also include file based feeds.
@@ -30,8 +34,7 @@ impl fmt::Display for QueryFeed {
             "Paths::
             title {}:
             line_no: {}",
-            self.title,
-            self.line_no,
+            self.title, self.line_no,
         )
     }
 }
@@ -127,7 +130,7 @@ impl UrlReader {
     }
 
     /// Fetch all query urls as defined in urls file.
-    pub fn get_query_urls(&self) -> Result<Vec<QueryFeed>, String> {
+    pub fn get_query_urls(&self) -> Result<Vec<QueryFeed>, UrlReaderError> {
         info!("Retrieving query urls");
         let mut results = Vec::new();
         let linel = self.lines.len();
@@ -144,7 +147,10 @@ impl UrlReader {
             let parts = libutils::tokenize_quoted(tokens[0].as_str(), ":");
             info!("Parts are: {}", format!("{:?}", parts));
             if parts.len() < 3 {
-                return Err(format!("Invalid query found: {}", line));
+                return Err(UrlReaderError::InvalidQueryError(format!(
+                    "Invalid query found: {}",
+                    line
+                )));
             }
             let filter_s = &parts[2];
             info!("Matching against: {}", filter_s);
@@ -154,7 +160,7 @@ impl UrlReader {
                     matcher: r,
                     line_no: line_no,
                 }),
-                Err(e) => return Err(e),
+                Err(e) => return Err(UrlReaderError::MatcherError(e)),
             };
         }
         Ok(results)
@@ -234,7 +240,6 @@ https://techcrunch.com/feed/ tech
         assert_eq!(Vec::from(["dev", "news"]), feeds[0].tags);
         assert_eq!(1, feeds[1].tags.len());
         assert_eq!(Vec::from(["tech"]), feeds[1].tags);
-
     }
     #[test]
     fn test_processing_url_feeds_hidden() {
@@ -250,7 +255,6 @@ https://kubernetes.io/feed.xml \"~Dev - Kubernetes Blog\" !
         assert_eq!(true, feeds[0].hidden);
         assert_eq!(true, feeds[1].hidden);
         assert_eq!(true, feeds[2].hidden);
-
     }
     #[test]
     fn test_processing_invalid_url_feeds() {
@@ -272,9 +276,11 @@ file:///home/exaroth/.scripts/atom.xml \"~Atom Pocket\"
         assert_eq!(reader.lines.len(), 1);
         let feeds = reader.get_url_feeds();
         assert_eq!(1, feeds.len());
-        assert_eq!("file:///home/exaroth/.scripts/atom.xml".to_string(), feeds[0].url);
+        assert_eq!(
+            "file:///home/exaroth/.scripts/atom.xml".to_string(),
+            feeds[0].url
+        );
         assert_eq!(Some("Atom Pocket".to_string()), feeds[0].title_override);
-
     }
     #[test]
     fn test_processing_exec_statements() {
@@ -299,7 +305,6 @@ exec:~/.scripts/pocket_atom
         assert_eq!(1, data.len());
         assert_eq!("Youtube".to_string(), data[0].title);
         assert_eq!(0, data[0].line_no);
-
     }
     #[test]
     fn test_processing_query_urls_with_multiple_filters() {

@@ -4,6 +4,10 @@ Liveboat
 </h1>
 <h1>See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo</a></h1>
 
+![stable](https://github.com/exaroth/liveboat/actions/workflows/test.yml/badge.svg?branch=main)
+[![License](https://img.shields.io/github/license/exaroth/liveboat)](https://github.com/exaroth/liveboat/blob/develop/LICENSE)
+[![rustc 1.84.0](https://img.shields.io/badge/rust-1.84%2B-orange.svg)](https://img.shields.io/badge/rust-1.84%2B-orange.svg)
+
 Liveboat generates static pages based on the Newsboat RSS Reader configuration, content which can be easily hosted online and reached even when away from the terminal.
 
 ## Running via Github actions
@@ -30,17 +34,18 @@ Other Linux distros:
 via `wget`
 
 ``` sh
-wget -O /bin/liveboat https://github.com/exaroth/liveboat/releases/download/stable/liveboat-musl
+sh -c 'wget -O /usr/local/bin/liveboat https://github.com/exaroth/liveboat/releases/download/stable/liveboat-linux-musl && chmod +x /usr/local/bin/liveboat'
 ```
 
 via `curl`
 ``` sh
-curl -o /bin/liveboat https://github.com/exaroth/liveboat/releases/download/stable/liveboat-musl
+sh -c 'curl -o /usr/local/bin/liveboat https://github.com/exaroth/liveboat/releases/download/stable/liveboat-linux-musl && chmod +x /usr/local/bin/liveboat'
 ```
 
 OSX:
 
 ``` sh
+brew tap exaroth/liveboat
 brew install liveboat
 ```
 
@@ -48,7 +53,7 @@ Pre-built binaries are available at the [Releases](https://github.com/exaroth/li
 
 ### Compiling from source
 
-After cloning repository run `make install && make build` to build the binary. Rustc/Cargo required.
+After cloning repository run `make setup && make build` to build the binary. Rustc/Cargo required.
 
 ## Usage
 
