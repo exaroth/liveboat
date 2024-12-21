@@ -4,6 +4,9 @@ Liveboat
 </h1>
 <h1>See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo</a></h1>
 
+![stable](https://github.com/exaroth/liveboat/actions/workflows/test.yml/badge.svg?branch=main)
+![nightly](https://github.com/exaroth/liveboat/actions/workflows/test.yml/badge.svg?branch=develop)
+
 Liveboat generates static pages based on the Newsboat RSS Reader configuration, content which can be easily hosted online and reached even when away from the terminal.
 
 ## Running via Github actions
@@ -48,7 +51,7 @@ Pre-built binaries are available at the [Releases](https://github.com/exaroth/li
 
 ### Compiling from source
 
-After cloning repository run `make install && make build` to build the binary. Rustc/Cargo required.
+After cloning repository run `make setup && make build` to build the binary. Rustc/Cargo required.
 
 ## Usage
 
