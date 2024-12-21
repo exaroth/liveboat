@@ -1,9 +1,11 @@
-use log::{info, trace, warn};
 #[cfg(test)]
+#[allow(unused_imports)]
 use mockall::Sequence;
+
 use std::cell::RefCell;
 use std::fs::read_to_string;
 use std::sync::Arc;
+use log::{info, trace, warn};
 
 use anyhow::Result;
 
@@ -402,7 +404,7 @@ mod tests {
             "",
             3,
         );
-        let mut item4 = FeedItem::new(
+        let item4 = FeedItem::new(
             "Feed0 item1 ",
             "http://feed0.com/1",
             "http://feed0.com",
@@ -488,7 +490,6 @@ http://feed3.com
         };
 
         let mut db_mock = MockConnector::new();
-        let mut seq = Sequence::new();
         let f1 = Feed::init(
             "http://feed1.com".to_string(),
             "Feed1".to_string(),
