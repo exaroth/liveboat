@@ -21,10 +21,12 @@ CARGO_TEST_FLAGS=--workspace
 all: build install
 .DEFAULT_GOAL: help
 help:
+	@echo "make setup"
+	@echo "		  install dependencies for the project"
 	@echo "make build"
 	@echo "		  build the liveboat binary"
 	@echo "make install"
-	@echo "		  install dependencies"
+	@echo "		  install the binary"
 	@echo "make test"
 	@echo "		  run tests"
 	@echo "make setup-default-template-dev"
