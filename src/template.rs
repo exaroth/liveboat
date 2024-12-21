@@ -1,3 +1,4 @@
+
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
@@ -6,7 +7,7 @@ use std::path::Path;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use anyhow::{Error, Result};
+use anyhow::Result;
 
 use crate::errors::FilesystemError;
 use crate::feed::Feed;
@@ -28,6 +29,7 @@ fn default_builder() -> String {
 pub struct TemplateConfig {
     pub version: String,
     #[serde(default = "default_builder")]
+    #[allow(dead_code)]
     pub builder: String,
     #[serde(default = "default_template_settings")]
     pub template_settings: HashMap<String, String>,
@@ -47,6 +49,7 @@ impl TemplateConfig {
 
 pub trait Context {
     fn feeds(&self) -> &Vec<Feed>;
+    #[allow(dead_code)]
     fn options(&self) -> &Options;
     fn build_time(&self) -> u64;
 }

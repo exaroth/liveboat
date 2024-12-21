@@ -113,10 +113,12 @@ impl Feed {
         return &self.url;
     }
 
+    #[allow(dead_code)]
     pub fn title(&self) -> &String {
         return &self.title;
     }
 
+    #[allow(dead_code)]
     pub fn display_title(&self) -> &String {
         return &self.display_title;
     }
@@ -247,6 +249,7 @@ impl FeedList {
         return f;
     }
 
+    #[allow(dead_code)]
     pub fn from_vec(v: Vec<Feed>) -> FeedList {
         let mut f = FeedList::new();
         for item in v {

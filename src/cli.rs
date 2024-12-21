@@ -1,5 +1,4 @@
 use resolve_path::PathResolveExt;
-use std::error::Error;
 use log::info;
 
 use anyhow::Result;

@@ -2,7 +2,7 @@
 use log::info;
 use std::fmt;
 
-use anyhow::{Error, Result};
+use anyhow::Result;
 
 use libnewsboat::matcher::Matcher;
 use libnewsboat::utils as libutils;
