@@ -37,3 +37,21 @@ jobs:
 
       - name: Run tests
         run: make test
+
+      - name: Trigger Cross Compile
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          event-type: dispatch-compile
+          client-payload: '{"ref": "${{ github.ref }}"}'
+
+      - name: Trigger Crumbs release
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          event-type: dispatch-crumbs
+          client-payload: '{"ref": "${{ github.ref }}"}'
+
+      - name: Trigger templates release
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          event-type: dispatch-templates
+          client-payload: '{"ref": "${{ github.ref }}"}'
