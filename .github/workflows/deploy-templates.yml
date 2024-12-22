@@ -40,7 +40,7 @@ jobs:
           file: ./tmp/templates.tar.gz
           asset_name: templates.tar.gz
           tag: ${{ github.event.client_payload.ref }}
-        if: startsWith(github.event.client_payload.ref, 'refs/heads/v')
+        if: startsWith(github.event.client_payload.ref, 'refs/tags/')
 
       - name: Upload templates for release
         uses: svenstaro/upload-release-action@v2
