@@ -14,7 +14,6 @@ _newsboat_githash="1ea89e860553634e37daf1cc6de2e00a379d6378"
 _target="x86_64-unknown-linux-musl"
 
 prepare() {
-    echo $pkgdir
     cd "$pkgname-$pkgver"
     git clone https://github.com/newsboat/newsboat.git sub/newsboat
     cd sub/newsboat && git checkout $_newsboat_githash
