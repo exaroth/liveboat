@@ -90,9 +90,6 @@ impl Version {
             },
         }
     }
-    pub fn to_string(&self) -> String {
-        return format!("{}.{}.{}", self.major, self.minor, self.patch);
-    }
 }
 
 /// Initialize logger for the app.
@@ -276,7 +273,7 @@ fn fetch_templates(release_chan: &String, dl_path: &Path, tpl_dir: &Path) -> Res
             remote_config.template_settings = local_config.template_settings;
             let t = toml::to_string(&remote_config)?;
             copy_all(&dirpath, &out_t)?;
-            let temp_cfg_path = tpl_dir.join("config.toml.__temp__");
+            let temp_cfg_path = out_t.join("config.toml.__temp__");
             let mut f = File::create(&temp_cfg_path)?;
             f.write_all(t.as_bytes())?;
             fs::copy(&temp_cfg_path, out_t.join(TEMPLATE_CONFIG_FNAME))?;
