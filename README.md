@@ -24,11 +24,6 @@ For Arch users:
 pacman -S liveboat
 ```
 
-For Ubuntu/Deb:
-
-``` sh
-snap install liveboat
-```
 Other Linux distros:
 
 via `wget`

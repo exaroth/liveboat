@@ -2,13 +2,22 @@
 name = "liveboat"
 version = "1.0.2"
 edition = "2021"
+description = "Static page generator for Newsboat feeds"
+homepage = "https://github.com/exaroth/liveboat"
+repository = "https://github.com/exaroth/liveboat"
+readme = "README.md"
+license-file = "LICENSE"
+keywords = ["feeds", "rss", "atom", "generator", "newsboat", "static pages"]
+categories = ["command-line", "utility", "generator"]
+build = "build.rs"
+exclude = [".github/", "liveboat/", "scripts/", "templates/"]
 
 [dependencies]
 clap = { version = "4.5.21", features = ["derive"] }
 serde = { version = "1.0.215", features = ["derive"] }
 rusqlite = { version="0.32.1", features=["bundled"] }
 
-libnewsboat = { path="./sub/newsboat/rust/libnewsboat" }
+libnewsboat = { version="2.37.0", path="./sub/newsboat/rust/libnewsboat" }
 toml = "0.8.19"
 serde_json = "1.0.133"
 chrono = "0.4.38"
