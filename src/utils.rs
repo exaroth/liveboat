@@ -167,7 +167,6 @@ pub fn update_files(debug: bool, use_nightly: bool, paths: &Paths) -> Result<boo
     println!("Using {} as release channel", release_channel);
 
     let mut restart_required = false;
-
     let new_version_available =
         check_newer_binary_version_available(&release_channel, dl_path.as_path())?;
     match new_version_available {
@@ -277,10 +276,11 @@ fn fetch_templates(release_chan: &String, dl_path: &Path, tpl_dir: &Path) -> Res
             remote_config.template_settings = local_config.template_settings;
             let t = toml::to_string(&remote_config)?;
             copy_all(&dirpath, &out_t)?;
-            let mut f = std::fs::OpenOptions::new()
-                .write(true)
-                .open(&out_t.join(TEMPLATE_CONFIG_FNAME))?;
+            let temp_cfg_path = tpl_dir.join("config.toml.__temp__");
+            let mut f = File::create(&temp_cfg_path)?;
             f.write_all(t.as_bytes())?;
+            fs::copy(&temp_cfg_path, out_t.join(TEMPLATE_CONFIG_FNAME))?;
+            _ = fs::remove_file(temp_cfg_path);
         } else {
             copy_all(&dirpath, out_t)?;
         }
