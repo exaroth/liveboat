@@ -42,3 +42,14 @@ pre-build = [
 
 [dev-dependencies]
 mockall = "0.13.1"
+
+[package.metadata.deb]
+maintainer = "Konrad Wasowicz <exaroth@gmail.com>"
+copyright = "2024, Konrad Wasowicz <exaroth@gmail.com>"
+extended-description = """Static page generator for Newsboat feeds"""
+depends = "$auto"
+section = "utility"
+priority = "optional"
+assets = [
+ ["target/x86_64-unknown-linux-musl/release/liveboat", "usr/bin/", "755"],
+]
