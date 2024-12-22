@@ -28,7 +28,7 @@ build() {
 
 package() {
     cd "$pkgname-$pkgver"
-
-    install -Dm744 -t "$pkgdir"/usr/sbin target/$_target/release/$pkgname
+	install -dm0755 "/$pkgdir/usr/bin"
+    install target/$_target/release/$pkgname $pkgdir/usr/bin
     install -Dm644 -t "$pkgdir"/usr/share/licenses/$pkgname LICENSE
 }
