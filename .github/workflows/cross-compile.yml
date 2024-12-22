@@ -1,12 +1,7 @@
 name: cross-compile
-
 on:
-  workflow_run:
-    workflows:
-      - test
-    types:
-      - completed
-    branches: ["v*.*.*", "main", "develop", "release/*", "feature/*"]
+  repository_dispatch:
+    types: [dispatch-compile]
 
 jobs:
   release:
