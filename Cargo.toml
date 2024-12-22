@@ -47,9 +47,11 @@ mockall = "0.13.1"
 maintainer = "Konrad Wasowicz <exaroth@gmail.com>"
 copyright = "2024, Konrad Wasowicz <exaroth@gmail.com>"
 extended-description = """Static page generator for Newsboat feeds"""
+license-file = ["LICENSE", "4"]
 depends = "$auto"
 section = "utility"
 priority = "optional"
 assets = [
  ["target/x86_64-unknown-linux-musl/release/liveboat", "usr/bin/", "755"],
+ { source = "README.md", dest = "usr/share/doc/liveboat/README", mode = "644"},
 ]
