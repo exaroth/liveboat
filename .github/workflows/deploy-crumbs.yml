@@ -1,24 +1,21 @@
 name: aux-deployer
-
 on:
-  workflow_dispatch:
-  workflow_run:
-    workflows:
-      - cross-compile
-    types:
-      - completed
-    branches: ["v*.*.*", "main", "develop", "release/*", "feature/*"]
+  repository_dispatch:
+    types: [dispatch-crumbs]
 
 jobs:
   template-builder:
     name: Deploy auxiliary data
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
+      - name: Print triggering branch
+        run: echo ${{ github.event.client_payload.ref }}
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_branch }}
+          ref: ${{ github.event.client_payload.ref }}
+
       - name: Upload VERSION file for release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -27,7 +24,8 @@ jobs:
           asset_name: VERSION
           tag: stable
           overwrite: true
-        if: github.event.workflow_run.head_branch == 'main'
+        if: github.event.client_payload.ref == 'refs/heads/main'
+
       - name: Upload VERSION file for nightly
         uses: svenstaro/upload-release-action@v2
         with:
@@ -36,4 +34,4 @@ jobs:
           asset_name: VERSION
           tag: nightly
           overwrite: true
-        if: github.event.workflow_run.head_branch == 'develop'
+        if: github.event.client_payload.ref == 'refs/heads/develop'

@@ -1,27 +1,25 @@
 name: template-builder
-
 on:
-  workflow_dispatch:
-  workflow_run:
-    workflows:
-      - cross-compile
-    types:
-      - completed
-    branches: ["v*.*.*", "main", "develop", "release/*", "feature/*"]
+  repository_dispatch:
+    types: [dispatch-templates]
 
 jobs:
   template-builder:
     name: Deploy templates
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
+      - name: Print triggering branch
+        run: echo ${{ github.event.client_payload.ref }}
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_branch }}
+          ref: ${{ github.event.client_payload.ref }}
+
       - name: Compile templates
         run:
           make bundle-templates
+
       - name: Upload templates for nightly
         uses: svenstaro/upload-release-action@v2
         with:
@@ -31,17 +29,19 @@ jobs:
           tag: nightly
           overwrite: true
         if: |
-          github.event.workflow_run.head_branch == 'develop' ||
-          startsWith(github.event.workflow_run.head_branch, 'feature/') ||
-          startsWith(github.event.workflow_run.head_branch, 'release/')
+          github.event.client_payload.ref == 'refs/heads/develop' ||
+          startsWith(github.event.client_payload.ref, 'refs/headsfeature/') ||
+          startsWith(github.event.client_payload.ref, 'refs/heads/release/')
+
       - name: Upload templates for tag
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./tmp/templates.tar.gz
           asset_name: templates.tar.gz
-          tag: ${{ github.event.workflow_run.head_branch }}
-        if: startsWith(github.event.workflow_run.head_branch, 'v')
+          tag: ${{ github.event.client_payload.ref }}
+        if: startsWith(github.event.client_payload.ref, 'refs/heads/v')
+
       - name: Upload templates for release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -50,4 +50,4 @@ jobs:
           asset_name: templates.tar.gz
           tag: stable
           overwrite: true
-        if: github.event.workflow_run.head_branch == 'main'
+        if: github.event.client_payload.ref == 'refs/heads/main'

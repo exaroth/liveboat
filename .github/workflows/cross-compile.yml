@@ -1,12 +1,7 @@
 name: cross-compile
-
 on:
-  workflow_run:
-    workflows:
-      - test
-    types:
-      - completed
-    branches: ["v*.*.*", "main", "develop", "release/*", "feature/*"]
+  repository_dispatch:
+    types: [dispatch-compile]
 
 jobs:
   release:
@@ -36,12 +31,13 @@ jobs:
             binary_name: liveboat-aarch64
 
     runs-on: ${{ matrix.platform.runs-on }}
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
+      - name: Print triggering branch
+        run: echo ${{ github.event.client_payload.ref }}
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_branch }}
+          ref: ${{ github.event.client_payload.ref }}
       - name: Install deps
         run: git submodule update --init
       - name: Install coreutils for macOS
@@ -75,9 +71,9 @@ jobs:
           tag: nightly
           overwrite: true
         if: |
-          github.event.workflow_run.head_branch == 'develop' ||
-          startsWith(github.event.workflow_run.head_branch, 'feature/') ||
-          startsWith(github.event.workflow_run.head_branch, 'release/')
+          github.event.client_payload.ref == 'refs/heads/develop' ||
+          startsWith(github.event.client_payload.ref, 'refs/heads/feature/') ||
+          startsWith(github.event.client_payload.ref, 'refs/heads/release/')
 
       - name: Upload checksums
         uses: svenstaro/upload-release-action@v2
@@ -88,9 +84,9 @@ jobs:
           tag: nightly
           overwrite: true
         if: |
-          github.event.workflow_run.head_branch == 'develop' ||
-          startsWith(github.event.workflow_run.head_branch, 'feature/') ||
-          startsWith(github.event.workflow_run.head_branch, 'release/')
+          github.event.client_payload.ref == 'refs/heads/develop' ||
+          startsWith(github.event.client_payload.ref, 'refs/heads/feature/') ||
+          startsWith(github.event.client_payload.ref, 'refs/heads/release/')
 
       - name: Upload binaries for tag
         uses: svenstaro/upload-release-action@v2
@@ -98,8 +94,8 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: target/${{ matrix.platform.target }}/release/liveboat
           asset_name: ${{ matrix.platform.binary_name }}
-          tag: ${{ github.event.workflow_run.head_branch }}
-        if: startsWith(github.event.workflow_run.head_branch, 'v')
+          tag: ${{ github.event.client_payload.ref }}
+        if: startsWith(github.event.client_payload.ref, 'refs/heads/v')
 
       - name: Upload checksums for tag
         uses: svenstaro/upload-release-action@v2
@@ -107,8 +103,8 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: checksums/${{ matrix.platform.binary_name }}
           asset_name: ${{ matrix.platform.binary_name }}.sha256sum
-          tag: ${{ github.event.workflow_run.head_branch }}
-        if: startsWith(github.event.workflow_run.head_branch, 'v')
+          tag: ${{ github.event.client_payload.ref }}
+        if: startsWith(github.event.client_payload.ref, 'refs/heads/v')
 
       - name: Upload binaries for release
         uses: svenstaro/upload-release-action@v2
@@ -118,7 +114,7 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}
           tag: stable
           overwrite: true
-        if: github.event.workflow_run.head_branch == 'main'
+        if: github.event.client_payload.ref == 'refs/heads/main'
 
       - name: Upload checksums for release
         uses: svenstaro/upload-release-action@v2
@@ -128,4 +124,4 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}.sha256sum
           tag: stable
           overwrite: true
-        if: github.event.workflow_run.head_branch == 'main'
+        if: github.event.client_payload.ref == 'refs/heads/main'
