@@ -10,10 +10,12 @@ jobs:
     steps:
       - name: Print triggering branch
         run: echo ${{ github.event.client_payload.ref }}
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.client_payload.ref }}
+
       - name: Upload VERSION file for release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -23,6 +25,7 @@ jobs:
           tag: stable
           overwrite: true
         if: github.event.client_payload.ref == 'refs/heads/main'
+
       - name: Upload VERSION file for nightly
         uses: svenstaro/upload-release-action@v2
         with:
