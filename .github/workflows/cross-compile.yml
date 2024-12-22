@@ -71,9 +71,9 @@ jobs:
           tag: nightly
           overwrite: true
         if: |
-          github.event.client_payload.ref == 'develop' ||
-          startsWith(github.event.client_payload.ref, 'feature/') ||
-          startsWith(github.event.client_payload.ref, 'release/')
+          github.event.client_payload.ref == 'refs/heads/develop' ||
+          startsWith(github.event.client_payload.ref, 'refs/heads/feature/') ||
+          startsWith(github.event.client_payload.ref, 'refs/heads/release/')
 
       - name: Upload checksums
         uses: svenstaro/upload-release-action@v2
@@ -84,9 +84,9 @@ jobs:
           tag: nightly
           overwrite: true
         if: |
-          github.event.client_payload.ref == 'develop' ||
-          startsWith(github.event.client_payload.ref, 'feature/') ||
-          startsWith(github.event.client_payload.ref, 'release/')
+          github.event.client_payload.ref == 'refs/heads/develop' ||
+          startsWith(github.event.client_payload.ref, 'refs/heads/feature/') ||
+          startsWith(github.event.client_payload.ref, 'refs/heads/release/')
 
       - name: Upload binaries for tag
         uses: svenstaro/upload-release-action@v2
@@ -95,7 +95,7 @@ jobs:
           file: target/${{ matrix.platform.target }}/release/liveboat
           asset_name: ${{ matrix.platform.binary_name }}
           tag: ${{ github.event.client_payload.ref }}
-        if: startsWith(github.event.client_payload.ref, 'v')
+        if: startsWith(github.event.client_payload.ref, 'refs/heads/v')
 
       - name: Upload checksums for tag
         uses: svenstaro/upload-release-action@v2
@@ -104,7 +104,7 @@ jobs:
           file: checksums/${{ matrix.platform.binary_name }}
           asset_name: ${{ matrix.platform.binary_name }}.sha256sum
           tag: ${{ github.event.client_payload.ref }}
-        if: startsWith(github.event.client_payload.ref, 'v')
+        if: startsWith(github.event.client_payload.ref, 'refs/heads/v')
 
       - name: Upload binaries for release
         uses: svenstaro/upload-release-action@v2
@@ -114,7 +114,7 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}
           tag: stable
           overwrite: true
-        if: github.event.client_payload.ref == 'main'
+        if: github.event.client_payload.ref == 'refs/heads/main'
 
       - name: Upload checksums for release
         uses: svenstaro/upload-release-action@v2
@@ -124,4 +124,4 @@ jobs:
           asset_name: ${{ matrix.platform.binary_name }}.sha256sum
           tag: stable
           overwrite: true
-        if: github.event.client_payload.ref == 'main'
+        if: github.event.client_payload.ref == 'refs/heads/main'

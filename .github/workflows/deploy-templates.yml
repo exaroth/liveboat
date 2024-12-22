@@ -29,9 +29,9 @@ jobs:
           tag: nightly
           overwrite: true
         if: |
-          github.event.client_payload.ref == 'develop' ||
-          startsWith(github.event.client_payload.ref, 'feature/') ||
-          startsWith(github.event.client_payload.ref, 'release/')
+          github.event.client_payload.ref == 'refs/heads/develop' ||
+          startsWith(github.event.client_payload.ref, 'refs/headsfeature/') ||
+          startsWith(github.event.client_payload.ref, 'refs/heads/release/')
 
       - name: Upload templates for tag
         uses: svenstaro/upload-release-action@v2
@@ -40,7 +40,7 @@ jobs:
           file: ./tmp/templates.tar.gz
           asset_name: templates.tar.gz
           tag: ${{ github.event.client_payload.ref }}
-        if: startsWith(github.event.client_payload.ref, 'v')
+        if: startsWith(github.event.client_payload.ref, 'refs/heads/v')
 
       - name: Upload templates for release
         uses: svenstaro/upload-release-action@v2
@@ -50,4 +50,4 @@ jobs:
           asset_name: templates.tar.gz
           tag: stable
           overwrite: true
-        if: github.event.client_payload.ref == 'main'
+        if: github.event.client_payload.ref == 'refs/heads/main'
