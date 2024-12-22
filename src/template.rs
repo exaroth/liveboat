@@ -1,4 +1,3 @@
-
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
@@ -13,7 +12,7 @@ use crate::errors::FilesystemError;
 use crate::feed::Feed;
 use crate::opts::Options;
 
-const TEMPLATE_CONFIG_FNAME: &str = "config.toml";
+pub const TEMPLATE_CONFIG_FNAME: &str = "config.toml";
 
 fn default_template_settings() -> HashMap<String, String> {
     return HashMap::new();
@@ -25,7 +24,7 @@ fn default_builder() -> String {
 
 /// This is representation of per template
 /// configuration which is attached to every template
-#[derive(serde::Deserialize, Debug)]
+#[derive(serde::Deserialize, serde::Serialize, Debug)]
 pub struct TemplateConfig {
     pub version: String,
     #[serde(default = "default_builder")]

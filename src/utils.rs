@@ -2,15 +2,16 @@ use flate2::read::GzDecoder;
 use log::info;
 use rand::{distributions::Alphanumeric, Rng};
 use std::cmp::Ordering;
+use std::collections::HashMap;
 use std::env::current_exe;
 use std::fs;
 use std::fs::read_to_string;
 use std::fs::File;
 use std::io;
 use std::io::copy as ioCopy;
+use std::io::Write;
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
-use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
 use env_logger::Env;
@@ -21,10 +22,10 @@ use crate::cli;
 use crate::errors::FilesystemError;
 use crate::opts::Options;
 use crate::paths::Paths;
-use crate::template::TemplateConfig;
+use crate::template::{TemplateConfig, TEMPLATE_CONFIG_FNAME};
 
 // Static map of target->release bin name.
-lazy_static::lazy_static!{
+lazy_static::lazy_static! {
     static ref SUPPORTED_TARGETS: HashMap<&'static str, &'static str> = [
         ("x86_64-unknown-linux-musl", "liveboat-linux-musl"),
         ("x86_64-unknown-linux-gnu", "liveboat-linux-gnu"),
@@ -40,7 +41,6 @@ const RELEASE_CHANNEL: &str = "https://github.com/exaroth/liveboat/releases/down
 const TEMPLATES_ARCHIVE_FNAME: &str = "templates.tar.gz";
 const NIGHTLY_CHANNEL_NAME: &str = "nightly";
 const STABLE_CHANNEL_NAME: &str = "stable";
-
 
 pub const LIVEBOAT_UPDATE_BIN_PATH_ENV: &str = "LIVEBOAT_UPDATE_BIN_PATH";
 const UPDATER_TEMP_BIN_PATH: &str = "/tmp/liveboat.__u_temp__";
@@ -89,6 +89,9 @@ impl Version {
                 },
             },
         }
+    }
+    pub fn to_string(&self) -> String {
+        return format!("{}.{}.{}", self.major, self.minor, self.patch);
     }
 }
 
@@ -153,7 +156,7 @@ pub fn update_files(debug: bool, use_nightly: bool, paths: &Paths) -> Result<boo
     let dl_path = paths.tmp_dir().join("update");
     fs::create_dir_all(&dl_path)?;
 
-    let release_channel: String; 
+    let release_channel: String;
     match use_nightly {
         true => {
             println!("Nightly mode enabled, using dev channel for updates");
@@ -224,7 +227,6 @@ fn update_liveboat_binary(release_chan: &String, dl_path: &Path) -> Result<bool>
     Ok(false)
 }
 
-
 /// Download and update local templates, taking versions in config.toml under consideration.
 fn fetch_templates(release_chan: &String, dl_path: &Path, tpl_dir: &Path) -> Result<()> {
     println!("Fetching templates");
@@ -259,21 +261,29 @@ fn fetch_templates(release_chan: &String, dl_path: &Path, tpl_dir: &Path) -> Res
         let out_t = tpl_dir.join(&dirname);
         info!("Local template path: {}", out_t.display());
         if out_t.exists() {
-            let remote_config = TemplateConfig::get_config_for_template(&dirpath.as_path())?;
+            let mut remote_config = TemplateConfig::get_config_for_template(&dirpath.as_path())?;
             let local_config = TemplateConfig::get_config_for_template(&out_t.as_path())?;
             println!(
                 "Remote template has version: {}, local: {}",
                 remote_config.version, local_config.version
             );
-            let remote_v = Version::from_str(remote_config.version)?;
+            let remote_v = Version::from_str(remote_config.version.clone())?;
             let local_v = Version::from_str(local_config.version)?;
             if local_v.cmp(&remote_v) != Ordering::Less {
                 println!("Skipping update");
                 continue;
             }
             println!("Updating to new version...");
+            remote_config.template_settings = local_config.template_settings;
+            let t = toml::to_string(&remote_config)?;
+            copy_all(&dirpath, &out_t)?;
+            let mut f = std::fs::OpenOptions::new()
+                .write(true)
+                .open(&out_t.join(TEMPLATE_CONFIG_FNAME))?;
+            f.write_all(t.as_bytes())?;
+        } else {
+            copy_all(&dirpath, out_t)?;
         }
-        copy_all(&dirpath, out_t)?;
     }
 
     Ok(())

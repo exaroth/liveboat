@@ -97,9 +97,6 @@ impl Options {
     pub fn save(&self, path: &Path) -> Result<String> {
         let t = toml::to_string(&self)?;
 
-        if !path.exists() {
-            File::create(path)?;
-        }
         let mut f = File::create(path)?;
         f.write_all(t.as_bytes())?;
         Ok(t)

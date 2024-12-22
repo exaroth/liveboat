@@ -69,4 +69,4 @@ bundle-templates:
 
 .PHONY: build-deb
 build-deb:
-	cargo deb --target=x86_64-unknown-linux-musl 
+	cargo deb --target=x86_64-unknown-linux-musl
