@@ -1031,7 +1031,8 @@ checksum = "b5aba8db14291edd000dfcc4d620c7ebfb122c613afb886ca8803fa4e128a20a"
 [[package]]
 name = "libnewsboat"
 version = "2.38.0"
-source = "git+https://github.com/newsboat/newsboat.git#ec76d75f863bc035e79d1614724c0a097158bcce"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a67657b20c8ecc6cdd5ad7dac4b7e5cc93f6207c89d0946f6aa902b2dffcde15"
 dependencies = [
  "backtrace",
  "chrono",
@@ -1592,7 +1593,8 @@ dependencies = [
 [[package]]
 name = "regex-rs"
 version = "0.1.0"
-source = "git+https://github.com/newsboat/newsboat.git#ec76d75f863bc035e79d1614724c0a097158bcce"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8c06da24cac6fc61a320aa881a10ede93724f883f56399af1181d423cdf9672"
 dependencies = [
  "bitflags",
  "gettext-rs",
@@ -1911,7 +1913,8 @@ checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 [[package]]
 name = "strprintf"
 version = "0.1.0"
-source = "git+https://github.com/newsboat/newsboat.git#ec76d75f863bc035e79d1614724c0a097158bcce"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f8beb19b8073c6b7cd9be277ff8e6d975eece17b078d5e0b70e31ca15202c178"
 dependencies = [
  "libc",
 ]
