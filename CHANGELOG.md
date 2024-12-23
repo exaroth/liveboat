@@ -7,11 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] 2024-12-23
 ### Changed
 - Use crates.io version of libnewsboat
  
 ### Fixed
-- Dont overwrite user defined settings during template update
+- Don't overwrite user defined settings during template update
 
 ## [1.0.2] 2024-12-22
 ### Added
