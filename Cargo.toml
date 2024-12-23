@@ -9,7 +9,6 @@ readme = "README.md"
 license-file = "LICENSE"
 keywords = ["feeds", "rss", "atom", "generator", "newsboat", "static pages"]
 categories = ["command-line", "utility", "generator"]
-build = "build.rs"
 exclude = [".github/", "liveboat/", "scripts/", "templates/"]
 
 [dependencies]
