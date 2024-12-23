@@ -8,7 +8,7 @@ repository = "https://github.com/exaroth/liveboat"
 readme = "README.md"
 license-file = "LICENSE"
 keywords = ["feeds", "rss", "news", "generator", "newsboat"]
-categories = ["command-line", "utility", "generator"]
+categories = ["command-line-utilities", "no-std", "template-engine", "web-programming"]
 exclude = [".github/", "liveboat/", "scripts/", "templates/"]
 
 [dependencies]
