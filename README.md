@@ -73,7 +73,7 @@ notify-program "liveboat"
 ```
 This will trigger page rebuild every time Newsboat reloads feeds list.
 > [!IMPORTANT]
-> If you want to pass any named arguments to liveboat wrap the execution into a shell script as Newsboat will fail to execute the command if any were passed. Also consider passing full path to executable in `notify program` parameter if you installed liveboat using cargo or if the binary is in non standard path eg. outside of  '/bin', '/usr/bin' or '/usr/local/bin'.
+> If you want to pass any named arguments to liveboat, wrap the execution into a shell script as Newsboat will fail to execute the command if any were passed. Also consider passing full path to executable in `notify program` parameter if you installed liveboat using cargo or if the binary is in non standard path eg. outside of  '/bin', '/usr/bin' or '/usr/local/bin'.
 
 
 ###  Setting up scheduled rebuilds
