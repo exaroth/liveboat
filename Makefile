@@ -36,7 +36,6 @@ help:
 
 .PHONY: setup
 setup:
-	git submodule update --init
 	rustup target add ${target_t}
 
 .PHONY: build
@@ -66,3 +65,7 @@ build-default-template:
 .PHONY: bundle-templates
 bundle-templates:
 	./scripts/bundle-templates
+
+.PHONY: build-deb
+build-deb:
+	cargo deb --target=x86_64-unknown-linux-musl

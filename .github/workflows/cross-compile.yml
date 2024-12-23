@@ -95,7 +95,7 @@ jobs:
           file: target/${{ matrix.platform.target }}/release/liveboat
           asset_name: ${{ matrix.platform.binary_name }}
           tag: ${{ github.event.client_payload.ref }}
-        if: startsWith(github.event.client_payload.ref, 'refs/heads/v')
+        if: startsWith(github.event.client_payload.ref, 'refs/tags/')
 
       - name: Upload checksums for tag
         uses: svenstaro/upload-release-action@v2
@@ -104,7 +104,7 @@ jobs:
           file: checksums/${{ matrix.platform.binary_name }}
           asset_name: ${{ matrix.platform.binary_name }}.sha256sum
           tag: ${{ github.event.client_payload.ref }}
-        if: startsWith(github.event.client_payload.ref, 'refs/heads/v')
+        if: startsWith(github.event.client_payload.ref, 'refs/tags/')
 
       - name: Upload binaries for release
         uses: svenstaro/upload-release-action@v2
