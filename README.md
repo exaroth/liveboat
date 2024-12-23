@@ -21,7 +21,7 @@ For details follow instructions at [https://github.com/exaroth/liveboat-github-r
 For Arch users:
 
 ``` sh
-pacman -S liveboat
+yay -S liveboat
 ```
 
 Other Linux distros:
