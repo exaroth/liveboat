@@ -36,7 +36,6 @@ help:
 
 .PHONY: setup
 setup:
-	git submodule update --init
 	rustup target add ${target_t}
 
 .PHONY: build
