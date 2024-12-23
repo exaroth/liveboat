@@ -7,7 +7,7 @@ homepage = "https://github.com/exaroth/liveboat"
 repository = "https://github.com/exaroth/liveboat"
 readme = "README.md"
 license-file = "LICENSE"
-keywords = ["feeds", "rss", "atom", "generator", "newsboat", "static pages"]
+keywords = ["feeds", "rss", "news", "generator", "newsboat"]
 categories = ["command-line", "utility", "generator"]
 exclude = [".github/", "liveboat/", "scripts/", "templates/"]
 
