@@ -15,9 +15,7 @@ _target="x86_64-unknown-linux-musl"
 
 prepare() {
     cd "$pkgname-$pkgver"
-    git clone https://github.com/newsboat/newsboat.git sub/newsboat
-    cd sub/newsboat && git checkout $_newsboat_githash
-    rustup target add $_target
+    make setup
 }
 
 build() {
