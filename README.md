@@ -26,6 +26,11 @@ pacman -S liveboat
 
 Other Linux distros:
 
+via `cargo`
+```
+cargo install liveboat
+```
+
 via `wget`
 
 ``` sh
