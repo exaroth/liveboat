@@ -37,11 +37,6 @@ via `wget`
 sh -c 'wget -O /usr/local/bin/liveboat https://github.com/exaroth/liveboat/releases/download/stable/liveboat-linux-musl && chmod +x /usr/local/bin/liveboat'
 ```
 
-via `curl`
-``` sh
-sh -c 'curl -o /usr/local/bin/liveboat https://github.com/exaroth/liveboat/releases/download/stable/liveboat-linux-musl && chmod +x /usr/local/bin/liveboat'
-```
-
 OSX:
 
 ``` sh
