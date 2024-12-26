@@ -7,16 +7,15 @@ use chrono::Local;
 
 #[cfg(test)]
 use chrono::Utc;
-use rss::Item as RSSItem;
-use rss::{ItemBuilder, Source, Category};
 use libnewsboat::matchable::Matchable;
+use rss::Item as RSSItem;
+use rss::{Category, ItemBuilder, Source};
 use rusqlite::Error as SQLiteError;
 use rusqlite::Row;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 use std::cell::RefCell;
 use std::fmt;
 use std::sync::Arc;
-
 
 #[cfg(not(test))]
 fn now() -> DateTime<Local> {
@@ -106,31 +105,32 @@ impl FeedItem {
     fn get_rfc_dt(&self) -> String {
         let dt = DateTime::from_timestamp(self.date, 0);
         if dt.is_none() {
-            return String::new()
+            return String::new();
         }
-        return dt.unwrap().to_rfc2822()
+        return dt.unwrap().to_rfc2822();
     }
 
     /// Create new RSS Item based on feed item data.
-    pub fn to_rss_item(self) -> RSSItem {
-        // TODO: add guid
+    pub fn to_rss_item(self, include_content: bool) -> RSSItem {
         let mut item = ItemBuilder::default()
             .title(self.title.clone())
             .link(self.url.clone())
             .author(self.author.clone())
             .pub_date(self.get_rfc_dt())
-            // .content(self.content.clone())
             .build();
 
+        if include_content {
+            item.set_content(self.content.clone())
+        }
         if self.feed_ptr.is_some() {
             let f = self.feed_ptr.unwrap();
-            item.set_source(Some(Source{
+            item.set_source(Some(Source {
                 title: Some(f.borrow().title.clone()),
                 url: f.borrow().feedlink.clone(),
             }));
             let mut categories = Vec::new();
             for cat in f.borrow().tags.clone() {
-                categories.push(Category{
+                categories.push(Category {
                     name: cat,
                     // TODO
                     domain: None,
@@ -138,7 +138,7 @@ impl FeedItem {
             }
             item.set_categories(categories)
         }
-        return item
+        return item;
     }
 
     #[allow(dead_code)]
@@ -322,16 +322,7 @@ mod tests {
             "Feed".to_string(),
             "http://feedlink.com".to_string(),
         )));
-        let mut item = FeedItem::new(
-            "item1",
-            "http://test.com",
-            "",
-            "",
-            970000000,
-            false,
-            "",
-            1,
-        );
+        let mut item = FeedItem::new("item1", "http://test.com", "", "", 970000000, false, "", 1);
         item.set_ptr(Arc::clone(&f));
         f.borrow_mut().add_item(item);
         let mut attr = f.borrow().items[0].attribute_value("feedlink");

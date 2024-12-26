@@ -19,7 +19,7 @@ const FEEDS_DIRNAME: &str = "feeds";
 const INCLUDE_DIRNAME: &str = "include";
 const INDEX_FILENAME: &str = "index";
 const BUILD_TIME_FILENAME: &str = "build_time.txt";
-const RSS_FILE_FILENAME: &str = "channel.rss";
+const RSS_FILE_FILENAME: &str = "rss.xml";
 
 /// This represents default builder module
 /// used for processing single page Liveboat templates.
