@@ -140,7 +140,7 @@ impl fmt::Display for Options {
             urls_file: {}
             cache_file: {}
             time_threshold: {},
-            include_article_content_in_rss_feeds: {}, 
+            include_article_content_in_rss_feeds: {},
             build_dir: {}",
             self.title,
             self.site_path,
