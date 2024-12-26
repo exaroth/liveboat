@@ -36,7 +36,6 @@ pub struct FeedItem {
     title: String,
     url: String,
     author: String,
-    desc: String,
     date: i64,
     unread: bool,
     content: String,
@@ -55,7 +54,6 @@ impl FeedItem {
             title: row.get(2)?,
             url: row.get(3)?,
             author: row.get(4)?,
-            desc: row.get(5)?,
             date: row.get(6)?,
             unread: row.get(7)?,
             content: row.get(8)?,
@@ -119,7 +117,6 @@ impl FeedItem {
         let mut item = ItemBuilder::default()
             .title(self.title.clone())
             .link(self.url.clone())
-            // .description(self.desc.clone())
             .author(self.author.clone())
             .pub_date(self.get_rfc_dt())
             // .content(self.content.clone())
@@ -150,7 +147,6 @@ impl FeedItem {
         url: &str,
         feed_url: &str,
         author: &str,
-        desc: &str,
         date: i64,
         unread: bool,
         content: &str,
@@ -161,7 +157,6 @@ impl FeedItem {
             url: url.to_string(),
             feed_url: feed_url.to_string(),
             author: author.to_string(),
-            desc: desc.to_string(),
             date: date,
             unread: unread,
             content: content.to_string(),
@@ -248,7 +243,6 @@ impl Serialize for FeedItem {
         state.serialize_field("date", &self.date)?;
         state.serialize_field("author", &self.author)?;
         state.serialize_field("unread", &self.unread)?;
-        state.serialize_field("desc", &self.desc)?;
         state.serialize_field("content", &self.content)?;
         state.serialize_field("flags", &self.flags)?;
         state.serialize_field("enclosureUrl", &self.enc_url)?;
@@ -269,7 +263,6 @@ mod tests {
             "http://test.com",
             "",
             "exaroth",
-            "Test feed item",
             123456,
             false,
             "Test content",
@@ -300,7 +293,6 @@ mod tests {
             "http://test.com",
             "",
             "exaroth",
-            "Test feed item",
             123456,
             false,
             "Test content",
@@ -333,7 +325,6 @@ mod tests {
         let mut item = FeedItem::new(
             "item1",
             "http://test.com",
-            "",
             "",
             "",
             970000000,

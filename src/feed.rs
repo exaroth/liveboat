@@ -1,6 +1,6 @@
 use bs58::encode as bs58_encode;
-use std::fmt;
 use std::cmp::Reverse;
+use std::fmt;
 
 use libnewsboat::matchable::Matchable;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
@@ -272,7 +272,7 @@ mod tests {
 
     #[test]
     fn test_adding_feed_item() {
-        let item = FeedItem::new("item1", "http://test.com", "", "", "", 123456, false, "", 1);
+        let item = FeedItem::new("item1", "http://test.com", "", "", 123456, false, "", 1);
         let mut f = Feed::init(
             "http://example.com".to_string(),
             "Url feed1".to_string(),
@@ -284,39 +284,9 @@ mod tests {
     }
     #[test]
     fn test_sorting_feed_items() {
-        let item1 = FeedItem::new(
-            "item1",
-            "http://test.com",
-            "",
-            "",
-            "",
-            950000000,
-            false,
-            "",
-            1,
-        );
-        let item2 = FeedItem::new(
-            "item2",
-            "http://test.com",
-            "",
-            "",
-            "",
-            960000000,
-            false,
-            "",
-            2,
-        );
-        let item3 = FeedItem::new(
-            "item3",
-            "http://test.com",
-            "",
-            "",
-            "",
-            970000000,
-            false,
-            "",
-            3,
-        );
+        let item1 = FeedItem::new("item1", "http://test.com", "", "", 950000000, false, "", 1);
+        let item2 = FeedItem::new("item2", "http://test.com", "", "", 960000000, false, "", 2);
+        let item3 = FeedItem::new("item3", "http://test.com", "", "", 970000000, false, "", 3);
         let mut f = Feed::init(
             "http://example.com".to_string(),
             "Url feed1".to_string(),
@@ -362,39 +332,9 @@ mod tests {
     #[test]
     fn test_matching_feed_articles() {
         let mut f = Feed::init("".to_string(), "".to_string(), "".to_string());
-        let item1 = FeedItem::new(
-            "item1",
-            "http://test.com",
-            "",
-            "",
-            "",
-            970000000,
-            false,
-            "",
-            1,
-        );
-        let item2 = FeedItem::new(
-            "item2",
-            "http://test.com",
-            "",
-            "",
-            "",
-            960000000,
-            true,
-            "",
-            2,
-        );
-        let item3 = FeedItem::new(
-            "item3",
-            "http://test.com",
-            "",
-            "",
-            "",
-            950000000,
-            true,
-            "",
-            3,
-        );
+        let item1 = FeedItem::new("item1", "http://test.com", "", "", 970000000, false, "", 1);
+        let item2 = FeedItem::new("item2", "http://test.com", "", "", 960000000, true, "", 2);
+        let item3 = FeedItem::new("item3", "http://test.com", "", "", 950000000, true, "", 3);
         f.add_item(item1);
         f.add_item(item3);
         f.add_item(item2);
