@@ -12,21 +12,13 @@ use handlebars::Handlebars;
 use crate::feed::{Feed, FeedList};
 use crate::template::Context;
 use crate::utils::copy_all;
+use crate::builders::aux::Builder;
 
 const FEEDS_DIRNAME: &str = "feeds";
 const INCLUDE_DIRNAME: &str = "include";
 const INDEX_FILENAME: &str = "index";
 const BUILD_TIME_FILENAME: &str = "build_time.txt";
 
-/// This trait defines methods which every builder representation
-/// must implement.
-pub trait Builder {
-    fn create_tmp(&self) -> Result<(), io::Error>;
-    fn generate_aux_data(&self) -> Result<()>;
-    fn render_templates(&self) -> Result<()>;
-    fn copy_data(&self) -> Result<()>;
-    fn clean_up(&self);
-}
 
 /// This represents default builder module
 /// used for processing single page Liveboat templates.

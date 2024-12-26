@@ -1,5 +1,4 @@
 mod args;
-mod builder;
 mod cli;
 mod db;
 mod errors;
@@ -10,6 +9,7 @@ mod paths;
 mod template;
 mod urls;
 mod utils;
+mod builders;
 mod handlers;
 
 use anyhow::Result;
