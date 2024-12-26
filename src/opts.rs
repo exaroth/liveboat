@@ -134,19 +134,23 @@ impl fmt::Display for Options {
             "Opts::
             title {}:
             site_path {}:
+            site_address {}:
             show_read: {}
             template_name: {}
             urls_file: {}
             cache_file: {}
             time_threshold: {},
+            include_article_content_in_rss_feeds: {}, 
             build_dir: {}",
             self.title,
             self.site_path,
+            self.site_address,
             self.show_read_articles,
             self.template_name,
             self.newsboat_urls_file,
             self.newsboat_cache_file,
             self.time_threshold,
+            self.include_article_content_in_rss_feeds,
             self.build_dir,
         )
     }
