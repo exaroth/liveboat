@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Refactored command handlers into separate module
 - Added builders module
- 
+
 ## [1.0.3] 2024-12-23
 ### Changed
 - Use crates.io version of libnewsboat

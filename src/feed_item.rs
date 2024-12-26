@@ -7,7 +7,8 @@ use chrono::Local;
 
 #[cfg(test)]
 use chrono::Utc;
-
+use rss::Item as RSSItem;
+use rss::{ItemBuilder, Source, Category};
 use libnewsboat::matchable::Matchable;
 use rusqlite::Error as SQLiteError;
 use rusqlite::Row;
@@ -101,6 +102,46 @@ impl FeedItem {
     }
     pub fn is_unread(&self) -> bool {
         return self.unread;
+    }
+
+    /// Convert date ts assigned to feed item to datetime string
+    fn get_rfc_dt(&self) -> String {
+        let dt = DateTime::from_timestamp(self.date, 0);
+        if dt.is_none() {
+            return String::new()
+        }
+        return dt.unwrap().to_rfc2822()
+    }
+
+    /// Create new RSS Item based on feed item data.
+    pub fn to_rss_item(self) -> RSSItem {
+        // TODO: add guid
+        let mut item = ItemBuilder::default()
+            .title(self.title.clone())
+            .link(self.url.clone())
+            // .description(self.desc.clone())
+            .author(self.author.clone())
+            .pub_date(self.get_rfc_dt())
+            // .content(self.content.clone())
+            .build();
+
+        if self.feed_ptr.is_some() {
+            let f = self.feed_ptr.unwrap();
+            item.set_source(Some(Source{
+                title: Some(f.borrow().title.clone()),
+                url: f.borrow().feedlink.clone(),
+            }));
+            let mut categories = Vec::new();
+            for cat in f.borrow().tags.clone() {
+                categories.push(Category{
+                    name: cat,
+                    // TODO
+                    domain: None,
+                })
+            }
+            item.set_categories(categories)
+        }
+        return item
     }
 
     #[allow(dead_code)]

@@ -44,7 +44,6 @@ fn default_template_name() -> String {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Options {
     /// Title of the page
-
     #[serde(default = "default_title")]
     pub title: String,
     /// Root path for the feed site

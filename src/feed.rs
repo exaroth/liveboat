@@ -14,13 +14,13 @@ const MAX_TRUNCATED_FEED_ITEMS: usize = 50;
 #[derive(Clone)]
 pub struct Feed {
     id: String,
-    title: String,
+    pub title: String,
     display_title: String,
     url: String,
-    feedlink: String,
+    pub feedlink: String,
     pub items: Vec<FeedItem>,
     hidden: bool,
-    tags: Vec<String>,
+    pub tags: Vec<String>,
 
     _is_query: bool,
     _order_idx: usize,
