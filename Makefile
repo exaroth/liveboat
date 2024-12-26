@@ -48,7 +48,7 @@ install:
 
 .PHONY: test
 test:
-	$(CARGO) test $(CARGO_TEST_FLAGS) --no-fail-fast src;
+	$(CARGO) test $(CARGO_TEST_FLAGS) --no-fail-fast;
 
 .PHONY: setup-default-template-dev
 setup-default-template-dev:

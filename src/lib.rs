@@ -1,4 +1,3 @@
-pub mod controller;
 pub mod paths;
 pub mod args;
 pub mod opts;
@@ -11,3 +10,6 @@ pub mod cli;
 pub mod errors;
 pub mod utils;
 pub mod db;
+
+pub mod handlers;
+

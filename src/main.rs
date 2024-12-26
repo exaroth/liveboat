@@ -1,7 +1,6 @@
 mod args;
 mod builder;
 mod cli;
-mod controller;
 mod db;
 mod errors;
 mod feed;
@@ -11,6 +10,7 @@ mod paths;
 mod template;
 mod urls;
 mod utils;
+mod handlers;
 
 use anyhow::Result;
 use clap::Parser;
@@ -20,10 +20,11 @@ use std::path::PathBuf;
 use sudo;
 
 use crate::args::{Args, Command};
-use crate::controller::BuildController;
 use crate::paths::Paths;
-use crate::utils::{cold_start, tidy_up, update_files};
+use crate::utils::tidy_up;
 use log::info;
+use crate::handlers::{build, update, init};
+use crate::handlers::LIVEBOAT_UPDATE_BIN_PATH_ENV;
 
 fn main() {
     let args = Args::parse();
@@ -43,14 +44,14 @@ fn main() {
 /// Initialize configuration and fetch auxiliary data.
 fn init(args: &Args) -> Result<()> {
     let paths = Paths::new(&args.config_file)?;
-    let result = cold_start(args.use_nightly, &paths);
+    let result = init::cold_start(args.use_nightly, &paths);
     tidy_up(paths.tmp_dir());
     return result;
 }
 
 /// Update binary and templates when available.
 fn update(args: &Args) -> Result<()> {
-    let update_bin_path_r = std::env::var(utils::LIVEBOAT_UPDATE_BIN_PATH_ENV);
+    let update_bin_path_r = std::env::var(LIVEBOAT_UPDATE_BIN_PATH_ENV);
     info!("Update path env is {:?}", update_bin_path_r);
     if update_bin_path_r.is_ok() && Uid::effective().is_root() {
         info!("Updating binary as root");
@@ -63,12 +64,12 @@ fn update(args: &Args) -> Result<()> {
         }
         self_replace(&new_exec_path)?;
         _ = std::fs::remove_file(&new_exec_path);
-        std::env::remove_var(utils::LIVEBOAT_UPDATE_BIN_PATH_ENV);
+        std::env::remove_var(LIVEBOAT_UPDATE_BIN_PATH_ENV);
         println!("Liveboat binary updated");
         return Ok(());
     }
     let paths = Paths::new(&args.config_file)?;
-    let result = update_files(args.debug, args.use_nightly, &paths);
+    let result = update::update_files(args.debug, args.use_nightly, &paths);
     if result.is_err() {
         tidy_up(paths.tmp_dir());
         return Err(result.unwrap_err());
@@ -86,7 +87,7 @@ fn update(args: &Args) -> Result<()> {
 /// data.
 fn build(args: &Args) -> Result<()> {
     info!("Build command called");
-    let controller = match BuildController::init(&args) {
+    let controller = match build::BuildController::init(&args) {
         Err(e) => return Err(e),
         Ok(ctrl) => ctrl,
     };
