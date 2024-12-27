@@ -10,7 +10,8 @@ use log::{info, trace, warn};
 use anyhow::Result;
 
 use crate::args::Args;
-use crate::builder::{Builder, SinglePageBuilder};
+use crate::builders::spa_builder::SinglePageBuilder;
+use crate::builders::aux::Builder;
 use crate::db::{Connector, DBConnector};
 use crate::errors::FilesystemError;
 use crate::feed::Feed;

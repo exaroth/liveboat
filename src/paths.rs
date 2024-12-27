@@ -50,20 +50,29 @@ impl Paths {
             config_dir: PathBuf::new(),
         };
 
-        paths.config_dir = paths.home().join(LIVEBOAT_DEFAULT_CONFIG_DIRNAME);
+        let config_dir_override = env::var("LIVEBOAT_CONFIG_DIR");
+        if config_dir_override.is_err() {
+            paths.config_dir = paths.home().join(LIVEBOAT_DEFAULT_CONFIG_DIRNAME);
+        } else {
+            paths.config_dir = config_dir_override.unwrap().resolve().to_path_buf();
+        }
+
         let tpl_dir_override = env::var("LIVEBOAT_TEMPLATE_DIR");
         if tpl_dir_override.is_err() {
             paths.template_dir = paths.config_dir.join(LIVEBOAT_DEFAULT_TEMPLATES_DIRNAME);
         } else {
             paths.template_dir = tpl_dir_override.unwrap().resolve().to_path_buf();
         }
+
         paths.tmp_dir =
             std::env::temp_dir().join(format!("liveboat-{}", generate_random_string(5)));
+
         paths.config_file = path_with_argval(
             config_file_path,
             false,
             paths.config_dir.join(LIVEBOAT_DEFAULT_CONFIG_FILENAME),
         );
+
         paths.build_dir = paths.home().join(LIVEBOAT_DEFAULT_BUILD_DIRNAME);
         let n_config = NConfig::new();
 
