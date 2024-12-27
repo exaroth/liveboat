@@ -16,7 +16,6 @@ use std::cell::RefCell;
 use std::fmt;
 use std::sync::Arc;
 
-
 #[cfg(not(test))]
 fn now() -> DateTime<Local> {
     Local::now()
@@ -94,8 +93,12 @@ impl FeedItem {
     pub fn age(&self) -> i64 {
         let tnow = now();
         if let Some(d) = DateTime::from_timestamp(self.date, 0) {
-            let delta = tnow.signed_duration_since(d);
-            return delta.num_days();
+            let delta = tnow.signed_duration_since(d).num_days();
+            // This will happen if rss channel exposes wrong date (in the future)
+            if delta < 0 {
+                return 0;
+            }
+            return delta;
         };
         return 0;
     }
@@ -308,5 +311,51 @@ mod tests {
         assert_eq!(Some("http://feed.com".to_string()), attr);
         attr = f.borrow().items[0].attribute_value("nonexistent");
         assert!(attr.is_none());
+    }
+
+    #[test]
+    fn test_retrieving_age_of_the_article() {
+        let mut item = FeedItem::new(
+            "item1",
+            "http://test.com",
+            "",
+            "exaroth",
+            "Test feed item",
+            1766842490,
+            false,
+            "Test content",
+            1,
+        );
+        // Test for invalid dates (in the future)
+        let mut age = item.attribute_value("age");
+        assert_eq!(age, Some("0".to_string()));
+        // Test current day
+        item = FeedItem::new(
+            "item1",
+            "http://test.com",
+            "",
+            "exaroth",
+            "Test feed item",
+            1733974900,
+            false,
+            "Test content",
+            1,
+        );
+        age = item.attribute_value("age");
+        assert_eq!(age, Some("0".to_string()));
+        // 2 days backwards
+        item = FeedItem::new(
+            "item1",
+            "http://test.com",
+            "",
+            "exaroth",
+            "Test feed item",
+            1733800000,
+            false,
+            "Test content",
+            1,
+        );
+        age = item.attribute_value("age");
+        assert_eq!(age, Some("2".to_string()));
     }
 }
