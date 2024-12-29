@@ -14,7 +14,7 @@ Liveboat
 - Easily deployable to Github pages - See [liveboat-github-runner](https://github.com/exaroth/liveboat-github-runner) template for details
 - Liveboat exposes simple JSON API you can use to integrate RSS subscriptions into your apps [Using Liveboat's JSON API](#using-liveboat-json-api)
 - Compatible with Newsboat url file format including query feeds
-- Template support - See [Template development guide](#template-development) for details
+- Templating support - See [Template development guide](https://github.com/exaroth/liveboat/tree/develop/templates) for details
 
 ## Running via Github actions
 The most straightforward way to generate Liveboat feed page is via Github Actions - the site will be uploaded to Github Pages on your account, available immediately and set up with automatic updates.
@@ -145,10 +145,6 @@ cd -
 ```
 ## Using Liveboat JSON API
 TODO
-
-## Template development
-
-See [https://github.com/exaroth/liveboat/templates/README.md](https://github.com/exaroth/liveboat/tree/develop/templates) for details about developing your own template or modifying existing one.
 
 ### Compatibility
 
