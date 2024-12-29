@@ -1,5 +1,6 @@
 use log::info;
 use rss::ChannelBuilder;
+use std::cmp::Reverse;
 
 use crate::feed::Feed;
 use crate::opts::Options;
@@ -18,7 +19,7 @@ pub fn generate_rss_channel(opts: &Options, feeds: &Vec<Feed>) -> String {
             items.push(feed_item)
         }
     }
-    items.sort_by(|a, b| a.date().cmp(&b.date()));
+    items.sort_by_key(|w| Reverse(w.date()));
     for item in items {
         channel
             .items

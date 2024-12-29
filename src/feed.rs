@@ -115,7 +115,7 @@ impl Feed {
 
     #[allow(dead_code)]
     pub fn title(&self) -> &String {
-        return &self.title;
+        return &self.display_title;
     }
 
     #[allow(dead_code)]
@@ -219,6 +219,7 @@ pub struct FeedCompact {
     url: String,
     feedlink: String,
     hidden: bool,
+    is_query: bool,
     tags: Vec<String>,
     num_items: usize,
 }
@@ -227,11 +228,12 @@ impl FeedCompact {
     fn from_feed(f: &Feed) -> FeedCompact {
         return FeedCompact {
             id: f.id.clone(),
-            title: f.title.clone(),
+            title: f.title().clone(),
             display_title: f.display_title.clone(),
             url: f.url.clone(),
             feedlink: f.feedlink.clone(),
-            hidden: f.hidden.clone(),
+            hidden: f.hidden,
+            is_query: f._is_query,
             tags: f.tags.clone(),
             num_items: f.items.len(),
         };
