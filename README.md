@@ -123,6 +123,7 @@ Configuration file can be found at `~/.config/liveboat/config.toml` and stores o
 - `show_read_articles` - Whether or not to include articles marked as read by Newsboat.
 - `time_threshold` - Amount of time in the past (in days) for which Liveboat should look for when retrieving articles. 
 - `template_name` - Name of the template to use when generating the feed page, templates are stored at `~/.config/liveboat/templates`, if you want to use template located elsewhere use `--template-path` argument when invoking Liveboat.
+- `include_article_content_in_rss_feeds` - Set this option to true to include article content in aggregated rss xml file, it might increase file size significantly
 - `build_dir` - Default path to directory where Liveboat will output feed page files, can be overwritten via `--build-dir` argument.
 - `newsboat_urls_file` - Path to Newsboat urls file.
 - `newsboat_cache_file` - Path to file containing Newsboat cache db.
@@ -143,8 +144,13 @@ liveboat $build_dir;
 cd $build_dir && git add -A . && git commit -a -m "Liveboat build @ $timestamp" && git push;
 cd -
 ```
-## Using Liveboat JSON API
-TODO
+### Using Liveboat JSON API
+
+Liveboat exposes simple idempodent API consisting of 3 endpoints
+
+- `GET <address>/feeds/feeds.json`:  Retrieve list of all RSS feeds available, use it to retrieve ids of the feeds which can be used in 2 following calls to fetch article items.
+- `GET <address>/feeds/<feed_id>.json` - Retrieve feed details along with compacted list of the most recent articles using formula `min(<num_total_articles>, max(<num_articles_from_last_7_days>, 50))`
+- `GET <address>/feeds/<feed_id>_archive.json` - This call will fetch feed data alongside all the article items associated with that feed.
 
 ### Compatibility
 

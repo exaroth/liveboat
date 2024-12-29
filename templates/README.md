@@ -70,7 +70,7 @@ Each `index.hbs` is rendered with context containing following variables:
 Each template must contain `config.toml` file containing following fields
 
 - `builder` - this denotes type of builder module to be used for building template, as for now the only available version is `spa`
-- `version` - current version of the template in a format `<major>.<minor>.<fix>`
+- `version` - current version of the template in a format `<major>.<minor>.<patch>`
 - `template_settings` - Arbitrary string based map containing custom data influencing rendering of the template, so that user can customize it without having to update template code. This data will be attached to template context during rendering.
 
 
