@@ -9,12 +9,12 @@ Liveboat
 [![rustc 1.84.0](https://img.shields.io/badge/rust-1.84%2B-orange.svg)](https://img.shields.io/badge/rust-1.84%2B-orange.svg)
 
 ## What Liveboat is about
-- Generate static pages for all your RSS/Atom subscriptions - access all the news you follow from any browser
-- Aggregate all the RSS subscriptions in one place so you can use single RSS source in any of the RSS clients you use 
+- Generate static pages for your RSS/Atom subscriptions allowing you to access all the news you follow from any browser
+- Aggregate all the RSS subscriptions in one place so you can use single RSS source in any of the RSS clients you use
 - Easily deployable to Github pages - See [liveboat-github-runner](https://github.com/exaroth/liveboat-github-runner) template for details
 - Liveboat exposes simple JSON API you can use to integrate RSS subscriptions into your apps [Using Liveboat's JSON API](#using-liveboat-json-api)
 - Compatible with Newsboat url file format including query feeds
-- Template support - See [Template development guide](#Template development) for details
+- Template support - See [Template development guide](#template-development) for details
 
 ## Running via Github actions
 The most straightforward way to generate Liveboat feed page is via Github Actions - the site will be uploaded to Github Pages on your account, available immediately and set up with automatic updates.
