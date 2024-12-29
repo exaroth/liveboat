@@ -115,7 +115,7 @@ impl Feed {
 
     #[allow(dead_code)]
     pub fn title(&self) -> &String {
-        return &self.display_title;
+        return &self.title;
     }
 
     #[allow(dead_code)]
