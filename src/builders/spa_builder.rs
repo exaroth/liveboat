@@ -9,16 +9,17 @@ use std::{fs, io};
 use anyhow::Result;
 use handlebars::Handlebars;
 
+use crate::builders::aux::Builder;
+use crate::builders::utils::generate_rss_channel;
 use crate::feed::{Feed, FeedList};
 use crate::template::Context;
 use crate::utils::copy_all;
-use crate::builders::aux::Builder;
 
 const FEEDS_DIRNAME: &str = "feeds";
 const INCLUDE_DIRNAME: &str = "include";
 const INDEX_FILENAME: &str = "index";
 const BUILD_TIME_FILENAME: &str = "build_time.txt";
-
+const RSS_FILE_FILENAME: &str = "rss.xml";
 
 /// This represents default builder module
 /// used for processing single page Liveboat templates.
@@ -51,6 +52,7 @@ where
     fn generate_aux_data(&self) -> Result<()> {
         self.save_json_feeds()?;
         self.save_build_time()?;
+        self.save_rss_channel()?;
         Ok(())
     }
 
@@ -81,9 +83,14 @@ where
             index_path.display()
         );
         fs::copy(tpl_index_path, index_path)?;
-        let b_time_t_path = self.tmp_dir.join(BUILD_TIME_FILENAME);
-        let b_time_path = self.build_dir.join(BUILD_TIME_FILENAME);
-        fs::copy(b_time_t_path, b_time_path)?;
+        fs::copy(
+            self.tmp_dir.join(BUILD_TIME_FILENAME),
+            self.build_dir.join(BUILD_TIME_FILENAME),
+        )?;
+        fs::copy(
+            self.tmp_dir.join(RSS_FILE_FILENAME),
+            self.build_dir.join(RSS_FILE_FILENAME),
+        )?;
         Ok(())
     }
 
@@ -159,6 +166,17 @@ where
         let path = self.tmp_dir.join(BUILD_TIME_FILENAME);
         let mut file = File::create(path)?;
         file.write_all(format!("{}", self.context.build_time()).as_bytes())?;
+        Ok(())
+    }
+
+    /// Save atom feed for all the feeds
+    fn save_rss_channel(&self) -> Result<()> {
+        let path = self.tmp_dir.join(RSS_FILE_FILENAME);
+        let mut file = File::create(path)?;
+        file.write_all(generate_rss_channel(
+            self.context.options(),
+            self.context.feeds(),
+        ).as_bytes())?;
         Ok(())
     }
 

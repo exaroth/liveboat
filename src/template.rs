@@ -140,7 +140,7 @@ mod tests {
     fn test_processing_feeds_for_template() {
         let mut feeds = Vec::new();
 
-        let item1 = FeedItem::new("item1", "http://test.com", "", "", "", 123456, false, "", 1);
+        let item1 = FeedItem::new("item1", "http://test.com", "", "",  123456, false, "", 1);
 
         let mut f1 = Feed::init(
             "http://example.com".to_string(),

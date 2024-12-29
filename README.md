@@ -8,7 +8,13 @@ Liveboat
 [![License](https://img.shields.io/github/license/exaroth/liveboat)](https://github.com/exaroth/liveboat/blob/develop/LICENSE)
 [![rustc 1.84.0](https://img.shields.io/badge/rust-1.84%2B-orange.svg)](https://img.shields.io/badge/rust-1.84%2B-orange.svg)
 
-Liveboat generates static pages based on the Newsboat RSS Reader configuration, content which can be easily hosted online and reached even when away from the terminal.
+## What Liveboat is about
+- Generate static pages for your RSS/Atom subscriptions allowing you to access all the news you follow from the browser
+- Aggregate all the RSS subscriptions in one place so you can use single RSS source in any of the RSS clients you use
+- Easily deployable to Github pages - See [liveboat-github-runner](https://github.com/exaroth/liveboat-github-runner) template for details
+- Liveboat exposes simple JSON API you can use to integrate RSS subscriptions into your apps [Using Liveboat's JSON API](#using-liveboat-json-api)
+- Compatible with Newsboat url file format including query feeds
+- Templating support - See [Template development guide](https://github.com/exaroth/liveboat/tree/develop/templates) for details
 
 ## Running via Github actions
 The most straightforward way to generate Liveboat feed page is via Github Actions - the site will be uploaded to Github Pages on your account, available immediately and set up with automatic updates.
@@ -85,7 +91,25 @@ To manually rebuild Newsboat feeds and generate the page every 30 minutes
 
 ### Executing manually
 
-Run `liveboat --help` for list of all available arguments
+
+```
+Usage: liveboat [OPTIONS] [BUILD_TARGET]...
+
+Arguments:
+  [BUILD_TARGET]...  Optional path to build directory
+
+Options:
+      --cache-file <CACHE_FILE>        Path to newsboat db cache
+      --url-file <URL_FILE>            Path to newsboat urls file
+      --build-dir <BUILD_DIR>          Path to build directory
+      --template-path <TEMPLATE_PATH>  Path to directory containing Liveboat template
+      --config-file <CONFIG_FILE>      path to liveboat config file
+      --debug                          Print verbose code execution info
+      --use-nightly                    If set will use nightly channel for updates
+  -x <COMMAND>                         Command to execute [available options: build, init, update] [default: build]
+  -h, --help                           Print help
+  -V, --version                        Print version
+```
 
 > [!IMPORTANT]
 > During every update Liveboat will only regenerate template files and feed list, if you want to add additional files or directories such as git repository feel free to do so as these won't be overwritten when rebuilding feed pages.
@@ -119,10 +143,8 @@ liveboat $build_dir;
 cd $build_dir && git add -A . && git commit -a -m "Liveboat build @ $timestamp" && git push;
 cd -
 ```
-
-## Template development
-
-See [https://github.com/exaroth/liveboat/templates/README.md](https://github.com/exaroth/liveboat/tree/develop/templates) for details about developing your own template or modifying existing one.
+## Using Liveboat JSON API
+TODO
 
 ### Compatibility
 

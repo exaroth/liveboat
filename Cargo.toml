@@ -37,6 +37,7 @@ tar = "0.4.43"
 flate2 = "1.0.35"
 sudo = "0.6.0"
 lazy_static = "1.5.0"
+rss = "2.0.11"
 
 [[bin]]
 name = "liveboat"
