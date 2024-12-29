@@ -129,7 +129,7 @@ impl FeedItem {
         if self.feed_ptr.is_some() {
             let f = self.feed_ptr.unwrap();
             item.set_source(Some(Source {
-                title: Some(f.borrow().title.clone()),
+                title: Some(f.borrow().display_title().clone()),
                 url: f.borrow().feedlink.clone(),
             }));
             let mut categories = Vec::new();

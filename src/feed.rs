@@ -113,12 +113,10 @@ impl Feed {
         return &self.url;
     }
 
-    #[allow(dead_code)]
     pub fn title(&self) -> &String {
         return &self.title;
     }
 
-    #[allow(dead_code)]
     pub fn display_title(&self) -> &String {
         return &self.display_title;
     }
