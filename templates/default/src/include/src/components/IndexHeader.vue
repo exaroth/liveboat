@@ -6,6 +6,7 @@ import { useEmbedStore } from '../stores/embed'
 import IconGithub from './icons/IconGithub.vue'
 import IconHeart from './icons/IconHeart.vue'
 import IconTop from './icons/IconTop.vue'
+import IconRss from './icons/IconRss.vue'
 import IconLiveboat from './icons/IconLiveboat.vue'
 import IconRefresh from './icons/IconRefresh.vue'
 
@@ -70,17 +71,37 @@ const refreshPage = () => {
         <a :href="sitePath">{{ pageTitle }}</a>
       </h2>
       <h5>Page last updated on {{ buildTime.toUTCString() }}</h5>
+      <div id="icon-rss">
+        <a href="rss.xml" target="_blank"><IconRss /></a>
+      </div>
     </div>
   </div>
   <div id="side-buttons-wrapper">
-  <div v-if="!embedStore.showModal" id="side-buttons">
-    <a title="Scroll to top" v-if="showScrollToTop" @click="scrollToTop()"><IconTop /></a>
-    <a title="New feeds available" v-if="showRefresh" @click="refreshPage()"><IconRefresh /></a>
-  </div>
+    <div v-if="!embedStore.showModal" id="side-buttons">
+      <a title="Scroll to top" v-if="showScrollToTop" @click="scrollToTop()"><IconTop /></a>
+      <a title="New feeds available" v-if="showRefresh" @click="refreshPage()"><IconRefresh /></a>
+    </div>
   </div>
 </template>
 
 <style scoped>
+#icon-rss {
+  position: absolute;
+  right: 24px;
+  bottom: 10px;
+}
+
+#icon-rss svg {
+  width: 20px;
+  height: 20px;
+  x:;
+}
+
+#icon-rss a {
+  position: absolute;
+  display: block;
+}
+
 .header-container {
   width: 100%;
   height: 80px;

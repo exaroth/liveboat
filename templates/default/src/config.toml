@@ -1,5 +1,5 @@
 name = "Default Template"
-version = "1.0.2"
+version = "1.0.3"
 author = "Konrad Wasowicz (exaroth@gmail.com)"
 
 [template_settings]
