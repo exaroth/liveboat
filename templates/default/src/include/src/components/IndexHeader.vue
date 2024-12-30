@@ -87,7 +87,6 @@ const refreshPage = () => {
 </template>
 
 <style scoped>
-
 .header-container {
   width: 100%;
   height: 80px;
@@ -170,7 +169,7 @@ const refreshPage = () => {
 #icons-aggro {
   position: absolute;
   right: 0;
-  bottom: 0;
+  bottom: -12px;;
   width: 100px;
 }
 
