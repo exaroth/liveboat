@@ -54,7 +54,7 @@ pub struct Options {
     pub show_read_articles: bool,
     /// Define whether or not to include article content in generated
     /// rss feeds (might increase size significantly)
-    #[serde(default = "default_bool::<false>")]
+    #[serde(default = "default_bool::<true>")]
     pub include_article_content_in_rss_feeds: bool,
     /// Path to Newsboat urls file
     #[serde(default = "default_newsboat_url_file")]

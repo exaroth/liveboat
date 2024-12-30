@@ -21,7 +21,10 @@ pub fn generate_rss_channel(opts: &Options, feeds: &Vec<Feed>) -> String {
         if feed.is_hidden() || feed.is_empty() {
             continue;
         }
-        for feed_item in feed.clone().items {
+        let mut fc = feed.clone();
+        fc.truncate_items();
+
+        for feed_item in fc.items {
             items.push(feed_item)
         }
     }
