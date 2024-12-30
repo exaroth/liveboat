@@ -18,7 +18,7 @@ pub fn generate_rss_channel(opts: &Options, feeds: &Vec<Feed>) -> String {
         .build();
     let mut items = Vec::new();
     for feed in feeds {
-        if feed.is_hidden() || feed.is_empty() {
+        if feed.is_query_feed() || feed.is_empty() {
             continue;
         }
         let mut fc = feed.clone();
@@ -173,7 +173,7 @@ mod tests {
         f3.update_with_url_data(Vec::new(), true, None, 1);
 
         let result = generate_rss_channel(&Options::default(), &Vec::from([f1, f2, f3]));
-        assert_eq!(result, "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\"><channel><title>Liveboat feed page</title><link></link><description>Aggregated Liveboat rss feed for Liveboat feed page</description><item><title>item3</title><link>http://test3.com</link><author>exaroth</author><pubDate>Tue, 3 Dec 2024 04:26:40 +0000</pubDate></item><item><title>item2</title><link>http://test2.com</link><author>exaroth</author><pubDate>Mon, 2 Dec 2024 00:40:00 +0000</pubDate></item><item><title>item1</title><link>http://test1.com</link><author>exaroth</author><pubDate>Sat, 30 Nov 2024 20:53:20 +0000</pubDate></item><item><title>item4</title><link>http://test4.com</link><author>exaroth</author><pubDate>Sat, 30 Nov 2024 20:53:20 +0000</pubDate></item></channel></rss>")
+        assert_eq!(result,  "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\"><channel><title>Liveboat feed page</title><link></link><description>Aggregated Liveboat rss feed for Liveboat feed page</description><item><title>item3</title><link>http://test3.com</link><author>exaroth</author><pubDate>Tue, 3 Dec 2024 04:26:40 +0000</pubDate></item><item><title>item2</title><link>http://test2.com</link><author>exaroth</author><pubDate>Mon, 2 Dec 2024 00:40:00 +0000</pubDate></item><item><title>item1</title><link>http://test1.com</link><author>exaroth</author><pubDate>Sat, 30 Nov 2024 20:53:20 +0000</pubDate></item><item><title>item5</title><link>http://test5.com</link><author>exaroth</author><pubDate>Sat, 30 Nov 2024 20:53:20 +0000</pubDate></item></channel></rss>")
     }
 
     #[test]
