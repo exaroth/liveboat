@@ -44,7 +44,6 @@ fn default_template_name() -> String {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Options {
     /// Title of the page
-
     #[serde(default = "default_title")]
     pub title: String,
     /// Root path for the feed site
@@ -53,6 +52,10 @@ pub struct Options {
     /// Whether or not to show articles marked as read by Newsboat
     #[serde(default = "default_bool::<true>")]
     pub show_read_articles: bool,
+    /// Define whether or not to include article content in generated
+    /// rss feeds (might increase size significantly)
+    #[serde(default = "default_bool::<true>")]
+    pub include_article_content_in_rss_feeds: bool,
     /// Path to Newsboat urls file
     #[serde(default = "default_newsboat_url_file")]
     pub newsboat_urls_file: String,
@@ -86,6 +89,7 @@ impl Options {
             site_path: default_site_path(),
             show_read_articles: true,
             template_name: default_template_name(),
+            include_article_content_in_rss_feeds: false,
             time_threshold: 20,
             newsboat_urls_file: default_newsboat_url_file(),
             newsboat_cache_file: default_newsboat_cache_file(),
@@ -126,6 +130,7 @@ impl fmt::Display for Options {
             urls_file: {}
             cache_file: {}
             time_threshold: {},
+            include_article_content_in_rss_feeds: {},
             build_dir: {}",
             self.title,
             self.site_path,
@@ -134,6 +139,7 @@ impl fmt::Display for Options {
             self.newsboat_urls_file,
             self.newsboat_cache_file,
             self.time_threshold,
+            self.include_article_content_in_rss_feeds,
             self.build_dir,
         )
     }

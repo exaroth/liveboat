@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.0.5] 2024-12-30
+### Added
+- Add RSS channel for all the feeds being processed
+- Generate OPML file for the Liveboat feeds
+
 ## [1.0.4] 2024-12-27
 ### Fixed
 - Fix parsing age for articles having incorrectly set date (into the future)
@@ -17,7 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Refactored command handlers into separate module
 - Added builders module
- 
+- Update colors for default template
+
 ## [1.0.3] 2024-12-23
 ### Changed
 - Use crates.io version of libnewsboat

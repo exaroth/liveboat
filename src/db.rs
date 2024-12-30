@@ -17,7 +17,6 @@ const FEED_ITEMS_SQL: &str = "SELECT
     items.title AS item_title,
     items.url AS item_url,
     items.author AS item_author,
-    items.enclosure_description AS item_desc,
     items.pubDate AS pub_date,
     items.unread AS unread,
     items.content AS content,

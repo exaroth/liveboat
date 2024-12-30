@@ -1,6 +1,6 @@
 [package]
 name = "liveboat"
-version = "1.0.4"
+version = "1.0.5"
 edition = "2021"
 description = "Static page generator for Newsboat feeds"
 homepage = "https://github.com/exaroth/liveboat"
@@ -37,6 +37,8 @@ tar = "0.4.43"
 flate2 = "1.0.35"
 sudo = "0.6.0"
 lazy_static = "1.5.0"
+rss = "2.0.11"
+opml = "1.1.6"
 
 [[bin]]
 name = "liveboat"

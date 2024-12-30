@@ -1,30 +1,19 @@
-use crate::feed::Feed;
-
-use chrono::DateTime;
-
-#[cfg(not(test))]
-use chrono::Local;
-
-#[cfg(test)]
-use chrono::Utc;
-
-use libnewsboat::matchable::Matchable;
-use rusqlite::Error as SQLiteError;
-use rusqlite::Row;
-use serde::ser::{Serialize, SerializeStruct, Serializer};
 use std::cell::RefCell;
 use std::fmt;
 use std::sync::Arc;
 
-#[cfg(not(test))]
-fn now() -> DateTime<Local> {
-    Local::now()
-}
+use libnewsboat::matchable::Matchable;
+use rss::Item as RSSItem;
+use rss::{Category, ItemBuilder, Source};
+use rusqlite::Error as SQLiteError;
+use rusqlite::Row;
+use serde::ser::{Serialize, SerializeStruct, Serializer};
 
-#[cfg(test)]
-fn now() -> DateTime<Utc> {
-    DateTime::from_timestamp(1733974974, 0).unwrap()
-}
+use chrono::DateTime;
+
+use crate::feed::Feed;
+use crate::utils::now;
+
 
 /// Container for storing and operating
 /// on the newsboat article items.
@@ -34,7 +23,6 @@ pub struct FeedItem {
     title: String,
     url: String,
     author: String,
-    desc: String,
     date: i64,
     unread: bool,
     content: String,
@@ -53,14 +41,13 @@ impl FeedItem {
             title: row.get(2)?,
             url: row.get(3)?,
             author: row.get(4)?,
-            desc: row.get(5)?,
-            date: row.get(6)?,
-            unread: row.get(7)?,
-            content: row.get(8)?,
-            guid: row.get(9)?,
-            enc_url: row.get(10)?,
-            enc_mime: row.get(11)?,
-            flags: row.get(12)?,
+            date: row.get(5)?,
+            unread: row.get(6)?,
+            content: row.get(7)?,
+            guid: row.get(8)?,
+            enc_url: row.get(9)?,
+            enc_mime: row.get(10)?,
+            flags: row.get(11)?,
             feed_ptr: None,
         };
         Ok(feed_item)
@@ -106,13 +93,52 @@ impl FeedItem {
         return self.unread;
     }
 
+    /// Convert date ts assigned to feed item to datetime string
+    fn get_rfc_dt(&self) -> String {
+        let dt = DateTime::from_timestamp(self.date, 0);
+        if dt.is_none() {
+            return String::new();
+        }
+        return dt.unwrap().to_rfc2822();
+    }
+
+    /// Create new RSS Item based on feed item data.
+    pub fn to_rss_item(self, include_content: bool) -> RSSItem {
+        let mut item = ItemBuilder::default()
+            .title(self.title.clone())
+            .link(self.url.clone())
+            .author(self.author.clone())
+            .pub_date(self.get_rfc_dt())
+            .build();
+
+        if include_content {
+            item.set_content(self.content.clone())
+        }
+        if self.feed_ptr.is_some() {
+            let f = self.feed_ptr.unwrap();
+            item.set_source(Some(Source {
+                title: Some(f.borrow().display_title().clone()),
+                url: f.borrow().feedlink.clone(),
+            }));
+            let mut categories = Vec::new();
+            for cat in f.borrow().tags.clone() {
+                categories.push(Category {
+                    name: cat,
+                    // TODO
+                    domain: None,
+                })
+            }
+            item.set_categories(categories)
+        }
+        return item;
+    }
+
     #[allow(dead_code)]
     pub fn new(
         title: &str,
         url: &str,
         feed_url: &str,
         author: &str,
-        desc: &str,
         date: i64,
         unread: bool,
         content: &str,
@@ -123,7 +149,6 @@ impl FeedItem {
             url: url.to_string(),
             feed_url: feed_url.to_string(),
             author: author.to_string(),
-            desc: desc.to_string(),
             date: date,
             unread: unread,
             content: content.to_string(),
@@ -210,7 +235,6 @@ impl Serialize for FeedItem {
         state.serialize_field("date", &self.date)?;
         state.serialize_field("author", &self.author)?;
         state.serialize_field("unread", &self.unread)?;
-        state.serialize_field("desc", &self.desc)?;
         state.serialize_field("content", &self.content)?;
         state.serialize_field("flags", &self.flags)?;
         state.serialize_field("enclosureUrl", &self.enc_url)?;
@@ -231,7 +255,6 @@ mod tests {
             "http://test.com",
             "",
             "exaroth",
-            "Test feed item",
             123456,
             false,
             "Test content",
@@ -262,7 +285,6 @@ mod tests {
             "http://test.com",
             "",
             "exaroth",
-            "Test feed item",
             123456,
             false,
             "Test content",
@@ -292,17 +314,7 @@ mod tests {
             "Feed".to_string(),
             "http://feedlink.com".to_string(),
         )));
-        let mut item = FeedItem::new(
-            "item1",
-            "http://test.com",
-            "",
-            "",
-            "",
-            970000000,
-            false,
-            "",
-            1,
-        );
+        let mut item = FeedItem::new("item1", "http://test.com", "", "", 970000000, false, "", 1);
         item.set_ptr(Arc::clone(&f));
         f.borrow_mut().add_item(item);
         let mut attr = f.borrow().items[0].attribute_value("feedlink");
@@ -320,7 +332,6 @@ mod tests {
             "http://test.com",
             "",
             "exaroth",
-            "Test feed item",
             1766842490,
             false,
             "Test content",
@@ -335,7 +346,6 @@ mod tests {
             "http://test.com",
             "",
             "exaroth",
-            "Test feed item",
             1733974900,
             false,
             "Test content",
@@ -349,7 +359,6 @@ mod tests {
             "http://test.com",
             "",
             "exaroth",
-            "Test feed item",
             1733800000,
             false,
             "Test content",

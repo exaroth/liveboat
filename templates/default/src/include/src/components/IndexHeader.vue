@@ -6,6 +6,8 @@ import { useEmbedStore } from '../stores/embed'
 import IconGithub from './icons/IconGithub.vue'
 import IconHeart from './icons/IconHeart.vue'
 import IconTop from './icons/IconTop.vue'
+import IconRss from './icons/IconRss.vue'
+import IconOPML from './icons/IconOPML.vue'
 import IconLiveboat from './icons/IconLiveboat.vue'
 import IconRefresh from './icons/IconRefresh.vue'
 
@@ -70,13 +72,17 @@ const refreshPage = () => {
         <a :href="sitePath">{{ pageTitle }}</a>
       </h2>
       <h5>Page last updated on {{ buildTime.toUTCString() }}</h5>
+      <div id="icons-aggro">
+        <a id="icon-rss" href="rss.xml" target="_blank"><IconRss /></a>
+        <a id="icon-opml" href="opml.xml" target="_blank"><IconOPML /></a>
+      </div>
     </div>
   </div>
   <div id="side-buttons-wrapper">
-  <div v-if="!embedStore.showModal" id="side-buttons">
-    <a title="Scroll to top" v-if="showScrollToTop" @click="scrollToTop()"><IconTop /></a>
-    <a title="New feeds available" v-if="showRefresh" @click="refreshPage()"><IconRefresh /></a>
-  </div>
+    <div v-if="!embedStore.showModal" id="side-buttons">
+      <a title="Scroll to top" v-if="showScrollToTop" @click="scrollToTop()"><IconTop /></a>
+      <a title="New feeds available" v-if="showRefresh" @click="refreshPage()"><IconRefresh /></a>
+    </div>
   </div>
 </template>
 
@@ -158,6 +164,25 @@ const refreshPage = () => {
 #side-buttons svg {
   width: 38px;
   height: 38px;
+}
+
+#icons-aggro {
+  position: absolute;
+  right: 0;
+  bottom: -12px;;
+  width: 100px;
+}
+
+#icon-rss svg,
+#icon-opml svg {
+  display: inline-block;
+  float: right;
+  margin-left: 10px;
+}
+#icon-rss svg {
+  width: 20px;
+  height: 20px;
+  top: 8px;
 }
 
 @media (max-width: 640px) {

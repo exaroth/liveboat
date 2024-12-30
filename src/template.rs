@@ -87,9 +87,6 @@ impl<'a> SimpleContext<'a> {
         let mut feeds = Vec::new();
         for f in url_feeds {
             let item = <RefCell<Feed> as Clone>::clone(&f).into_inner();
-            if item.is_hidden() || item.is_empty() {
-                continue;
-            }
             feeds.push(item);
         }
         for q_feed in query_feeds {
@@ -140,7 +137,8 @@ mod tests {
     fn test_processing_feeds_for_template() {
         let mut feeds = Vec::new();
 
-        let item1 = FeedItem::new("item1", "http://test.com", "", "", "", 123456, false, "", 1);
+        // Feed non hidden with and item
+        let item1 = FeedItem::new("item1", "http://test.com", "", "",  123456, false, "", 1);
 
         let mut f1 = Feed::init(
             "http://example.com".to_string(),
@@ -150,15 +148,18 @@ mod tests {
 
         f1.update_with_url_data(Vec::new(), false, None, 4);
         f1.add_item(item1.clone());
-
         feeds.push(Arc::new(RefCell::new(f1)));
+
+        //  Hidden url feed with items
         let mut f2 = Feed::init(
             "http://example2.com".to_string(),
             "Url feed2".to_string(),
             "http://testfeed.com".to_string(),
         );
         f2.update_with_url_data(Vec::new(), true, None, 2);
+        f2.add_item(item1.clone());
         feeds.push(Arc::new(RefCell::new(f2)));
+        // Feed with no items, non hidden
         let mut f3 = Feed::init(
             "http://example3.com".to_string(),
             "Url feed3".to_string(),
@@ -168,10 +169,13 @@ mod tests {
         feeds.push(Arc::new(RefCell::new(f3)));
 
         let mut query_feeds = Vec::new();
+        // Query feed with no items
         query_feeds.push(Feed::init_query_feed(String::from("Query feed1"), 10));
+        // Query feed with items
         let mut qfeed = Feed::init_query_feed(String::from("Query feed2"), 2);
         qfeed.add_item(item1.clone());
         query_feeds.push(qfeed);
+
         let opts = Options::default();
         let settings = HashMap::new();
         let ctx = SimpleContext::init(
@@ -182,8 +186,11 @@ mod tests {
             String::from("1.0.0"),
         );
 
-        assert_eq!(2, ctx.feeds.len());
-        assert_eq!(ctx.feeds[0].title(), "Query feed2");
-        assert_eq!(ctx.feeds[1].title(), "Url feed1");
+        assert_eq!(4, ctx.feeds.len());
+        let titles = ctx.feeds.into_iter().map(|f| f.title().clone()).collect::<Vec<String>>();
+        assert!(titles.contains(&"Url feed1".to_string()));
+        assert!(titles.contains(&"Url feed2".to_string()));
+        assert!(titles.contains(&"Url feed3".to_string()));
+        assert!(titles.contains(&"Query feed2".to_string()));
     }
 }
