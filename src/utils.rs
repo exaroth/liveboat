@@ -1,11 +1,18 @@
 use log::info;
 use rand::{distributions::Alphanumeric, Rng};
+use chrono::DateTime;
 use std::fs;
 use std::fs::File;
 use std::io;
 use std::io::copy as ioCopy;
 use std::path::Path;
 use std::cmp::Ordering;
+
+#[cfg(not(test))]
+use chrono::Local;
+
+#[cfg(test)]
+use chrono::Utc;
 
 use anyhow::{anyhow, Result};
 use env_logger::Env;
@@ -57,6 +64,16 @@ impl Version {
             },
         }
     }
+}
+
+#[cfg(not(test))]
+pub fn now() -> DateTime<Local> {
+    Local::now()
+}
+
+#[cfg(test)]
+pub fn now() -> DateTime<Utc> {
+    DateTime::from_timestamp(1733974974, 0).unwrap()
 }
 
 /// Initialize logger for the app.
