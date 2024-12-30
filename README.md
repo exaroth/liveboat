@@ -1,5 +1,5 @@
 <h1 align="center">
-<img align="center" width="160" height="160" src="logo.png" alt="Liveboat"><br/>
+<img align="center" width="130" height="130" src="logo.png" alt="Liveboat"><br/>
 Liveboat
 </h1>
 <h1>See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo</a></h1>
