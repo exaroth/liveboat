@@ -129,6 +129,10 @@ impl Feed {
         return self.hidden;
     }
 
+    pub fn is_query_feed(&self) -> bool {
+        return self._is_query
+    }
+
     pub fn is_empty(&self) -> bool {
         return self.items.len() == 0;
     }
