@@ -1,31 +1,19 @@
-use crate::feed::Feed;
+use std::cell::RefCell;
+use std::fmt;
+use std::sync::Arc;
 
-use chrono::DateTime;
-
-#[cfg(not(test))]
-use chrono::Local;
-
-#[cfg(test)]
-use chrono::Utc;
 use libnewsboat::matchable::Matchable;
 use rss::Item as RSSItem;
 use rss::{Category, ItemBuilder, Source};
 use rusqlite::Error as SQLiteError;
 use rusqlite::Row;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
-use std::cell::RefCell;
-use std::fmt;
-use std::sync::Arc;
 
-#[cfg(not(test))]
-fn now() -> DateTime<Local> {
-    Local::now()
-}
+use chrono::DateTime;
 
-#[cfg(test)]
-fn now() -> DateTime<Utc> {
-    DateTime::from_timestamp(1733974974, 0).unwrap()
-}
+use crate::feed::Feed;
+use crate::utils::now;
+
 
 /// Container for storing and operating
 /// on the newsboat article items.

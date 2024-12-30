@@ -23,10 +23,6 @@ fn default_site_path() -> String {
     String::from("/")
 }
 
-fn default_site_address() -> String {
-    String::from("https://example.com")
-}
-
 fn default_newsboat_url_file() -> String {
     String::from("")
 }
@@ -53,16 +49,12 @@ pub struct Options {
     /// Root path for the feed site
     #[serde(default = "default_site_path")]
     pub site_path: String,
-    /// Optional address to your website, for
-    /// github pages it will be https://<username>.github.io
-    #[serde(default = "default_site_address")]
-    pub site_address: String,
     /// Whether or not to show articles marked as read by Newsboat
     #[serde(default = "default_bool::<true>")]
     pub show_read_articles: bool,
     /// Define whether or not to include article content in generated
     /// rss feeds (might increase size significantly)
-    #[serde(default = "default_bool::<false>")]
+    #[serde(default = "default_bool::<true>")]
     pub include_article_content_in_rss_feeds: bool,
     /// Path to Newsboat urls file
     #[serde(default = "default_newsboat_url_file")]
@@ -95,7 +87,6 @@ impl Options {
         return Options {
             title: default_title(),
             site_path: default_site_path(),
-            site_address: default_site_address(),
             show_read_articles: true,
             template_name: default_template_name(),
             include_article_content_in_rss_feeds: false,
@@ -134,7 +125,6 @@ impl fmt::Display for Options {
             "Opts::
             title {}:
             site_path {}:
-            site_address {}:
             show_read: {}
             template_name: {}
             urls_file: {}
@@ -144,7 +134,6 @@ impl fmt::Display for Options {
             build_dir: {}",
             self.title,
             self.site_path,
-            self.site_address,
             self.show_read_articles,
             self.template_name,
             self.newsboat_urls_file,

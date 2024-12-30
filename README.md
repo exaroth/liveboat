@@ -10,8 +10,8 @@ Liveboat
 
 ## What Liveboat is about
 - Generate static pages for your RSS/Atom subscriptions allowing you to access all the news you follow from the browser
-- Aggregate all the RSS subscriptions in one place so you can use single RSS source in any of the RSS clients you use
-- Easily deployable to Github pages - See [liveboat-github-runner](https://github.com/exaroth/liveboat-github-runner) template for details
+- Aggregate all the RSS subscriptions in one place so you can use single RSS source in any of the RSS clients you use. Liveboat also provides OPML file for all your subscriptions.
+- Easily deployable to Github Pages - See [liveboat-github-runner](https://github.com/exaroth/liveboat-github-runner) template for details
 - Liveboat exposes simple JSON API you can use to integrate RSS subscriptions into your apps [Using Liveboat's JSON API](#using-liveboat-json-api)
 - Compatible with Newsboat url file format including query feeds
 - Templating support - See [Template development guide](https://github.com/exaroth/liveboat/tree/develop/templates) for details

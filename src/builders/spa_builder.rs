@@ -10,7 +10,7 @@ use anyhow::Result;
 use handlebars::Handlebars;
 
 use crate::builders::aux::Builder;
-use crate::builders::utils::generate_rss_channel;
+use crate::builders::utils::{generate_opml, generate_rss_channel};
 use crate::feed::{Feed, FeedList};
 use crate::template::Context;
 use crate::utils::copy_all;
@@ -20,6 +20,7 @@ const INCLUDE_DIRNAME: &str = "include";
 const INDEX_FILENAME: &str = "index";
 const BUILD_TIME_FILENAME: &str = "build_time.txt";
 const RSS_FILE_FILENAME: &str = "rss.xml";
+const OPML_FILENAME: &str = "opml.xml";
 
 /// This represents default builder module
 /// used for processing single page Liveboat templates.
@@ -53,6 +54,7 @@ where
         self.save_json_feeds()?;
         self.save_build_time()?;
         self.save_rss_channel()?;
+        self.save_opml()?;
         Ok(())
     }
 
@@ -90,6 +92,10 @@ where
         fs::copy(
             self.tmp_dir.join(RSS_FILE_FILENAME),
             self.build_dir.join(RSS_FILE_FILENAME),
+        )?;
+        fs::copy(
+            self.tmp_dir.join(OPML_FILENAME),
+            self.build_dir.join(OPML_FILENAME),
         )?;
         Ok(())
     }
@@ -173,10 +179,19 @@ where
     fn save_rss_channel(&self) -> Result<()> {
         let path = self.tmp_dir.join(RSS_FILE_FILENAME);
         let mut file = File::create(path)?;
-        file.write_all(generate_rss_channel(
-            self.context.options(),
-            self.context.feeds(),
-        ).as_bytes())?;
+        file.write_all(
+            generate_rss_channel(self.context.options(), self.context.feeds()).as_bytes(),
+        )?;
+        Ok(())
+    }
+
+    /// Save atom feed for all the feeds
+    fn save_opml(&self) -> Result<()> {
+        let path = self.tmp_dir.join(OPML_FILENAME);
+        let mut file = File::create(path)?;
+        file.write_all(
+            generate_opml(self.context.options(), self.context.feeds()).as_bytes(),
+        )?;
         Ok(())
     }
 
