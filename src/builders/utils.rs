@@ -18,7 +18,7 @@ pub fn generate_rss_channel(opts: &Options, feeds: &Vec<Feed>) -> String {
         .build();
     let mut items = Vec::new();
     for feed in feeds {
-        if feed.is_hidden() {
+        if feed.is_hidden() || feed.is_empty() {
             continue;
         }
         for feed_item in feed.clone().items {
