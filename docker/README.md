@@ -1,6 +1,6 @@
 # Liveboat Docker image
 
-## Liveboat is available as [ghcr hosted image](https://github.com/exaroth/liveboat/pkgs/container/liveboat) you can use to easily run Liveboat
+## Liveboat is available as [ghcr hosted image](https://github.com/exaroth/liveboat/pkgs/container/liveboat) you can use to easily run it inside docker.
 
 __NOTE__ at minimum you should provide list of urls to generate page with, see [url reference](https://github.com/exaroth/liveboat-github-runner?tab=readme-ov-file#liveboat-url-file-breakdown) for details
 
