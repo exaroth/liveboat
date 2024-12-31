@@ -2,8 +2,11 @@
 <img align="center" width="100" height="100" src="logo.png" alt="Liveboat"><br/>
 Liveboat
 </h1>
-<h2>See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo</a></h2>
+
+<h2 align="center">
 <img align="center" width="572" src="demo.gif?raw=true" alt="Demo"><br/>
+See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo</a>
+</h2>
 
 ![stable](https://github.com/exaroth/liveboat/actions/workflows/test.yml/badge.svg?branch=main)
 [![License](https://img.shields.io/github/license/exaroth/liveboat)](https://github.com/exaroth/liveboat/blob/develop/LICENSE)
