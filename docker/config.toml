@@ -1,11 +1,8 @@
 # Title of the site
 title = "Liveboat feed page"
 # This denotes root path to the feed page.
-# If hosted as a github project page this should
-# be set to '/<project-name>/', unless the page is
-# hosted as default page for the user 
-# (eg <username>.github.io), in that case it should be
-# set to '/'
+# If hosted under path other than root (/) it should
+# be updated (eg. set to /<path-prefix>/)
 site_path = "/"
 # Maximum number of days for which Liveboat will include
 # articles for.
@@ -16,7 +13,7 @@ show_read_articles = true
 # Name of the template to use
 template_name = "default"
 
-# Below options define path settings 
+# Below options define path settings
 # and typically should not be changed
 newsboat_urls_file = "/liveboat/urls"
 newsboat_cache_file = "/liveboat/cache.db"
