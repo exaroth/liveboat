@@ -73,8 +73,8 @@ const refreshPage = () => {
       </h2>
       <h5>Page last updated on {{ buildTime.toUTCString() }}</h5>
       <div id="icons-aggro">
-        <a id="icon-rss" href="rss.xml" target="_blank"><IconRss /></a>
-        <a id="icon-opml" href="opml.xml" target="_blank"><IconOPML /></a>
+        <a id="icon-rss" href="feeds.rss" target="_blank"><IconRss /></a>
+        <a id="icon-opml" href="feeds.opml" target="_blank"><IconOPML /></a>
       </div>
     </div>
   </div>

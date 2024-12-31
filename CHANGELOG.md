@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Added LTO optimizations for release builds
+- Change filename for opml and rss files
 ## [1.0.6] 2024-12-30
 ### Changed
 - Don't use query feeds when generating RSS xml.
