@@ -3,6 +3,6 @@
 # example at https://github.com/exaroth/liveboat-github-runner/blob/master/config/newsboat-urls
 # or url syntax reference @ https://shorturl.at/GKsAS
 #
-https://hnrss.org/best "~HN" dev
-https://hnrss.org/show?points=60 "~HN Show" dev
-https://hnrss.org/frontpage?points=75 "~HN Front" dev
+# https://hnrss.org/best "~HN" dev
+# https://hnrss.org/show?points=60 "~HN Show" dev
+# https://hnrss.org/frontpage?points=75 "~HN Front" dev
