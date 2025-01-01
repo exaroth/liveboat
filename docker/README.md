@@ -13,7 +13,7 @@ If you'd like to use custom page settings:
 ``` sh
 docker run -p 8080:8080 -v <path_to_url_file>:/liveboat/urls -v <path_to_config_file>:/liveboat/config.toml ghcr.io/exaroth/liveboat:latest
 ```
-__NOTE__ You can use https://github.com/exaroth/liveboat/blob/develop/docker/config.toml as template
+__NOTE__ You can use https://github.com/exaroth/liveboat/blob/develop/docker/config.toml as template for the config file to use
 
 ### docker directory structure
 
