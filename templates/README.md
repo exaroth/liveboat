@@ -1,7 +1,7 @@
 # Liveboat Templates Reference
 
 > [!IMPORTANT]
-> At the moment Liveboat supports only SPA (Single Page Ppplication) templates with single HTML page being rendered.
+> At the moment Liveboat supports only SPA (Single Page Application) templates with single HTML page being rendered.
 
 This file contains details about Liveboat template structure as well as instructions about developing and updating new templates.
 
@@ -67,7 +67,7 @@ Each `index.hbs` is rendered with context containing following variables:
 - `template_version` - String denoting current version of the template
 
 ## Template `config.toml` file
-Each template must contain `config.toml` file containing following fields
+Each template must contain `config.toml` file consisting of following fields
 
 - `builder` - this denotes type of builder module to be used for building template, as for now the only available version is `spa`
 - `version` - current version of the template in a format `<major>.<minor>.<patch>`
