@@ -13,8 +13,8 @@ See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo
 [![rustc 1.84.0](https://img.shields.io/badge/rust-1.84%2B-orange.svg)](https://img.shields.io/badge/rust-1.84%2B-orange.svg)
 
 ## What Liveboat is about
-- Generate static pages for your RSS/Atom subscriptions allowing you to access all the news you follow from the browser
-- Aggregate all the subscriptions in one place so you can use single feed source in any of your RSS clients. Liveboat also provides OPML file for all your subscriptions.
+- Generate static pages for your RSS/Atom subscriptions allowing you to access all the news from the browser
+- Aggregate all the subscriptions in one place so you can use single feed source in any of your RSS clients. OPML file is also available.
 - Easily deployable to Github Pages - See [liveboat-github-runner](https://github.com/exaroth/liveboat-github-runner) template for details. There's also [Docker image](https://github.com/exaroth/liveboat/tree/develop/docker) included for easy self hosting.
 - Liveboat exposes simple JSON API you can use to integrate RSS subscriptions into your apps [Using Liveboat's JSON API](#using-liveboat-json-api)
 - Compatible with Newsboat url file format including query feeds
@@ -158,7 +158,7 @@ Liveboat exposes simple idempodent API consisting of 3 endpoints
 
 ### Compatibility
 
-Newsboat is compatible with Newsboat urls filtering and aggregation syntax, generated pages will contain same attributes as those displayed in the terminal. It supports query filter syntax as well, with following exceptions:
+Liveboat is compatible with Newsboat urls filtering and aggregation syntax, generated pages will contain same attributes as those displayed in the terminal. It supports query filter syntax as well, with following exceptions:
 - `description` `<rss_feed_attribute>`
 - `feed_date` `<rss_feed_attribute>`
 - `feed_index` `<rss_feed_attribute>`
