@@ -4,4 +4,7 @@
 
 echo "Rebuilding Liveboat page, please wait..."
 /usr/bin/newsboat -x reload -u /liveboat/urls -c /liveboat/cache.db
-LIVEBOAT_CONFIG_DIR=/liveboat /usr/bin/liveboat -x build --build-dir /liveboat/build
+LIVEBOAT_CONFIG_DIR=/liveboat /usr/bin/liveboat -x build \
+    --build-dir /liveboat/build \
+    --cache-file /liveboat/cache.db \
+    --url-file /liveboat/urls

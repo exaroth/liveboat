@@ -12,9 +12,3 @@ time_threshold = 40
 show_read_articles = true
 # Name of the template to use
 template_name = "default"
-
-# Below options define path settings
-# and typically should not be changed
-newsboat_urls_file = "/liveboat/urls"
-newsboat_cache_file = "/liveboat/cache.db"
-build_dir = "/liveboat/build"
