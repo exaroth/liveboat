@@ -150,7 +150,7 @@ watchEffect(async () => {
     try {
       data = await (await fetch(url)).json()
     } catch {
-      console.log(console.log("Could not fetch feed data for feed ", url))
+      console.log(console.log('Could not fetch feed data for feed ', url))
       return
     }
     feedItems.value = processFeedItems(data.items)
@@ -164,10 +164,16 @@ watchEffect(async () => {
 })
 
 const showEmbedModal = (feedItem) => {
+  if (audioStore.audioPlayerVisible) {
+    audioStore.hideAudioPlayer()
+  }
   embedStore.setEmbedUrl(feedItem)
   embedStore.showEmbedModal()
 }
 const showAudioPlayer = (feedItem) => {
+  if (embedStore.showModal) {
+    embedStore.hideEmbedModal()
+  }
   audioStore.setAudioData(props.feed.title, props.feed.feedLink, feedItem)
   audioStore.showAudioPlayer()
 }
@@ -192,7 +198,11 @@ const showAudioPlayer = (feedItem) => {
             >
               {{ truncate(feedItem.title) }}</a
             >
-            <a v-else-if="audioStore.isAudioLink(feedItem)" @click="showAudioPlayer(feedItem)" target="_blank">
+            <a
+              v-else-if="audioStore.isAudioLink(feedItem)"
+              @click="showAudioPlayer(feedItem)"
+              target="_blank"
+            >
               {{ truncate(feedItem.title) }}
             </a>
             <a v-else :href="feedItem.url" target="_blank">{{ truncate(feedItem.title) }}</a>

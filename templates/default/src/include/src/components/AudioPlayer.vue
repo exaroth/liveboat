@@ -3,6 +3,8 @@ import IconPlay from './icons/IconPlay.vue'
 import IconPause from './icons/IconPause.vue'
 import IconVolume from './icons/IconVolume.vue'
 import IconMute from './icons/IconMute.vue'
+import IconClose from './icons/IconClose.vue'
+import { useAudioStore } from '../stores/audio'
 
 export default {
   name: 'AudioPlayer',
@@ -11,6 +13,7 @@ export default {
     IconPause,
     IconVolume,
     IconMute,
+    IconClose,
   },
   props: {
     feedTitle: {
@@ -44,9 +47,8 @@ export default {
       loaded: false,
       playing: false,
       previousVolume: 35,
-      showVolume: false,
       volume: 100,
-      autoPlay: true
+      autoPlay: true,
     }
   },
   computed: {
@@ -107,6 +109,7 @@ export default {
     this.audio.addEventListener('play', () => {
       this.playing = true
     })
+    this.audioStore = useAudioStore()
   },
   methods: {
     convertTimeHHMMSS(val) {
@@ -147,30 +150,29 @@ export default {
       this.currentSeconds = this.audio.currentTime
       this.buffered = this.audio.buffered.end(0)
     },
+    close() {
+      this.stop()
+      this.audioStore.hideAudioPlayer()
+    }
   },
 }
 </script>
 
 <template>
   <div id="audio-player">
-
     <audio ref="audioFile" :loop="innerLoop" :src="file" preload="auto" style="display: none" />
 
     <div id="player">
       <div id="player-controls">
-        <a
-          id="player-play-pause-icon"
-          :aria-label="playing ? 'pause' : 'play'"
-          @click="togglePlay"
-        >
+        <a class="player-icon" :aria-label="playing ? 'pause' : 'play'" @click="togglePlay">
           <IconPlay v-if="!playing" />
           <IconPause v-if="playing" />
         </a>
         <div id="player-track">
           <div id="player-track-desc">
             <span v-if="feedLink">
-            <a id="player-track-feed" :href="feedLink"> {{ feedTitle }}</a>
-            <span> - </span>
+              <a id="player-track-feed" :href="feedLink"> {{ feedTitle }}</a>
+              <span> - </span>
             </span>
             <a :href="url" id="player-track-title"> {{ title }}</a>
           </div>
@@ -185,20 +187,19 @@ export default {
             <span id="player-track-time-total">{{ convertTimeHHMMSS(durationSeconds) }}</span>
           </div>
         </div>
-        <div
-          id="player-volume"
-          @mouseover.prevent="showVolume = true"
-          @mouseleave.prevent="showVolume = false"
-        >
+        <div id="player-additional-controls">
           <a
             tabindex="0"
-            id="player-volume-icon"
+            class="player-icon"
             :aria-label="muted ? 'unmute' : 'mute'"
             @click="mute"
             @keypress.space.enter="mute"
           >
             <IconVolume v-if="!muted" />
             <IconMute v-if="muted" />
+          </a>
+          <a tabindex="1" class="player-icon" @click="close">
+            <IconClose />
           </a>
         </div>
       </div>
@@ -229,12 +230,12 @@ export default {
   align-items: center;
 }
 
-#player-play-pause-icon,
-#player-volume-icon {
+.player-icon {
   width: 24px;
   height: 24px;
   display: flex;
   cursor: pointer;
+  margin-left: 10px;
 }
 
 #player-track {
@@ -251,7 +252,7 @@ export default {
   white-space: nowrap;
 }
 #player-track-feed {
-  opacity: .6;
+  opacity: 0.6;
 }
 
 #player-track-progress {
@@ -292,12 +293,12 @@ export default {
   margin-left: 0.25rem;
 }
 
-#player-volume {
+#player-player-additional-controls {
   display: none;
 }
 
 @media (min-width: 768px) {
-  #player-volume {
+  #player-additional-controls {
     display: flex;
     justify-content: flex-end;
   }
