@@ -1,11 +1,11 @@
 <script setup>
-  import { ref } from 'vue'
 import FeedItem from './FeedItem.vue'
 import AudioPlayer from './AudioPlayer.vue'
 import FilterBox from './FilterBox.vue'
 import EmbedModal from './EmbedModal.vue'
 import { useFeedsStore } from '@/stores/feeds'
 import { useEmbedStore } from '../stores/embed'
+import { useAudioStore } from '../stores/audio'
 import { storeToRefs } from 'pinia'
 
 const props = defineProps({
@@ -20,19 +20,12 @@ const props = defineProps({
 })
 
 const embedStore = useEmbedStore()
+const audioStore = useAudioStore()
 const feedsStore = useFeedsStore()
-const depro = ref("https://www.kimlarocca.com/fur-elise.mp3")
 const { feeds } = storeToRefs(feedsStore)
 </script>
 
 <template>
-  <AudioPlayer
-      :title="'title'"
-      :url="'https://www.deprofundis.com'"
-      :feedTitle="'feed'"
-      :feedLink="'kek'"
-      :file="depro"
-  />
   <FilterBox />
   <div class="feed-list-wrapper" v-for="feed in feeds" :key="feed.id">
     <Transition>
@@ -43,6 +36,14 @@ const { feeds } = storeToRefs(feedsStore)
     v-if="embedStore.showModal"
     :embedCode="embedStore.modalEmbedCode"
     :fallbackUrl="embedStore.fallbackUrl"
+  />
+  <AudioPlayer
+    v-if="audioStore.audioPlayerVisible"
+    :title="audioStore.linkName"
+    :url="audioStore.linkUrl"
+    :feedTitle="audioStore.feedName"
+    :feedLink="audioStore.feedUrl"
+    :file="audioStore.audioUrl"
   />
 </template>
 

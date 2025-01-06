@@ -46,6 +46,7 @@ export default {
       previousVolume: 35,
       showVolume: false,
       volume: 100,
+      autoPlay: true
     }
   },
   computed: {
@@ -167,8 +168,10 @@ export default {
         </a>
         <div id="player-track">
           <div id="player-track-desc">
+            <span v-if="feedLink">
             <a id="player-track-feed" :href="feedLink"> {{ feedTitle }}</a>
             <span> - </span>
+            </span>
             <a :href="url" id="player-track-title"> {{ title }}</a>
           </div>
 

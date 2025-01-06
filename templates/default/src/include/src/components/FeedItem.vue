@@ -2,10 +2,12 @@
 import { ref, watchEffect } from 'vue'
 import { useFiltersStore } from '../stores/filters'
 import { useEmbedStore } from '../stores/embed'
+import { useAudioStore } from '../stores/audio'
 import { RouterLink } from 'vue-router'
 
 const fStore = useFiltersStore()
 const embedStore = useEmbedStore()
+const audioStore = useAudioStore()
 
 const props = defineProps({
   feed: {
@@ -144,7 +146,13 @@ const resolveFeedPath = (feedId) => {
 watchEffect(async () => {
   if (!initialized.value) {
     const url = resolveFeedPath(props.feed.id)
-    let data = await (await fetch(url)).json()
+    let data
+    try {
+      data = await (await fetch(url)).json()
+    } catch {
+      console.log(console.log("Could not fetch feed data for feed ", url))
+      return
+    }
     feedItems.value = processFeedItems(data.items)
   }
   initialized.value = true
@@ -158,6 +166,10 @@ watchEffect(async () => {
 const showEmbedModal = (feedItem) => {
   embedStore.setEmbedUrl(feedItem)
   embedStore.showEmbedModal()
+}
+const showAudioPlayer = (feedItem) => {
+  audioStore.setAudioData(props.feed.title, props.feed.feedLink, feedItem)
+  audioStore.showAudioPlayer()
 }
 </script>
 
@@ -177,8 +189,12 @@ const showEmbedModal = (feedItem) => {
               v-if="embedStore.isEmbeddable(feedItem)"
               @click="showEmbedModal(feedItem)"
               target="_blank"
-              >{{ truncate(feedItem.title) }}</a
             >
+              {{ truncate(feedItem.title) }}</a
+            >
+            <a v-else-if="audioStore.isAudioLink(feedItem)" @click="showAudioPlayer(feedItem)" target="_blank">
+              {{ truncate(feedItem.title) }}
+            </a>
             <a v-else :href="feedItem.url" target="_blank">{{ truncate(feedItem.title) }}</a>
           </span>
           <span class="feed-item-author" v-if="feedItem.author"> by {{ feedItem.author }}</span>
