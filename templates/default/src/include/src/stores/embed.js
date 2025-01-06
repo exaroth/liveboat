@@ -1,5 +1,23 @@
 import { defineStore } from 'pinia'
 
+const getDefaultEmbedSettings = () => ({
+  configs: embedConfigs,
+  showModal: false,
+  minimized: false,
+  modalEmbedCode: null,
+  fallbackUrl: null,
+})
+
+const getEmbedSettings = () => {
+  let result = getDefaultEmbedSettings()
+  const savedSettings = localStorage.getItem('embed')
+  console.log(savedSettings)
+  if (savedSettings) {
+    result = { ...result, ...JSON.parse(savedSettings) }
+  }
+  return result
+}
+
 const embedConfigs = {
   youtube: {
     matches: [
@@ -21,13 +39,7 @@ const embedConfigs = {
 }
 
 export const useEmbedStore = defineStore('embed', {
-  state: () => ({
-    configs: embedConfigs,
-    showModal: false,
-    minimized: false,
-    modalEmbedCode: null,
-    fallbackUrl: null,
-  }),
+  state: () => getEmbedSettings(),
   actions: {
     _updateOverflow() {
       if (this.showModal && !this.minimized) {
@@ -67,10 +79,12 @@ export const useEmbedStore = defineStore('embed', {
     },
     minimizeModal() {
       this.minimized = true
+      localStorage.setItem('embed', JSON.stringify({minimized: true}))
       this._updateOverflow()
     },
     maximizeModal() {
       this.minimized = false
+      localStorage.setItem('embed', JSON.stringify({minimized: false}))
       this._updateOverflow()
     },
   },
