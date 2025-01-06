@@ -1,5 +1,4 @@
 <script setup>
-import { ref } from 'vue'
 import { useEmbedStore } from '../stores/embed'
 import IconClose from './icons/IconClose.vue'
 import IconMinimize from './icons/IconMinimize.vue'
