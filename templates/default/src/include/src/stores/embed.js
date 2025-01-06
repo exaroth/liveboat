@@ -1,10 +1,27 @@
 import { defineStore } from 'pinia'
 
+const getDefaultEmbedSettings = () => ({
+  configs: embedConfigs,
+  showModal: false,
+  minimized: false,
+  modalEmbedCode: null,
+  fallbackUrl: null,
+})
+
+const getEmbedSettings = () => {
+  let result = getDefaultEmbedSettings()
+  const savedSettings = localStorage.getItem('embed')
+  if (savedSettings) {
+    result = { ...result, ...JSON.parse(savedSettings) }
+  }
+  return result
+}
+
 const embedConfigs = {
   youtube: {
     matches: [
       /www.youtube.com\/v\/(?<id>[a-zA-Z0-9_-]+)/,
-      /www.youtube.com\/watch\?v=(?<id>[a-zA-Z0-9_-]+)/
+      /www.youtube.com\/watch\?v=(?<id>[a-zA-Z0-9_-]+)/,
     ],
     getEmbedCode: function (url) {
       for (const re of this.matches) {
@@ -21,13 +38,15 @@ const embedConfigs = {
 }
 
 export const useEmbedStore = defineStore('embed', {
-  state: () => ({
-    configs: embedConfigs,
-    showModal: false,
-    modalEmbedCode: null,
-    fallbackUrl: null,
-  }),
+  state: () => getEmbedSettings(),
   actions: {
+    _updateOverflow() {
+      if (this.showModal && !this.minimized) {
+        document.documentElement.style.overflow = 'hidden'
+        return
+      }
+      document.documentElement.style.overflow = 'auto'
+    },
     isEmbeddable(feedItem) {
       let url = feedItem.enclosureUrl || feedItem.url
       for (const embedCfg of Object.values(this.configs)) {
@@ -51,15 +70,26 @@ export const useEmbedStore = defineStore('embed', {
     },
     showEmbedModal() {
       this.showModal = true
-      document.documentElement.style.overflow = 'hidden'
+      this._updateOverflow()
     },
     hideEmbedModal() {
       this.showModal = false
-      document.documentElement.style.overflow = 'auto'
+      this._updateOverflow()
+    },
+    minimizeModal() {
+      this.minimized = true
+      localStorage.setItem('embed', JSON.stringify({ minimized: true }))
+      this._updateOverflow()
+    },
+    maximizeModal() {
+      this.minimized = false
+      localStorage.setItem('embed', JSON.stringify({ minimized: false }))
+      this._updateOverflow()
     },
   },
   computed: {
     showModal: (state) => state.showModal,
+    minimized: (state) => state.minimized,
     modalEmbedCode: (state) => state.modalEmbedCode,
     fallbackUrl: (state) => state.fallbackUrl,
   },
