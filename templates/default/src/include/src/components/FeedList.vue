@@ -1,5 +1,7 @@
 <script setup>
+  import { ref } from 'vue'
 import FeedItem from './FeedItem.vue'
+import AudioPlayer from './AudioPlayer.vue'
 import FilterBox from './FilterBox.vue'
 import EmbedModal from './EmbedModal.vue'
 import { useFeedsStore } from '@/stores/feeds'
@@ -19,11 +21,18 @@ const props = defineProps({
 
 const embedStore = useEmbedStore()
 const feedsStore = useFeedsStore()
-
+const depro = ref("https://www.kimlarocca.com/fur-elise.mp3")
 const { feeds } = storeToRefs(feedsStore)
 </script>
 
 <template>
+  <AudioPlayer
+      :title="'title'"
+      :url="'https://www.deprofundis.com'"
+      :feedTitle="'feed'"
+      :feedLink="'kek'"
+      :file="depro"
+  />
   <FilterBox />
   <div class="feed-list-wrapper" v-for="feed in feeds" :key="feed.id">
     <Transition>
