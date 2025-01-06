@@ -11,7 +11,6 @@ const getDefaultEmbedSettings = () => ({
 const getEmbedSettings = () => {
   let result = getDefaultEmbedSettings()
   const savedSettings = localStorage.getItem('embed')
-  console.log(savedSettings)
   if (savedSettings) {
     result = { ...result, ...JSON.parse(savedSettings) }
   }
