@@ -1,9 +1,11 @@
 <script setup>
 import FeedItem from './FeedItem.vue'
+import AudioPlayer from './AudioPlayer.vue'
 import FilterBox from './FilterBox.vue'
 import EmbedModal from './EmbedModal.vue'
 import { useFeedsStore } from '@/stores/feeds'
-import { useEmbedStore } from '../stores/embed'
+import { useEmbedStore } from '@/stores/embed'
+import { useAudioStore } from '@/stores/audio'
 import { storeToRefs } from 'pinia'
 
 const props = defineProps({
@@ -18,8 +20,8 @@ const props = defineProps({
 })
 
 const embedStore = useEmbedStore()
+const audioStore = useAudioStore()
 const feedsStore = useFeedsStore()
-
 const { feeds } = storeToRefs(feedsStore)
 </script>
 
@@ -34,6 +36,14 @@ const { feeds } = storeToRefs(feedsStore)
     v-if="embedStore.showModal"
     :embedCode="embedStore.modalEmbedCode"
     :fallbackUrl="embedStore.fallbackUrl"
+  />
+  <AudioPlayer
+    v-if="audioStore.audioPlayerVisible"
+    :title="audioStore.linkName"
+    :url="audioStore.linkUrl"
+    :feedTitle="audioStore.feedName"
+    :feedLink="audioStore.feedUrl"
+    :file="audioStore.audioUrl"
   />
 </template>
 
