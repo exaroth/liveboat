@@ -152,7 +152,7 @@ watchEffect(async () => {
     try {
       data = await (await fetch(url)).json()
     } catch {
-      console.log(console.log('Could not fetch feed data for feed ', url))
+      console.log('Could not fetch feed data for feed ', url)
       return
     }
     feedItems.value = processFeedItems(data.items)
