@@ -168,6 +168,7 @@ If your urls file contains any of the above filters these will be ignored when g
 
 ## Acknowledgements
 - Team behind Newsboat/Newsbeuter RSS readers for making amazing app :)
+- MynaUI icon set authors [https://mynaui.com/icons](https://mynaui.com/icons)
  
 ## License
 Liveboat is provided under MIT License, see `LICENSE` file for details
