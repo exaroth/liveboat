@@ -153,7 +153,7 @@ export default {
     close() {
       this.stop()
       this.audioStore.hideAudioPlayer()
-    }
+    },
   },
 }
 </script>
@@ -215,7 +215,6 @@ export default {
   bottom: 0;
   left: 0;
   background-color: var(--color-background);
-  padding: 0 20%;
   z-index: 999;
   border-top: 1px solid rgb(from var(--color-accent) r g b / 80%);
 }
@@ -293,11 +292,14 @@ export default {
   margin-left: 0.25rem;
 }
 
-#player-player-additional-controls {
+#player-additional-controls {
   display: none;
 }
 
 @media (min-width: 768px) {
+  #audio-player {
+    padding: 0 20%;
+  }
   #player-additional-controls {
     display: flex;
     justify-content: flex-end;
