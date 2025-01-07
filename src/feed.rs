@@ -191,6 +191,7 @@ impl Serialize for Feed {
         state.serialize_field("feedLink", &self.feedlink)?;
         state.serialize_field("isQuery", &self._is_query)?;
         state.serialize_field("isEmpty", &self.is_empty())?;
+        state.serialize_field("isHidden", &self.is_hidden())?;
         state.serialize_field("items", &self.items)?;
         state.end()
     }
