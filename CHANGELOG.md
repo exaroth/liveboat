@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Audio Player for streaming podcast articles
 ### Changed
 - Added LTO optimizations for release builds
+### Fixed
+- Fixed passing empty feeds to default template
 ## [1.0.6] 2024-12-30
 ### Changed
 - Don't use query feeds when generating RSS xml.

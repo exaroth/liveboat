@@ -47,15 +47,18 @@
       window.pageTitle = '{{ options.title }}';
       window.sitePath = '/';
       window.feeds = [
-          {{#each feeds}}
-          {
-            id: "{{this.id}}",
-            url: "{{this.url}}",
-            title: "{{this.title}}",
-            displayTitle: "{{this.displayTitle}}",
-            feedLink: "{{this.feedLink}}",
-          },
-          {{/each}}
+        {{#each feeds}}
+            {{#unless this.isEmpty}}
+            {
+                id: "{{this.id}}",
+                url: "{{this.url}}",
+                title: "{{this.title}}",
+                displayTitle: "{{this.displayTitle}}",
+                feedLink: "{{this.feedLink}}",
+                isEmpty: "{{this.isEmpty}}"
+            },
+            {{/unless}}
+        {{/each}}
           ];
       </script>
       <div id="app"></div>
