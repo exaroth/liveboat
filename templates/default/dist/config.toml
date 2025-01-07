@@ -1,6 +1,6 @@
 name = "Default Template"
 builder = "spa"
-version = "1.0.4"
+version = "1.0.7"
 author = "Konrad Wasowicz (exaroth@gmail.com)"
 
 [template_settings]

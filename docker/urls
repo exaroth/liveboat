@@ -1,0 +1,17 @@
+# Include RSS urls you want to subscribe to to this page
+# At minimum you can simply add one url per line, see
+# example at https://github.com/exaroth/liveboat-github-runner/blob/master/config/newsboat-urls
+# or url syntax reference @ https://shorturl.at/GKsAS
+#
+https://hnrss.org/best "~HN" dev
+https://hnrss.org/show?points=60 "~HN Show" dev
+https://hnrss.org/frontpage?points=75 "~HN Front" dev
+
+https://www.youtube.com/feeds/videos.xml?channel_id=UCrTNhL_yO3tPTdQ5XgmmWjA "~Movies - RedLetterMedia" movies
+https://www.youtube.com/feeds/videos.xml?channel_id=UCpsjEC4PlHmhM84yX5Y3rrg "~Movies - Fanboy Flicks" movies
+https://www.youtube.com/feeds/videos.xml?channel_id=UCjFqcJQXGZ6T6sxyFB-5i6A "~Movies - Every Frame a Painting" movies
+https://www.youtube.com/feeds/videos.xml?channel_id=UCcGlif61mMV6soFSiN2QHoQ "~Movies - Kino Corner" movies
+https://www.youtube.com/feeds/videos.xml?channel_id=UCUyvQV2JsICeLZP4c_h40kA "~Movies - Thomas Flight"  movies
+https://www.youtube.com/feeds/videos.xml?channel_id=UCI62rVaY9gn5yO3Msh6BN0w "~Movies - Layton Eversaul" movies
+https://www.youtube.com/feeds/videos.xml?channel_id=UCFOfgEQLHpPuVNP_m-XldTg "~Movies - FilmStack" movies
+https://www.youtube.com/feeds/videos.xml?channel_id=UCErmMCK1sHF-kCtyHpuSXtQ "~Movies - Kermode" movies

@@ -1,6 +1,6 @@
 [package]
 name = "liveboat"
-version = "1.0.6"
+version = "1.0.7"
 edition = "2021"
 description = "Static page generator for Newsboat feeds"
 homepage = "https://github.com/exaroth/liveboat"
@@ -43,6 +43,10 @@ opml = "1.1.6"
 [[bin]]
 name = "liveboat"
 path = "src/main.rs"
+
+[profile.release]
+codegen-units = 1
+lto = true
 
 [workspace.metadata.cross.target.aarch64-unknown-linux-gnu]
 pre-build = [

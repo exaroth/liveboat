@@ -1,17 +1,21 @@
 <h1 align="center">
-<img align="center" width="130" height="130" src="logo.png" alt="Liveboat"><br/>
+<img align="center" width="100" height="100" src="logo.png" alt="Liveboat"><br/>
 Liveboat
 </h1>
-<h1>See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo</a></h1>
+
+<h2 align="center">
+<img align="center" width="572" src="demo.gif?raw=true" alt="Demo"><br/>
+See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo</a>
+</h2>
 
 ![stable](https://github.com/exaroth/liveboat/actions/workflows/test.yml/badge.svg?branch=main)
 [![License](https://img.shields.io/github/license/exaroth/liveboat)](https://github.com/exaroth/liveboat/blob/develop/LICENSE)
 [![rustc 1.84.0](https://img.shields.io/badge/rust-1.84%2B-orange.svg)](https://img.shields.io/badge/rust-1.84%2B-orange.svg)
 
 ## What Liveboat is about
-- Generate static pages for your RSS/Atom subscriptions allowing you to access all the news you follow from the browser
-- Aggregate all the subscriptions in one place so you can use single feed source in any of your RSS clients. Liveboat also provides OPML file for all your subscriptions.
-- Easily deployable to Github Pages - See [liveboat-github-runner](https://github.com/exaroth/liveboat-github-runner) template for details
+- Generate static pages for your RSS/Atom subscriptions allowing you to access all the news from the browser
+- Aggregate all the subscriptions in one place so you can use single feed source in any of your RSS clients. OPML file is also available.
+- Easily deployable to Github Pages - See [liveboat-github-runner](https://github.com/exaroth/liveboat-github-runner) template for details. There's also [Docker image](https://github.com/exaroth/liveboat/tree/develop/docker) included for easy self hosting.
 - Liveboat exposes simple JSON API you can use to integrate RSS subscriptions into your apps [Using Liveboat's JSON API](#using-liveboat-json-api)
 - Compatible with Newsboat url file format including query feeds
 - Templating support - See [Template development guide](https://github.com/exaroth/liveboat/tree/develop/templates) for details
@@ -154,7 +158,7 @@ Liveboat exposes simple idempodent API consisting of 3 endpoints
 
 ### Compatibility
 
-Newsboat is compatible with Newsboat urls filtering and aggregation syntax, generated pages will contain same attributes as those displayed in the terminal. It supports query filter syntax as well, with following exceptions:
+Liveboat is compatible with Newsboat urls filtering and aggregation syntax, generated pages will contain same attributes as those displayed in the terminal. It supports query filter syntax as well, with following exceptions:
 - `description` `<rss_feed_attribute>`
 - `feed_date` `<rss_feed_attribute>`
 - `feed_index` `<rss_feed_attribute>`
@@ -164,6 +168,7 @@ If your urls file contains any of the above filters these will be ignored when g
 
 ## Acknowledgements
 - Team behind Newsboat/Newsbeuter RSS readers for making amazing app :)
+- MynaUI icon set authors [https://mynaui.com/icons](https://mynaui.com/icons)
  
 ## License
 Liveboat is provided under MIT License, see `LICENSE` file for details

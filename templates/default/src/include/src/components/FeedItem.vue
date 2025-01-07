@@ -2,10 +2,14 @@
 import { ref, watchEffect } from 'vue'
 import { useFiltersStore } from '../stores/filters'
 import { useEmbedStore } from '../stores/embed'
+import { useAudioStore } from '../stores/audio'
 import { RouterLink } from 'vue-router'
+import IconMusic from './icons/IconMusic.vue'
+import IconMovie from './icons/IconMovie.vue'
 
 const fStore = useFiltersStore()
 const embedStore = useEmbedStore()
+const audioStore = useAudioStore()
 
 const props = defineProps({
   feed: {
@@ -144,7 +148,13 @@ const resolveFeedPath = (feedId) => {
 watchEffect(async () => {
   if (!initialized.value) {
     const url = resolveFeedPath(props.feed.id)
-    let data = await (await fetch(url)).json()
+    let data
+    try {
+      data = await (await fetch(url)).json()
+    } catch {
+      console.log('Could not fetch feed data for feed ', url)
+      return
+    }
     feedItems.value = processFeedItems(data.items)
   }
   initialized.value = true
@@ -156,8 +166,18 @@ watchEffect(async () => {
 })
 
 const showEmbedModal = (feedItem) => {
+  if (audioStore.audioPlayerVisible) {
+    audioStore.hideAudioPlayer()
+  }
   embedStore.setEmbedUrl(feedItem)
   embedStore.showEmbedModal()
+}
+const showAudioPlayer = (feedItem) => {
+  if (embedStore.showModal) {
+    embedStore.hideEmbedModal()
+  }
+  audioStore.setAudioData(props.feed.title, props.feed.feedLink, feedItem)
+  audioStore.showAudioPlayer()
 }
 </script>
 
@@ -177,8 +197,16 @@ const showEmbedModal = (feedItem) => {
               v-if="embedStore.isEmbeddable(feedItem)"
               @click="showEmbedModal(feedItem)"
               target="_blank"
-              >{{ truncate(feedItem.title) }}</a
             >
+             {{ truncate(feedItem.title) }}<span class="feed-item-type"><IconMovie/></span></a
+            >
+            <a
+              v-else-if="audioStore.isAudioLink(feedItem)"
+              @click="showAudioPlayer(feedItem)"
+              target="_blank"
+            >
+            {{ truncate(feedItem.title) }}<span class="feed-item-type"><IconMusic/></span>
+            </a>
             <a v-else :href="feedItem.url" target="_blank">{{ truncate(feedItem.title) }}</a>
           </span>
           <span class="feed-item-author" v-if="feedItem.author"> by {{ feedItem.author }}</span>
@@ -190,6 +218,14 @@ const showEmbedModal = (feedItem) => {
 </template>
 
 <style scoped>
+.feed-item-type svg {
+  width: 18px;
+  height: 18px;
+  top: 4px;
+  position: relative;
+  margin-left: 4px;
+  opacity: .7;
+}
 .feed-item {
   line-height: 34px;
   width: 100%;

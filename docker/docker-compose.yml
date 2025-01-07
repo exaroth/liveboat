@@ -1,0 +1,10 @@
+services:
+  liveboat:
+    image: ghcr.io/exaroth/liveboat:latest
+    container_name: liveboat
+    volumes:
+      - ./urls:/liveboat/urls
+      # - ./config.toml:/liveboat/config.toml
+      # - <path_to_template_config>:/liveboat/templates/default/config.toml
+    ports:
+      - "8080:8080"
