@@ -4,6 +4,8 @@ import { useFiltersStore } from '../stores/filters'
 import { useEmbedStore } from '../stores/embed'
 import { useAudioStore } from '../stores/audio'
 import { RouterLink } from 'vue-router'
+import IconMusic from './icons/IconMusic.vue'
+import IconMovie from './icons/IconMovie.vue'
 
 const fStore = useFiltersStore()
 const embedStore = useEmbedStore()
@@ -196,14 +198,14 @@ const showAudioPlayer = (feedItem) => {
               @click="showEmbedModal(feedItem)"
               target="_blank"
             >
-              {{ truncate(feedItem.title) }}</a
+             <span class="feed-item-type"><IconMovie/></span>{{ truncate(feedItem.title) }}</a
             >
             <a
               v-else-if="audioStore.isAudioLink(feedItem)"
               @click="showAudioPlayer(feedItem)"
               target="_blank"
             >
-              {{ truncate(feedItem.title) }}
+            <span class="feed-item-type"><IconMusic/></span>{{ truncate(feedItem.title) }}
             </a>
             <a v-else :href="feedItem.url" target="_blank">{{ truncate(feedItem.title) }}</a>
           </span>
@@ -216,6 +218,14 @@ const showAudioPlayer = (feedItem) => {
 </template>
 
 <style scoped>
+.feed-item-type svg {
+  width: 18px;
+  height: 18px;
+  top: 4px;
+  position: relative;
+  margin-right: 10px;
+  opacity: .7;
+}
 .feed-item {
   line-height: 34px;
   width: 100%;

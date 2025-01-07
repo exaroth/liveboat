@@ -4,8 +4,8 @@ import AudioPlayer from './AudioPlayer.vue'
 import FilterBox from './FilterBox.vue'
 import EmbedModal from './EmbedModal.vue'
 import { useFeedsStore } from '@/stores/feeds'
-import { useEmbedStore } from '../stores/embed'
-import { useAudioStore } from '../stores/audio'
+import { useEmbedStore } from '@/stores/embed'
+import { useAudioStore } from '@/stores/audio'
 import { storeToRefs } from 'pinia'
 
 const props = defineProps({
