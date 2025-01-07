@@ -198,14 +198,14 @@ const showAudioPlayer = (feedItem) => {
               @click="showEmbedModal(feedItem)"
               target="_blank"
             >
-             <span class="feed-item-type"><IconMovie/></span>{{ truncate(feedItem.title) }}</a
+             {{ truncate(feedItem.title) }}<span class="feed-item-type"><IconMovie/></span></a
             >
             <a
               v-else-if="audioStore.isAudioLink(feedItem)"
               @click="showAudioPlayer(feedItem)"
               target="_blank"
             >
-            <span class="feed-item-type"><IconMusic/></span>{{ truncate(feedItem.title) }}
+            {{ truncate(feedItem.title) }}<span class="feed-item-type"><IconMusic/></span>
             </a>
             <a v-else :href="feedItem.url" target="_blank">{{ truncate(feedItem.title) }}</a>
           </span>
@@ -223,7 +223,7 @@ const showAudioPlayer = (feedItem) => {
   height: 18px;
   top: 4px;
   position: relative;
-  margin-right: 10px;
+  margin-left: 4px;
   opacity: .7;
 }
 .feed-item {
