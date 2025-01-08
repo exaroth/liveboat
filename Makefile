@@ -72,5 +72,5 @@ build-deb:
 
 .PHONY: rebuild-with-default-template
 rebuild-with-default-template:
-	$(MAKE) build-default-template 
-	cargo run -- --template-path=templates/default/dist 
+	$(MAKE) build-default-template
+	cargo run -- --template-path=templates/default/dist
