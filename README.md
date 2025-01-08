@@ -61,13 +61,13 @@ Pre-built binaries are available at the [Releases](https://github.com/exaroth/li
 After cloning repository run `make setup && make build` to build the binary. Rustc/Cargo required.
 
 ## Usage
-
-### Executing manually
 After installing Liveboat execute `liveboat -x init` to set up configuration and download the build templates.
 
 If you're not Newsboat user yet see [Newsboat documentation](https://newsboat.org/releases/2.10.2/docs/newsboat.html) for set up and configuration details.
 <br/>
 <br/>
+
+### Executing manually
 
 
 ```
