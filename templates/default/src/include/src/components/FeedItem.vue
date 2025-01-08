@@ -228,7 +228,7 @@ const showAudioPlayer = (feedItem) => {
 }
 .item-count {
   opacity: .6;
-  margin-left: 6px;
+  margin-left: 4px;
 }
 .feed-item {
   line-height: 34px;
