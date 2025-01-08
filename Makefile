@@ -69,3 +69,8 @@ bundle-templates:
 .PHONY: build-deb
 build-deb:
 	cargo deb --target=x86_64-unknown-linux-musl
+
+.PHONY: rebuild-with-default-template
+rebuild-with-default-template:
+	$(MAKE) build-default-template 
+	cargo run -- --template-path=templates/default/dist 
