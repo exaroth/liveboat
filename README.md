@@ -63,6 +63,11 @@ After cloning repository run `make setup && make build` to build the binary. Rus
 ## Usage
 
 ### Executing manually
+After installing Liveboat execute `liveboat -x init` to set up configuration and download the build templates.
+
+If you're not Newsboat user yet see [Newsboat documentation](https://newsboat.org/releases/2.10.2/docs/newsboat.html) for set up and configuration details.
+<br/>
+<br/>
 
 
 ```
@@ -87,11 +92,6 @@ Options:
 > [!IMPORTANT]
 > During every update Liveboat will only regenerate template files and feed list, if you want to add additional files or directories such as git repository feel free to do so as these won't be overwritten when rebuilding feed pages.
 
-
-If you're not Newsboat user yet see [Newsboat documentation](https://newsboat.org/releases/2.10.2/docs/newsboat.html) for set up and configuration details.
-<br/>
-<br/>
-After installing Liveboat execute `liveboat -x init` to set up configuration and download the build templates.
 
 ### Running on every Newsboat update
 
