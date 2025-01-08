@@ -186,7 +186,7 @@ const showAudioPlayer = (feedItem) => {
     <div class="feed-title">
       <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="feed.title">{{
         feed.displayTitle || feed.title
-      }}</router-link>
+        }} <span class="item-count">({{ feed.itemCount}})</span></router-link>
     </div>
     <div class="feed-item-group" v-for="(items, dateStr) in filteredFeedItems" :key="dateStr">
       <span class="feed-item-date" v-if="dateStr">{{ dateStr }}</span>
@@ -225,6 +225,10 @@ const showAudioPlayer = (feedItem) => {
   position: relative;
   margin-left: 4px;
   opacity: .7;
+}
+.item-count {
+  opacity: .6;
+  margin-left: 6px;
 }
 .feed-item {
   line-height: 34px;
