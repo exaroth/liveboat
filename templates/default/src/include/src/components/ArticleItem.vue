@@ -4,6 +4,13 @@ import { useAudioStore } from '../stores/audio'
 import IconMusic from './icons/IconMusic.vue'
 import IconMovie from './icons/IconMovie.vue'
 
+const props = defineProps({
+  feedItem: {
+    type: Object,
+    required: true,
+  },
+})
+
 const truncate = (v) => {
   const newline = v.indexOf('\n')
   return newline > 0 ? v.slice(0, newline) : v
@@ -16,23 +23,16 @@ const showEmbedModal = (feedItem) => {
   embedStore.setEmbedUrl(feedItem)
   embedStore.showEmbedModal()
 }
-const showAudioPlayer = (feedItem) => {
+const showAudioPlayer = () => {
   if (embedStore.showModal) {
     embedStore.hideEmbedModal()
   }
-  audioStore.setAudioData(feedItem)
+  audioStore.setAudioData(props.feedItem)
   audioStore.showAudioPlayer()
 }
 
 const embedStore = useEmbedStore()
 const audioStore = useAudioStore()
-
-const props = defineProps({
-  feedItem: {
-    type: Object,
-    required: true,
-  },
-})
 </script>
 
 <template>
@@ -42,7 +42,7 @@ const props = defineProps({
     ></a>
     <a
       v-else-if="audioStore.isAudioLink(props.feedItem)"
-      @click="showAudioPlayer(props.feedItem)"
+      @click="showAudioPlayer()"
       target="_blank"
     >
       {{ truncate(props.feedItem.title) }}<span class="feed-item-type"><IconMusic /></span>
