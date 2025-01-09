@@ -1,15 +1,10 @@
 <script setup>
 import { ref, watchEffect } from 'vue'
 import { useFiltersStore } from '../stores/filters'
-import { useEmbedStore } from '../stores/embed'
-import { useAudioStore } from '../stores/audio'
 import { RouterLink } from 'vue-router'
-import IconMusic from './icons/IconMusic.vue'
-import IconMovie from './icons/IconMovie.vue'
+import ArticleItem from './ArticleItem.vue'
 
 const fStore = useFiltersStore()
-const embedStore = useEmbedStore()
-const audioStore = useAudioStore()
 
 const props = defineProps({
   feed: {
@@ -123,11 +118,6 @@ const processFeedItems = (feedItems) => {
   return result
 }
 
-const truncate = (v) => {
-  const newline = v.indexOf('\n')
-  return newline > 0 ? v.slice(0, newline) : v
-}
-
 const feedHasItems = () => {
   return Object.keys(filteredFeedItems.value).length !== 0
 }
@@ -164,53 +154,21 @@ watchEffect(async () => {
     filteredFeedItems.value = aggregateItems(feedItems.value)
   }
 })
-
-const showEmbedModal = (feedItem) => {
-  if (audioStore.audioPlayerVisible) {
-    audioStore.hideAudioPlayer()
-  }
-  embedStore.setEmbedUrl(feedItem)
-  embedStore.showEmbedModal()
-}
-const showAudioPlayer = (feedItem) => {
-  if (embedStore.showModal) {
-    embedStore.hideEmbedModal()
-  }
-  audioStore.setAudioData(props.feed.title, props.feed.feedLink, feedItem)
-  audioStore.showAudioPlayer()
-}
 </script>
 
 <template>
   <div class="feed-wrapper" v-if="feedHasItems()">
     <div class="feed-title">
-      <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="feed.title">{{
-        feed.displayTitle || feed.title
-        }} <span class="item-count">({{ feed.itemCount}})</span></router-link>
+      <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="feed.title"
+        >{{ feed.displayTitle || feed.title }}
+        <span class="item-count">({{ feed.itemCount }})</span></router-link
+      >
     </div>
     <div class="feed-item-group" v-for="(items, dateStr) in filteredFeedItems" :key="dateStr">
       <span class="feed-item-date" v-if="dateStr">{{ dateStr }}</span>
       <TransitionGroup name="items" tag="ul">
         <li v-for="(feedItem, index) in items" :key="index" class="feed-item">
-          <span class="feed-item-link">
-            <a
-              v-if="embedStore.isEmbeddable(feedItem)"
-              @click="showEmbedModal(feedItem)"
-              target="_blank"
-            >
-             {{ truncate(feedItem.title) }}<span class="feed-item-type"><IconMovie/></span></a
-            >
-            <a
-              v-else-if="audioStore.isAudioLink(feedItem)"
-              @click="showAudioPlayer(feedItem)"
-              target="_blank"
-            >
-            {{ truncate(feedItem.title) }}<span class="feed-item-type"><IconMusic/></span>
-            </a>
-            <a v-else :href="feedItem.url" target="_blank">{{ truncate(feedItem.title) }}</a>
-          </span>
-          <span class="feed-item-author" v-if="feedItem.author"> by {{ feedItem.author }}</span>
-          <span class="feed-item-domain">({{ feedItem.domain }})</span>
+          <ArticleItem :feedItem="feedItem" />
         </li>
       </TransitionGroup>
     </div>
@@ -218,31 +176,27 @@ const showAudioPlayer = (feedItem) => {
 </template>
 
 <style scoped>
-.feed-item-type svg {
-  width: 18px;
-  height: 18px;
-  top: 4px;
-  position: relative;
-  margin-left: 4px;
-  opacity: .7;
-}
 .item-count {
-  opacity: .6;
+  opacity: 0.6;
   margin-left: 4px;
 }
 .feed-item {
   line-height: 34px;
   width: 100%;
 }
-.feed-item-domain {
-  opacity: 0.4;
-  font-size: 0.72rem;
-  margin: 0px 0px 0px 4px;
-}
 .feed-wrapper {
   padding: 0px 0px 12px 0px;
 }
 
+.feed-item-group {
+  position: relative;
+  transition: visibility 2s;
+}
+.feed-item-date {
+  width: 94px;
+  color: var(--color-highlight);
+  position: relative;
+}
 .feed-title {
   padding: 0px 0px 0px 50px;
   margin: 0px 0px 14px 0px;
@@ -256,35 +210,6 @@ const showAudioPlayer = (feedItem) => {
   padding: 2px 20px 0px 20px;
   border-radius: 3px 3px 0px 0px;
 }
-.feed-item-link a {
-  padding: 6px 0;
-}
-.feed-item-link a {
-  cursor: pointer;
-}
-
-.feed-title svg {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  top: 4px;
-  left: 4px;
-}
-.feed-item-author {
-  font-size: 12px;
-  color: var(--color-highlight);
-  opacity: 0.7;
-}
-
-.feed-item-group {
-  position: relative;
-  transition: visibility 2s;
-}
-.feed-item-date {
-  width: 94px;
-  color: var(--color-highlight);
-  position: relative;
-}
 
 @media (min-width: 1150px) {
   .feed-item-date {
@@ -293,4 +218,5 @@ const showAudioPlayer = (feedItem) => {
     left: -94px;
   }
 }
+
 </style>

@@ -5,7 +5,7 @@ import { useEmbedStore } from '../stores/embed'
 import { useAudioStore } from '../stores/audio'
 import AudioPlayer from '@/components/AudioPlayer.vue'
 import EmbedModal from '@/components/EmbedModal.vue'
-import FeedItem from '@/components/FeedItem.vue'
+import FeedItems from '@/components/FeedItems.vue'
 import IndexHeader from '@/components/IndexHeader.vue'
 
 const route = useRoute()
@@ -18,7 +18,7 @@ const feed = feedsStore.getFeedById(route.params.feedId)
 
 <template>
   <IndexHeader></IndexHeader>
-  <FeedItem :filtered="false" :archived="true" :feed="feed"></FeedItem>
+  <FeedItems :filtered="false" :archived="true" :feed="feed"></FeedItems>
   <EmbedModal v-if="embedStore.showModal" :embedCode="embedStore.modalEmbedCode" :fallbackUrl="embedStore.fallbackUrl"/>
   <AudioPlayer
     v-if="audioStore.audioPlayerVisible"

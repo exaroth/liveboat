@@ -1,5 +1,5 @@
 <script setup>
-import FeedItem from './FeedItem.vue'
+import FeedItems from './FeedItems.vue'
 import AudioPlayer from './AudioPlayer.vue'
 import FilterBox from './FilterBox.vue'
 import EmbedModal from './EmbedModal.vue'
@@ -29,7 +29,7 @@ const { feeds } = storeToRefs(feedsStore)
   <FilterBox />
   <div class="feed-list-wrapper" v-for="feed in feeds" :key="feed.id">
     <Transition>
-      <FeedItem :feed="feed" :filtered="props.filtered" :archived="props.archived"> </FeedItem>
+      <FeedItems :feed="feed" :filtered="props.filtered" :archived="props.archived"> </FeedItems>
     </Transition>
   </div>
   <EmbedModal
