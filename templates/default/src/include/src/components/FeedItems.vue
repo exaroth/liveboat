@@ -161,6 +161,7 @@ watchEffect(async () => {
     <div class="feed-title">
       <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="feed.title"
         >{{ feed.displayTitle || feed.title }}
+        <span v-if="feed.isQuery">Q</span>
         <span class="item-count">({{ feed.itemCount }})</span></router-link
       >
     </div>
