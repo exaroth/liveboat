@@ -161,7 +161,7 @@ watchEffect(async () => {
     <div class="feed-title">
       <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="feed.title"
         >{{ feed.displayTitle || feed.title }}
-        <span v-if="feed.isQuery">Q</span>
+        <span v-if="feed.isQuery" class="feed-query-indicator"></span>
         <span class="item-count">({{ feed.itemCount }})</span></router-link
       >
     </div>
@@ -177,6 +177,24 @@ watchEffect(async () => {
 </template>
 
 <style scoped>
+.feed-query-indicator {
+  display: inline-block;
+  height: 18px;
+  width: 18px;
+  background-color: var(--color-custom);
+  position: relative;
+  top: 1px;
+  margin: 0 4px;
+  border-radius: 50%;
+}
+.feed-query-indicator::after {
+  content: "Q";
+  display: block;
+  text-align: center;
+  transform: translateY(-10%);
+  font-weight: bold;
+  font-size: 0.8rem;
+}
 .item-count {
   opacity: 0.6;
   margin-left: 4px;
@@ -219,5 +237,4 @@ watchEffect(async () => {
     left: -94px;
   }
 }
-
 </style>
