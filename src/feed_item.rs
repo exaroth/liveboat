@@ -234,6 +234,7 @@ impl Serialize for FeedItem {
         state.serialize_field("url", &self.url)?;
         state.serialize_field("date", &self.date)?;
         state.serialize_field("author", &self.author)?;
+        state.serialize_field("guid", &self.guid)?;
         state.serialize_field("unread", &self.unread)?;
         state.serialize_field("content", &self.content)?;
         state.serialize_field("flags", &self.flags)?;

@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue'
 import FeedItems from './FeedItems.vue'
 import AudioPlayer from './AudioPlayer.vue'
 import FilterBox from './FilterBox.vue'
@@ -19,17 +20,36 @@ const props = defineProps({
   },
 })
 
+const expandFeed = ref(null)
 const embedStore = useEmbedStore()
 const audioStore = useAudioStore()
 const feedsStore = useFeedsStore()
 const { feeds } = storeToRefs(feedsStore)
+
+const handleFeedExpand = (id) => {
+  expandFeed.value = id
+}
+
+const showExpandedFeed = (feed) => {
+  if (expandFeed.value == null) {
+    return false
+  }
+  return feed.id === expandFeed.value
+}
 </script>
 
 <template>
   <FilterBox />
   <div class="feed-list-wrapper" v-for="feed in feeds" :key="feed.id">
     <Transition>
-      <FeedItems :feed="feed" :filtered="props.filtered" :archived="props.archived"> </FeedItems>
+      <FeedItems
+        :feed="feed"
+        :filtered="props.filtered"
+        :archived="props.archived"
+        :expand="showExpandedFeed(feed)"
+        @expand-feed="handleFeedExpand"
+      >
+      </FeedItems>
     </Transition>
   </div>
   <EmbedModal

@@ -183,7 +183,7 @@ impl Serialize for Feed {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("Feed", 6)?;
+        let mut state = serializer.serialize_struct("Feed", 10)?;
         state.serialize_field("id", &self.id)?;
         state.serialize_field("title", &self.title)?;
         state.serialize_field("displayTitle", &self.display_title)?;

@@ -3,6 +3,7 @@ import { ref, watchEffect } from 'vue'
 import { useFiltersStore } from '../stores/filters'
 import { RouterLink } from 'vue-router'
 import ArticleItem from './ArticleItem.vue'
+import IconExpand from './icons/IconExpand.vue'
 
 const fStore = useFiltersStore()
 
@@ -16,6 +17,10 @@ const props = defineProps({
     required: true,
   },
   archived: {
+    type: Boolean,
+    required: true,
+  },
+  expand: {
     type: Boolean,
     required: true,
   },
@@ -45,7 +50,6 @@ const filterFeedItems = (state) => {
     filteredFeedItems.value = aggregateItems(_updateItemsWithCount(state.itemCount))
   }
 }
-
 const _filterByTerm = (term) => {
   let title = (props.feed.displayTitle || props.feed.title).toLowerCase().split(' ')
   let checker = (arr, target) => target.every((v) => arr.some((vv) => vv.includes(v)))
@@ -154,22 +158,40 @@ watchEffect(async () => {
     filteredFeedItems.value = aggregateItems(feedItems.value)
   }
 })
+
+const showExpandedArticle = (feedItem) => {
+  if (props.expand) {
+    return true
+  }
+  return false
+}
+const handleExpandedArticle = (feedItem) => {
+  return
+}
 </script>
 
 <template>
   <div class="feed-wrapper" v-if="feedHasItems()">
     <div class="feed-title">
+      {{ props.expand }}
       <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="feed.title"
         >{{ feed.displayTitle || feed.title }}
         <span v-if="feed.isQuery" class="feed-query-indicator"></span>
         <span class="item-count">({{ feed.itemCount }})</span></router-link
       >
+      <button @click="$emit('expand-feed', feed.id)" class="feed-expand" title="Expand">
+        <IconExpand />
+      </button>
     </div>
     <div class="feed-item-group" v-for="(items, dateStr) in filteredFeedItems" :key="dateStr">
       <span class="feed-item-date" v-if="dateStr">{{ dateStr }}</span>
       <TransitionGroup name="items" tag="ul">
         <li v-for="(feedItem, index) in items" :key="index" class="feed-item">
-          <ArticleItem :feedItem="feedItem" />
+          <ArticleItem
+            :feedItem="feedItem"
+            :expand="showExpandedArticle(feedItem)"
+            @expand-article="handleExpandedArticle()"
+          />
         </li>
       </TransitionGroup>
     </div>
@@ -177,6 +199,26 @@ watchEffect(async () => {
 </template>
 
 <style scoped>
+.feed-expand {
+  display: inline-block;
+  position: relative;
+  top: 1px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  opacity: 0.8;
+}
+.feed-expand:hover {
+  opacity: 1;
+}
+.feed-expand svg {
+  width: 20px;
+  height: 20px;
+  top: 2px;
+  display: block;
+  position: relative;
+  color: var(--color-text);
+}
 .feed-query-indicator {
   display: inline-block;
   height: 18px;
@@ -188,7 +230,7 @@ watchEffect(async () => {
   border-radius: 50%;
 }
 .feed-query-indicator::after {
-  content: "Q";
+  content: 'Q';
   display: block;
   text-align: center;
   transform: translateY(-10%);
