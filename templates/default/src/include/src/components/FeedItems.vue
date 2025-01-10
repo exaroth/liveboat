@@ -25,6 +25,10 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  expandedArticles: {
+    type: Array,
+    required: true,
+  },
 })
 
 const _dateOpts = {
@@ -37,11 +41,9 @@ const formatDate = new Intl.DateTimeFormat('en-US', _dateOpts).format
 fStore.$subscribe((state) => {
   filterFeedItems(state.payload)
 })
-
 const feedItems = ref([])
 const filteredFeedItems = ref([])
 const initialized = ref(false)
-const expandedArticle = ref(null)
 
 const filterFeedItems = (state) => {
   if (state.searchTerm) {
@@ -163,21 +165,22 @@ watchEffect(async () => {
   }
 })
 
-const showExpandedArticle = (feedItem) => {
-  if (props.expand) {
-    return true
-  }
-  if (feedItem.guid === expandedArticle.value) {
-    return true
-  }
-  return false
+const showExpandedArticle = (articleId) => {
+  let res = props.expandedArticles.indexOf(articleId) > -1
+  return res
 }
-const emit = defineEmits(['expand-feed'])
+const emit = defineEmits(['expand-article', 'unexpand-article'])
 const handleExpandedArticle = (articleId) => {
-  if (props.expand != null) {
-    emit('expand-feed', null)
+  emit('expand-article', articleId)
+}
+const handleUnexpandedArticle = (articleId) => {
+  emit('unexpand-article', articleId)
+}
+const dispatchExpandItems = () => {
+  return {
+    feedId: props.feed.id,
+    articleIds: feedItems.value.map((i) => i.guid),
   }
-  expandedArticle.value = articleId
 }
 </script>
 
@@ -189,10 +192,20 @@ const handleExpandedArticle = (articleId) => {
         <span v-if="feed.isQuery" class="feed-query-indicator"></span>
         <span class="item-count">({{ feed.itemCount }})</span></router-link
       >
-      <button @click="$emit('expand-feed', feed.id)" class="feed-expand" title="Expand" v-if="!props.expand">
+      <button
+        @click="$emit('expand-feed', dispatchExpandItems())"
+        class="expand-button"
+        title="Expand"
+        v-if="!props.expand"
+      >
         <IconExpand />
       </button>
-      <button @click="$emit('unexpand-feed')" class="feed-expand" title="Unexpand" v-if="props.expand">
+      <button
+        @click="$emit('unexpand-feed', dispatchExpandItems())"
+        class="expand-button"
+        title="Unexpand"
+        v-if="props.expand"
+      >
         <IconUnexpand />
       </button>
     </div>
@@ -202,8 +215,9 @@ const handleExpandedArticle = (articleId) => {
         <li v-for="(feedItem, index) in items" :key="index" class="feed-item">
           <ArticleItem
             :feedItem="feedItem"
-            :expand="showExpandedArticle(feedItem)"
-            @expand-article="handleExpandedArticle()"
+            :expand="showExpandedArticle(feedItem.guid)"
+            @expand-article="handleExpandedArticle(feedItem.guid)"
+            @unexpand-article="handleUnexpandedArticle(feedItem.guid)"
           />
         </li>
       </TransitionGroup>
@@ -212,26 +226,6 @@ const handleExpandedArticle = (articleId) => {
 </template>
 
 <style scoped>
-.feed-expand {
-  display: inline-block;
-  position: relative;
-  top: 1px;
-  cursor: pointer;
-  border: none;
-  background: transparent;
-  opacity: 0.8;
-}
-.feed-expand:hover {
-  opacity: 1;
-}
-.feed-expand svg {
-  width: 20px;
-  height: 20px;
-  top: 2px;
-  display: block;
-  position: relative;
-  color: var(--color-text);
-}
 .feed-query-indicator {
   display: inline-block;
   height: 18px;

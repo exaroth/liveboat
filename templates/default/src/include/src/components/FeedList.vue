@@ -21,16 +21,32 @@ const props = defineProps({
 })
 
 const expandedFeed = ref(null)
+const expandedArticles = ref([])
 const embedStore = useEmbedStore()
 const audioStore = useAudioStore()
 const feedsStore = useFeedsStore()
 const { feeds } = storeToRefs(feedsStore)
 
-const handleFeedExpand = (id) => {
-  expandedFeed.value = id
+const handleFeedExpand = (expandData) => {
+  expandedFeed.value = expandData.feedId
+  expandedArticles.value = expandedArticles.value.concat(expandData.articleIds)
 }
-const handleFeedUnexpand = () => {
+
+const handleFeedUnexpand = (expandData) => {
   expandedFeed.value = null
+  expandedArticles.value = expandedArticles.value.filter((i) => {
+    return expandData.articleIds.indexOf(i) < 0
+  })
+}
+
+const handleArticleExpand = (articleId) => {
+  expandedArticles.value.push(articleId)
+}
+
+const handleArticleUnexpand = (articleId) => {
+  expandedArticles.value = expandedArticles.value.filter((i)=> {
+    return i !== articleId
+  })
 }
 
 const showExpandedFeed = (feed) => {
@@ -50,8 +66,11 @@ const showExpandedFeed = (feed) => {
         :filtered="props.filtered"
         :archived="props.archived"
         :expand="showExpandedFeed(feed)"
+        :expandedArticles="expandedArticles"
         @expand-feed="handleFeedExpand"
         @unexpand-feed="handleFeedUnexpand"
+        @expand-article="handleArticleExpand"
+        @unexpand-article="handleArticleUnexpand"
       >
       </FeedItems>
     </Transition>

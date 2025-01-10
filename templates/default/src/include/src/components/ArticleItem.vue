@@ -3,6 +3,8 @@ import { useEmbedStore } from '../stores/embed'
 import { useAudioStore } from '../stores/audio'
 import IconMusic from './icons/IconMusic.vue'
 import IconMovie from './icons/IconMovie.vue'
+import IconExpand from './icons/IconExpand.vue'
+import IconUnexpand from './icons/IconUnexpand.vue'
 
 const props = defineProps({
   feedItem: {
@@ -56,16 +58,33 @@ const audioStore = useAudioStore()
       {{ truncate(props.feedItem.title) }}<span class="feed-item-type"><IconMusic /></span>
     </a>
     <a v-else :href="props.feedItem.url" target="_blank">{{ truncate(props.feedItem.title) }}</a>
+    <button
+      @click="$emit('expand-article')"
+      class="expand-button article-expand"
+      title="Expand"
+      v-if="!props.expand"
+    >
+      <IconExpand />
+    </button>
+    <button
+      @click="$emit('unexpand-article')"
+      class="expand-button article-expand"
+      title="Unexpand"
+      v-if="props.expand"
+    >
+      <IconUnexpand />
+    </button>
   </span>
   <span class="feed-item-author" v-if="props.feedItem.author"> by {{ props.feedItem.author }}</span>
   <span class="feed-item-domain">({{ props.feedItem.domain }})</span>
   <div :class="{ 'feed-item-details': true, expanded: expand }" v-if="props.expand">
     <span class="feed-item-date"
-      ><span class="feed-item-details-desc">Date: </span>{{ props.feedItem.date.toUTCString() }}</span
-    ><br/>
+      ><span class="feed-item-details-desc">Date: </span
+      >{{ props.feedItem.date.toUTCString() }}</span
+    ><br />
     <span class="feed-item-url"
       ><span class="feed-item-details-desc">URL: </span>{{ props.feedItem.url }}</span
-    ><br/>
+    ><br />
     <span class="feed-item-contents" v-if="props.feedItem.content"
       ><span class="feed-item-details-desc">Content: </span>
       <span v-html="props.feedItem.content"></span
@@ -74,6 +93,10 @@ const audioStore = useAudioStore()
 </template>
 
 <style scoped>
+.article-expand {
+  opacity: 0.7;
+  top: 4px;
+}
 .feed-item-details {
   opacity: 0.8;
   outline: 1px solid rgb(from var(--color-highlight) r g b / 60%);
