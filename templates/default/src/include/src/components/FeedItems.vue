@@ -1,12 +1,17 @@
 <script setup>
-import { ref, watchEffect } from 'vue'
+import { ref, watchEffect, shallowRef } from 'vue'
 import { useFiltersStore } from '../stores/filters'
 import { RouterLink } from 'vue-router'
-import ArticleItem from './ArticleItem.vue'
 import IconExpand from './icons/IconExpand.vue'
 import IconUnexpand from './icons/IconUnexpand.vue'
+import IconMusic from './icons/IconMusic.vue'
+import IconMovie from './icons/IconMovie.vue'
+import { useEmbedStore } from '../stores/embed'
+import { useAudioStore } from '../stores/audio'
 
 const fStore = useFiltersStore()
+const embedStore = useEmbedStore()
+const audioStore = useAudioStore()
 
 const props = defineProps({
   feed: {
@@ -41,9 +46,10 @@ const formatDate = new Intl.DateTimeFormat('en-US', _dateOpts).format
 fStore.$subscribe((state) => {
   filterFeedItems(state.payload)
 })
-const feedItems = ref([])
-const filteredFeedItems = ref([])
+const feedItems = shallowRef([])
+const filteredFeedItems = shallowRef([])
 const initialized = ref(false)
+const emit = defineEmits(['expand-article', 'unexpand-article'])
 
 const filterFeedItems = (state) => {
   if (state.searchTerm) {
@@ -145,6 +151,44 @@ const resolveFeedPath = (feedId) => {
   return feedUrl
 }
 
+const showExpandedArticle = (articleId) => {
+  let res = props.expandedArticles.indexOf(articleId) > -1
+  return res
+}
+const handleExpandedArticle = (articleId) => {
+  console.log("dispatching")
+  emit('expand-article', articleId)
+}
+const handleUnexpandedArticle = (articleId) => {
+  emit('unexpand-article', articleId)
+}
+const dispatchExpandItems = () => {
+  return {
+    feedId: props.feed.id,
+    articleIds: feedItems.value.map((i) => i.guid),
+  }
+}
+
+const truncate = (v) => {
+  const newline = v.indexOf('\n')
+  return newline > 0 ? v.slice(0, newline) : v
+}
+
+const showEmbedModal = (feedItem) => {
+  if (audioStore.audioPlayerVisible) {
+    audioStore.hideAudioPlayer()
+  }
+  embedStore.setEmbedUrl(feedItem)
+  embedStore.showEmbedModal()
+}
+const showAudioPlayer = (feedItem) => {
+  if (embedStore.showModal) {
+    embedStore.hideEmbedModal()
+  }
+  audioStore.setAudioData(feedItem)
+  audioStore.showAudioPlayer()
+}
+
 watchEffect(async () => {
   if (!initialized.value) {
     const url = resolveFeedPath(props.feed.id)
@@ -164,24 +208,6 @@ watchEffect(async () => {
     filteredFeedItems.value = aggregateItems(feedItems.value)
   }
 })
-
-const showExpandedArticle = (articleId) => {
-  let res = props.expandedArticles.indexOf(articleId) > -1
-  return res
-}
-const emit = defineEmits(['expand-article', 'unexpand-article'])
-const handleExpandedArticle = (articleId) => {
-  emit('expand-article', articleId)
-}
-const handleUnexpandedArticle = (articleId) => {
-  emit('unexpand-article', articleId)
-}
-const dispatchExpandItems = () => {
-  return {
-    feedId: props.feed.id,
-    articleIds: feedItems.value.map((i) => i.guid),
-  }
-}
 </script>
 
 <template>
@@ -210,7 +236,7 @@ const dispatchExpandItems = () => {
       </button>
     </div>
     <div class="feed-item-group" v-for="(items, dateStr) in filteredFeedItems" :key="dateStr">
-      <span class="feed-item-date" v-if="dateStr">{{ dateStr }}</span>
+      <span class="feed-group-date" v-if="dateStr">{{ dateStr }}</span>
       <TransitionGroup name="items" tag="ul">
         <li v-for="(feedItem, index) in items" :key="index" class="feed-item">
           <ArticleItem
@@ -219,6 +245,60 @@ const dispatchExpandItems = () => {
             @expand-article="handleExpandedArticle(feedItem.guid)"
             @unexpand-article="handleUnexpandedArticle(feedItem.guid)"
           />
+
+          <span class="feed-item-link">
+            <a
+              v-if="embedStore.isEmbeddable(feedItem)"
+              @click="showEmbedModal(feedItem)"
+              target="_blank"
+            >
+              {{ truncate(feedItem.title) }}<span class="feed-item-type"><IconMovie /></span
+            ></a>
+            <a
+              v-else-if="audioStore.isAudioLink(feedItem)"
+              @click="showAudioPlayer(feedItem)"
+              target="_blank"
+            >
+              {{ truncate(feedItem.title) }}<span class="feed-item-type"><IconMusic /></span>
+            </a>
+            <a v-else :href="feedItem.url" target="_blank">{{ truncate(feedItem.title) }}</a>
+            <button
+              @click="handleExpandedArticle(feedItem.guid)"
+              class="expand-button article-expand"
+              title="Expand"
+              v-if="!showExpandedArticle(feedItem.guid)"
+            >
+              <IconExpand />
+            </button>
+            <button
+              @click="handleUnexpandedArticle(feedItem.guid)"
+              class="expand-button article-expand"
+              title="Unexpand"
+              v-if="showExpandedArticle(feedItem.guid)"
+            >
+              <IconUnexpand />
+            </button>
+          </span>
+          <span class="feed-item-author" v-if="feedItem.author"> by {{ feedItem.author }}</span>
+          <span class="feed-item-domain">({{ feedItem.domain }})</span>
+          <div
+            :class="{ 'feed-item-details': true, expanded: showExpandedArticle(feedItem.guid) }"
+            v-if="showExpandedArticle(feedItem.guid)"
+          >
+            <span class="feed-item-date"
+              ><span class="feed-item-details-desc">Date: </span
+              >{{ feedItem.date.toUTCString() }}</span
+            >
+            <br/>
+
+            <span class="feed-item-url"
+              ><span class="feed-item-details-desc">URL: </span>{{ feedItem.url }}</span
+            ><br />
+            <span class="feed-item-contents" v-if="feedItem.content"
+              ><span class="feed-item-details-desc">Content: </span>
+              <span v-html="feedItem.content"></span
+            ></span>
+          </div>
         </li>
       </TransitionGroup>
     </div>
@@ -260,7 +340,7 @@ const dispatchExpandItems = () => {
   position: relative;
   transition: visibility 2s;
 }
-.feed-item-date {
+.feed-group-date {
   width: 94px;
   color: var(--color-highlight);
   position: relative;
@@ -279,8 +359,58 @@ const dispatchExpandItems = () => {
   border-radius: 3px 3px 0px 0px;
 }
 
+.article-expand {
+  opacity: 0.7;
+  top: 4px;
+}
+.feed-item-details {
+  opacity: 0.8;
+  outline: 1px solid rgb(from var(--color-highlight) r g b / 60%);
+  padding: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  display: none;
+}
+.feed-item-details-desc {
+  color: var(--color-highlight);
+}
+.feed-item-details.expanded {
+  display: block;
+}
+.feed-item-domain {
+  opacity: 0.4;
+  font-size: 0.72rem;
+  margin: 0px 0px 0px 4px;
+}
+
+.feed-item-link a {
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.feed-title svg {
+  width: 20px;
+  height: 20px;
+  position: relative;
+  top: 4px;
+  left: 4px;
+}
+.feed-item-author {
+  font-size: 12px;
+  color: var(--color-highlight);
+  opacity: 0.7;
+}
+
+.feed-item-type svg {
+  width: 18px;
+  height: 18px;
+  top: 4px;
+  position: relative;
+  margin-left: 4px;
+  opacity: 0.7;
+}
 @media (min-width: 1150px) {
-  .feed-item-date {
+  .feed-group-date {
     text-align: right;
     position: absolute;
     left: -94px;
