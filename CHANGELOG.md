@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add custom color to list of available template colors
 - Add ability to show article content directly in the app
 - Add isQuery, articleNum to list of feed serialized attributes for feed
+### Changed
+- Filter out empty and hidden feeds in default template
 ## [1.0.7] 2025-01-07
 ### Added
 - Add option to minimize embedded video player in default template
