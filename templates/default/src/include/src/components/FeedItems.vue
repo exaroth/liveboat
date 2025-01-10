@@ -34,6 +34,17 @@ const props = defineProps({
   },
 })
 
+const feedItems = shallowRef([])
+const filteredFeedItems = shallowRef([])
+const initialized = ref(false)
+const emit = defineEmits(['expand-article', 'unexpand-article'])
+
+fStore.$subscribe((state) => {
+  filterFeedItems(state.payload)
+})
+
+// Utility
+// ===============
 const _dateOpts = {
   month: 'short',
   weekday: 'short',
@@ -41,13 +52,65 @@ const _dateOpts = {
 }
 const formatDate = new Intl.DateTimeFormat('en-US', _dateOpts).format
 
-fStore.$subscribe((state) => {
-  filterFeedItems(state.payload)
-})
-const feedItems = shallowRef([])
-const filteredFeedItems = shallowRef([])
-const initialized = ref(false)
-const emit = defineEmits(['expand-article', 'unexpand-article'])
+const _checkSameDate = (d1, d2) => {
+  return (
+    d1.getDate() === d2.getDate() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getFullYear() === d2.getFullYear()
+  )
+}
+
+const truncate = (v) => {
+  const newline = v.indexOf('\n')
+  return newline > 0 ? v.slice(0, newline) : v
+}
+// ===============
+
+
+const processFeedItems = (feedItems) => {
+  feedItems.sort((a, b) => {
+    return b.date - a.date
+  })
+
+  var result = []
+  for (let feedItem of feedItems) {
+    let date = new Date(feedItem.date * 1000)
+    let url
+    try {
+      url = new URL(feedItem.url)
+    } catch {
+      console.log('Could not fetch URL for article: ', feedItem)
+      continue
+    }
+    result.push({
+      title: feedItem.title,
+      url: feedItem.url,
+      date: date,
+      domain: url.hostname,
+      guid: feedItem.guid,
+      content: feedItem.content,
+      author: feedItem.author,
+      enclosureUrl: feedItem.enclosureUrl,
+    })
+  }
+  return result
+}
+
+const aggregateItems = (items) => {
+  let result = {}
+  let now = new Date()
+  for (let item of items) {
+    let d = ''
+    if (!_checkSameDate(item.date, now)) {
+      d = formatDate(item.date)
+    }
+    if (!(d in result)) {
+      result[d] = []
+    }
+    result[d].push(item)
+  }
+  return result
+}
 
 const filterFeedItems = (state) => {
   if (state.searchTerm) {
@@ -79,59 +142,6 @@ const _updateItemsWithCount = (numItems) => {
   return feedItems.value.slice(0, numItems)
 }
 
-const _checkSameDate = (d1, d2) => {
-  return (
-    d1.getDate() === d2.getDate() &&
-    d1.getMonth() === d2.getMonth() &&
-    d1.getFullYear() === d2.getFullYear()
-  )
-}
-
-const aggregateItems = (items) => {
-  let result = {}
-  let now = new Date()
-  for (let item of items) {
-    let d = ''
-    if (!_checkSameDate(item.date, now)) {
-      d = formatDate(item.date)
-    }
-    if (!(d in result)) {
-      result[d] = []
-    }
-    result[d].push(item)
-  }
-  return result
-}
-
-const processFeedItems = (feedItems) => {
-  feedItems.sort((a, b) => {
-    return b.date - a.date
-  })
-
-  var result = []
-  for (let feedItem of feedItems) {
-    let date = new Date(feedItem.date * 1000)
-    let url
-    try {
-      url = new URL(feedItem.url)
-    } catch {
-      console.log('Could not fetch URL for article: ', feedItem)
-      continue
-    }
-    result.push({
-      title: feedItem.title,
-      url: feedItem.url,
-      date: date,
-      domain: url.hostname,
-      guid: feedItem.guid,
-      content: feedItem.content,
-      author: feedItem.author,
-      enclosureUrl: feedItem.enclosureUrl,
-    })
-  }
-  return result
-}
-
 const feedHasItems = () => {
   return Object.keys(filteredFeedItems.value).length !== 0
 }
@@ -149,9 +159,10 @@ const resolveFeedPath = (feedId) => {
   return feedUrl
 }
 
+// Feed/Article expansion
+// ======================
 const showExpandedArticle = (articleId) => {
-  let res = props.expandedArticles.indexOf(articleId) > -1
-  return res
+  return props.expandedArticles.indexOf(articleId) > -1
 }
 const handleExpandedArticle = (articleId) => {
   emit('expand-article', articleId)
@@ -165,12 +176,10 @@ const dispatchExpandItems = () => {
     articleIds: feedItems.value.map((i) => i.guid),
   }
 }
+// ======================
 
-const truncate = (v) => {
-  const newline = v.indexOf('\n')
-  return newline > 0 ? v.slice(0, newline) : v
-}
-
+// Embed functionality
+// ===================
 const showEmbedModal = (feedItem) => {
   if (audioStore.audioPlayerVisible) {
     audioStore.hideAudioPlayer()
@@ -185,6 +194,7 @@ const showAudioPlayer = (feedItem) => {
   audioStore.setAudioData(feedItem)
   audioStore.showAudioPlayer()
 }
+// ===================
 
 watchEffect(async () => {
   if (!initialized.value) {
@@ -224,7 +234,7 @@ watchEffect(async () => {
         &#8675;
       </button>
       <button
-        @click="$emit('unexpand-feed', dispatchExpandItems())"
+        @click="$emit('unexpand-feed')"
         class="expand-button"
         title="Unexpand"
         v-if="props.expand && !props.archived"

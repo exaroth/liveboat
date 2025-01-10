@@ -29,14 +29,12 @@ const { feeds } = storeToRefs(feedsStore)
 
 const handleFeedExpand = (expandData) => {
   expandedFeed.value = expandData.feedId
-  expandedArticles.value = expandedArticles.value.concat(expandData.articleIds)
+  expandedArticles.value = expandData.articleIds
 }
 
 const handleFeedUnexpand = (expandData) => {
   expandedFeed.value = null
-  expandedArticles.value = expandedArticles.value.filter((i) => {
-    return expandData.articleIds.indexOf(i) < 0
-  })
+  expandedArticles.value = []
 }
 
 const handleArticleExpand = (articleId) => {
