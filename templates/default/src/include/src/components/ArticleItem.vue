@@ -9,6 +9,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  expand: {
+    type: Boolean,
+    required: true,
+  },
 })
 
 const truncate = (v) => {
@@ -37,7 +41,11 @@ const audioStore = useAudioStore()
 
 <template>
   <span class="feed-item-link">
-    <a v-if="embedStore.isEmbeddable(props.feedItem)" @click="showEmbedModal(props.feedItem)" target="_blank">
+    <a
+      v-if="embedStore.isEmbeddable(props.feedItem)"
+      @click="showEmbedModal(props.feedItem)"
+      target="_blank"
+    >
       {{ truncate(props.feedItem.title) }}<span class="feed-item-type"><IconMovie /></span
     ></a>
     <a
@@ -51,10 +59,35 @@ const audioStore = useAudioStore()
   </span>
   <span class="feed-item-author" v-if="props.feedItem.author"> by {{ props.feedItem.author }}</span>
   <span class="feed-item-domain">({{ props.feedItem.domain }})</span>
+  <div :class="{ 'feed-item-details': true, expanded: expand }" v-if="props.expand">
+    <span class="feed-item-date"
+      ><span class="feed-item-details-desc">Date: </span>{{ props.feedItem.date.toUTCString() }}</span
+    ><br/>
+    <span class="feed-item-url"
+      ><span class="feed-item-details-desc">URL: </span>{{ props.feedItem.url }}</span
+    ><br/>
+    <span class="feed-item-contents" v-if="props.feedItem.content"
+      ><span class="feed-item-details-desc">Content: </span>
+      <span v-html="props.feedItem.content"></span
+    ></span>
+  </div>
 </template>
 
 <style scoped>
-
+.feed-item-details {
+  opacity: 0.8;
+  outline: 1px solid rgb(from var(--color-highlight) r g b / 60%);
+  padding: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  display: none;
+}
+.feed-item-details-desc {
+  color: var(--color-highlight);
+}
+.feed-item-details.expanded {
+  display: block;
+}
 .feed-item-domain {
   opacity: 0.4;
   font-size: 0.72rem;
@@ -78,7 +111,6 @@ const audioStore = useAudioStore()
   color: var(--color-highlight);
   opacity: 0.7;
 }
-
 
 .feed-item-type svg {
   width: 18px;

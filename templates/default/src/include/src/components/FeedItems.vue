@@ -4,6 +4,7 @@ import { useFiltersStore } from '../stores/filters'
 import { RouterLink } from 'vue-router'
 import ArticleItem from './ArticleItem.vue'
 import IconExpand from './icons/IconExpand.vue'
+import IconUnexpand from './icons/IconUnexpand.vue'
 
 const fStore = useFiltersStore()
 
@@ -40,6 +41,7 @@ fStore.$subscribe((state) => {
 const feedItems = ref([])
 const filteredFeedItems = ref([])
 const initialized = ref(false)
+const expandedArticle = ref(null)
 
 const filterFeedItems = (state) => {
   if (state.searchTerm) {
@@ -115,6 +117,8 @@ const processFeedItems = (feedItems) => {
       url: feedItem.url,
       date: date,
       domain: url.hostname,
+      guid: feedItem.guid,
+      content: feedItem.content,
       author: feedItem.author,
       enclosureUrl: feedItem.enclosureUrl,
     })
@@ -163,24 +167,33 @@ const showExpandedArticle = (feedItem) => {
   if (props.expand) {
     return true
   }
+  if (feedItem.guid === expandedArticle.value) {
+    return true
+  }
   return false
 }
-const handleExpandedArticle = (feedItem) => {
-  return
+const emit = defineEmits(['expand-feed'])
+const handleExpandedArticle = (articleId) => {
+  if (props.expand != null) {
+    emit('expand-feed', null)
+  }
+  expandedArticle.value = articleId
 }
 </script>
 
 <template>
   <div class="feed-wrapper" v-if="feedHasItems()">
     <div class="feed-title">
-      {{ props.expand }}
       <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="feed.title"
         >{{ feed.displayTitle || feed.title }}
         <span v-if="feed.isQuery" class="feed-query-indicator"></span>
         <span class="item-count">({{ feed.itemCount }})</span></router-link
       >
-      <button @click="$emit('expand-feed', feed.id)" class="feed-expand" title="Expand">
+      <button @click="$emit('expand-feed', feed.id)" class="feed-expand" title="Expand" v-if="!props.expand">
         <IconExpand />
+      </button>
+      <button @click="$emit('unexpand-feed')" class="feed-expand" title="Unexpand" v-if="props.expand">
+        <IconUnexpand />
       </button>
     </div>
     <div class="feed-item-group" v-for="(items, dateStr) in filteredFeedItems" :key="dateStr">

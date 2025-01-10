@@ -20,21 +20,24 @@ const props = defineProps({
   },
 })
 
-const expandFeed = ref(null)
+const expandedFeed = ref(null)
 const embedStore = useEmbedStore()
 const audioStore = useAudioStore()
 const feedsStore = useFeedsStore()
 const { feeds } = storeToRefs(feedsStore)
 
 const handleFeedExpand = (id) => {
-  expandFeed.value = id
+  expandedFeed.value = id
+}
+const handleFeedUnexpand = () => {
+  expandedFeed.value = null
 }
 
 const showExpandedFeed = (feed) => {
-  if (expandFeed.value == null) {
+  if (expandedFeed.value == null) {
     return false
   }
-  return feed.id === expandFeed.value
+  return feed.id === expandedFeed.value
 }
 </script>
 
@@ -48,6 +51,7 @@ const showExpandedFeed = (feed) => {
         :archived="props.archived"
         :expand="showExpandedFeed(feed)"
         @expand-feed="handleFeedExpand"
+        @unexpand-feed="handleFeedUnexpand"
       >
       </FeedItems>
     </Transition>
