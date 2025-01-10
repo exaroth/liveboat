@@ -26,16 +26,19 @@
     <style>
         :root {
             {{#if template_settings.text-color}}
-            --color-text: {{template_settings.text-color}};
+            --color-text: {{template_settings.text-color}} !important;
             {{/if}}
             {{#if template_settings.highlight-color}}
-            --color-highlight: {{template_settings.highlight-color}};
+            --color-highlight: {{template_settings.highlight-color}} !important;
             {{/if}}
             {{#if template_settings.accent-color}}
-            --color-accent: {{template_settings.accent-color}};
+            --color-accent: {{template_settings.accent-color}} !important;
             {{/if}}
             {{#if template_settings.background-color}}
-            --color-background: {{template_settings.background-color}};
+            --color-background: {{template_settings.background-color}} !important;
+            {{/if}}
+            {{#if template_settings.custom-color}}
+            --color-custom: {{template_settings.custom-color}} !important;
             {{/if}}
         }
     </style>
@@ -55,7 +58,9 @@
                 url: "{{this.url}}",
                 title: "{{this.title}}",
                 displayTitle: "{{this.displayTitle}}",
-                feedLink: "{{this.feedLink}}"
+                feedLink: "{{this.feedLink}}",
+                itemCount: "{{this.itemCount}}",
+                isQuery: {{this.isQuery}}
             },
             {{/unless}}
         {{/unless}}

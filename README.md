@@ -61,11 +61,37 @@ Pre-built binaries are available at the [Releases](https://github.com/exaroth/li
 After cloning repository run `make setup && make build` to build the binary. Rustc/Cargo required.
 
 ## Usage
+After installing Liveboat execute `liveboat -x init` to set up configuration and download the build templates.
 
 If you're not Newsboat user yet see [Newsboat documentation](https://newsboat.org/releases/2.10.2/docs/newsboat.html) for set up and configuration details.
 <br/>
 <br/>
-After installing Liveboat execute `liveboat -x init` to set up configuration and download the build templates.
+
+### Executing manually
+
+
+```
+Usage: liveboat [OPTIONS] [BUILD_TARGET]...
+
+Arguments:
+  [BUILD_TARGET]...  Optional path to build directory
+
+Options:
+      --cache-file <CACHE_FILE>        Path to newsboat db cache
+      --url-file <URL_FILE>            Path to newsboat urls file
+      --build-dir <BUILD_DIR>          Path to build directory
+      --template-path <TEMPLATE_PATH>  Path to directory containing Liveboat template
+      --config-file <CONFIG_FILE>      path to liveboat config file
+      --debug                          Print verbose code execution info
+      --use-nightly                    If set will use nightly channel for updates
+  -x <COMMAND>                         Command to execute [available options: build, init, update] [default: build]
+  -h, --help                           Print help
+  -V, --version                        Print version
+```
+
+> [!IMPORTANT]
+> During every update Liveboat will only regenerate template files and feed list, if you want to add additional files or directories such as git repository feel free to do so as these won't be overwritten when rebuilding feed pages.
+
 
 ### Running on every Newsboat update
 
@@ -92,31 +118,6 @@ If you don't want to run Liveboat on every Newsboat rebuild you can set up a cro
 ```
 
 To manually rebuild Newsboat feeds and generate the page every 30 minutes
-
-### Executing manually
-
-
-```
-Usage: liveboat [OPTIONS] [BUILD_TARGET]...
-
-Arguments:
-  [BUILD_TARGET]...  Optional path to build directory
-
-Options:
-      --cache-file <CACHE_FILE>        Path to newsboat db cache
-      --url-file <URL_FILE>            Path to newsboat urls file
-      --build-dir <BUILD_DIR>          Path to build directory
-      --template-path <TEMPLATE_PATH>  Path to directory containing Liveboat template
-      --config-file <CONFIG_FILE>      path to liveboat config file
-      --debug                          Print verbose code execution info
-      --use-nightly                    If set will use nightly channel for updates
-  -x <COMMAND>                         Command to execute [available options: build, init, update] [default: build]
-  -h, --help                           Print help
-  -V, --version                        Print version
-```
-
-> [!IMPORTANT]
-> During every update Liveboat will only regenerate template files and feed list, if you want to add additional files or directories such as git repository feel free to do so as these won't be overwritten when rebuilding feed pages.
 
 ### Options file
 

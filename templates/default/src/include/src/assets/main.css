@@ -28,6 +28,7 @@ ul {
   min-height: 100vh;
 }
 
+
 @media (hover: hover) {
   a:hover {
     background-color: rgb(from var(--color-accent) r g b / 50%);

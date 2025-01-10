@@ -3,8 +3,8 @@
   --color-highlight: #73bed3;
   --color-accent: #3c5e8b;
   --color-background: #181818;
+  --color-custom: #859900;
 }
-
 *,
 *::before,
 *::after {
