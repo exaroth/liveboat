@@ -1,15 +1,17 @@
 <script setup>
 import { ref, watchEffect, shallowRef } from 'vue'
-import { useFiltersStore } from '../stores/filters'
 import { RouterLink } from 'vue-router'
-import IconMusic from './icons/IconMusic.vue'
-import IconMovie from './icons/IconMovie.vue'
 import { useEmbedStore } from '../stores/embed'
 import { useAudioStore } from '../stores/audio'
+import { useFiltersStore } from '../stores/filters'
+import { useMinimizeStore } from '../stores/minimize'
+import IconMusic from './icons/IconMusic.vue'
+import IconMovie from './icons/IconMovie.vue'
 
 const fStore = useFiltersStore()
 const embedStore = useEmbedStore()
 const audioStore = useAudioStore()
+const minimizeStore = useMinimizeStore()
 
 const props = defineProps({
   feed: {
@@ -65,7 +67,6 @@ const truncate = (v) => {
   return newline > 0 ? v.slice(0, newline) : v
 }
 // ===============
-
 
 const processFeedItems = (feedItems) => {
   feedItems.sort((a, b) => {
@@ -220,14 +221,25 @@ watchEffect(async () => {
 <template>
   <div class="feed-wrapper" v-if="feedHasItems()">
     <div class="feed-title">
-      <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="feed.title"
-        >{{ feed.displayTitle || feed.title }}
-        <span v-if="feed.isQuery" class="feed-query-indicator"></span>
-        <span class="item-count">({{ feed.itemCount }})</span></router-link
+      <button
+        @click="minimizeStore.addMinimizedFeed(feed.id)"
+        class="minimize-button"
+        title="Minimize"
+        v-if="!minimizeStore.showFeedMinimized(feed.id)"
       >
+        -
+      </button>
+      <button
+        @click="minimizeStore.removeMinimizedFeed(feed.id)"
+        class="minimize-button"
+        title="Maximize"
+        v-if="minimizeStore.showFeedMinimized(feed.id)"
+      >
+        +
+      </button>
       <button
         @click="$emit('expand-feed', dispatchExpandItems())"
-        class="expand-button"
+        class="expand-button feed-expand-button"
         title="Expand"
         v-if="!props.expand && !props.archived"
       >
@@ -235,79 +247,79 @@ watchEffect(async () => {
       </button>
       <button
         @click="$emit('unexpand-feed')"
-        class="expand-button"
+        class="expand-button feed-expand-button"
         title="Unexpand"
         v-if="props.expand && !props.archived"
       >
         &#8673;
       </button>
+      <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="feed.title"
+        >{{ feed.displayTitle || feed.title }}
+        <span v-if="feed.isQuery" class="feed-query-indicator"></span>
+        <span class="item-count">({{ feed.itemCount }})</span></router-link
+      >
     </div>
-    <div class="feed-item-group" v-for="(items, dateStr) in filteredFeedItems" :key="dateStr">
-      <span class="feed-group-date" v-if="dateStr">{{ dateStr }}</span>
-      <TransitionGroup name="items" tag="ul">
-        <li v-for="(feedItem, index) in items" :key="index" class="feed-item">
-          <ArticleItem
-            :feedItem="feedItem"
-            :expand="showExpandedArticle(feedItem.guid)"
-            @expand-article="handleExpandedArticle(feedItem.guid)"
-            @unexpand-article="handleUnexpandedArticle(feedItem.guid)"
-          />
-
-          <span class="feed-item-link">
-            <a
-              v-if="embedStore.isEmbeddable(feedItem)"
-              @click="showEmbedModal(feedItem)"
-              target="_blank"
-            >
-              {{ truncate(feedItem.title) }}<span class="feed-item-type"><IconMovie /></span
-            ></a>
-            <a
-              v-else-if="audioStore.isAudioLink(feedItem)"
-              @click="showAudioPlayer(feedItem)"
-              target="_blank"
-            >
-              {{ truncate(feedItem.title) }}<span class="feed-item-type"><IconMusic /></span>
-            </a>
-            <a v-else :href="feedItem.url" target="_blank">{{ truncate(feedItem.title) }}</a>
-            <button
-              @click="handleExpandedArticle(feedItem.guid)"
-              class="expand-button article-expand"
-              title="Expand"
-              v-if="!showExpandedArticle(feedItem.guid)"
-            >
-              &#8675;
-            </button>
-            <button
-              @click="handleUnexpandedArticle(feedItem.guid)"
-              class="expand-button article-expand"
-              title="Unexpand"
+    <div v-if="!minimizeStore.showFeedMinimized(feed.id)">
+      <div class="feed-item-group" v-for="(items, dateStr) in filteredFeedItems" :key="dateStr">
+        <span class="feed-group-date" v-if="dateStr">{{ dateStr }}</span>
+        <TransitionGroup name="items" tag="ul">
+          <li v-for="(feedItem, index) in items" :key="index" class="feed-item">
+            <span class="feed-item-link">
+              <a
+                v-if="embedStore.isEmbeddable(feedItem)"
+                @click="showEmbedModal(feedItem)"
+                target="_blank"
+              >
+                {{ truncate(feedItem.title) }}<span class="feed-item-type"><IconMovie /></span
+              ></a>
+              <a
+                v-else-if="audioStore.isAudioLink(feedItem)"
+                @click="showAudioPlayer(feedItem)"
+                target="_blank"
+              >
+                {{ truncate(feedItem.title) }}<span class="feed-item-type"><IconMusic /></span>
+              </a>
+              <a v-else :href="feedItem.url" target="_blank">{{ truncate(feedItem.title) }}</a>
+              <button
+                @click="handleExpandedArticle(feedItem.guid)"
+                class="expand-button article-expand"
+                title="Expand"
+                v-if="!showExpandedArticle(feedItem.guid)"
+              >
+                &#8675;
+              </button>
+              <button
+                @click="handleUnexpandedArticle(feedItem.guid)"
+                class="expand-button article-expand"
+                title="Unexpand"
+                v-if="showExpandedArticle(feedItem.guid)"
+              >
+                &#8673;
+              </button>
+            </span>
+            <span class="feed-item-author" v-if="feedItem.author"> by {{ feedItem.author }}</span>
+            <span class="feed-item-domain">({{ feedItem.domain }})</span>
+            <div
+              :class="{ 'feed-item-details': true, expanded: showExpandedArticle(feedItem.guid) }"
               v-if="showExpandedArticle(feedItem.guid)"
             >
-              &#8673;
-            </button>
-          </span>
-          <span class="feed-item-author" v-if="feedItem.author"> by {{ feedItem.author }}</span>
-          <span class="feed-item-domain">({{ feedItem.domain }})</span>
-          <div
-            :class="{ 'feed-item-details': true, expanded: showExpandedArticle(feedItem.guid) }"
-            v-if="showExpandedArticle(feedItem.guid)"
-          >
-            <span class="feed-item-date"
-              ><span class="feed-item-details-desc">Date: </span
-              >{{ feedItem.date.toUTCString() }}</span
-            >
-            <br />
+              <span class="feed-item-date"
+                ><span class="feed-item-details-desc">Date: </span
+                >{{ feedItem.date.toUTCString() }}</span
+              >
+              <br />
 
-            <span class="feed-item-url"
-              ><span class="feed-item-details-desc">URL: </span>{{ feedItem.url }}</span
-            ><br />
-            <span class="feed-item-contents" v-if="feedItem.content"
-              ><span class="feed-item-details-desc">Content: </span>
-              <span v-html="feedItem.content"></span
-            ></span>
-          </div>
-        </li>
-      </TransitionGroup>
+              <span class="feed-item-url"
+                ><span class="feed-item-details-desc">URL: </span>{{ feedItem.url }}</span
+              ><br />
+              <span class="feed-item-contents" v-if="feedItem.content"
+                ><span class="feed-item-details-desc">Content: </span>
+                <span v-html="feedItem.content"></span
+              ></span>
+            </div>
+          </li>
+        </TransitionGroup>
+      </div>
     </div>
   </div>
 </template>
@@ -417,7 +429,8 @@ watchEffect(async () => {
   opacity: 0.7;
 }
 
-.expand-button {
+.expand-button,
+.minimize-button{
   display: inline-block;
   position: relative;
   top: 1px;
@@ -427,6 +440,12 @@ watchEffect(async () => {
   opacity: 0.8;
   color: var(--color-text);
   font-size: 1.2rem;
+  width: 20px;
+  margin: 0 6px;
+}
+.feed-expand-button {
+  color: var(--color-custom);
+  opacity: 1;
 }
 .expand-button:hover {
   opacity: 1;
