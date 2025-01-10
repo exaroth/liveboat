@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watchEffect, shallowRef } from 'vue'
+import { ref, watchEffect, shallowRef, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useEmbedStore } from '../stores/embed'
 import { useAudioStore } from '../stores/audio'
@@ -40,6 +40,7 @@ const feedItems = shallowRef([])
 const filteredFeedItems = shallowRef([])
 const initialized = ref(false)
 const emit = defineEmits(['expand-article', 'unexpand-article'])
+const itemDetails = ref(null)
 
 fStore.$subscribe((state) => {
   filterFeedItems(state.payload)
@@ -196,7 +197,6 @@ const showAudioPlayer = (feedItem) => {
   audioStore.showAudioPlayer()
 }
 // ===================
-
 watchEffect(async () => {
   if (!initialized.value) {
     const url = resolveFeedPath(props.feed.id)
@@ -215,6 +215,30 @@ watchEffect(async () => {
   } else {
     filteredFeedItems.value = aggregateItems(feedItems.value)
   }
+})
+
+onMounted(() => {
+  setInterval(() => {
+    if (!itemDetails.value || itemDetails.value.length === 0) {
+      return
+    }
+    const body = document.body
+    const docEl = document.documentElement
+
+    const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop
+    const clientTop = docEl.clientTop || body.clientTop || 0
+    const center = scrollTop + window.innerHeight / 2
+    const threshold = window.innerHeight / 6
+    for (let detail of itemDetails.value) {
+      const box = detail.getBoundingClientRect()
+      const top = box.top + scrollTop - clientTop + (box.height / 2)
+      if (top - threshold <= center && center <= top + threshold) {
+        detail.classList.add('detail-highlight')
+      } else {
+        detail.classList.remove('detail-highlight')
+      }
+    }
+  }, 400)
 })
 </script>
 
@@ -302,6 +326,7 @@ watchEffect(async () => {
             <div
               :class="{ 'feed-item-details': true, expanded: showExpandedArticle(feedItem.guid) }"
               v-if="showExpandedArticle(feedItem.guid)"
+              ref="itemDetails"
             >
               <span class="feed-item-date"
                 ><span class="feed-item-details-desc">Date: </span
@@ -313,7 +338,7 @@ watchEffect(async () => {
                 ><span class="feed-item-details-desc">URL: </span>{{ feedItem.url }}</span
               ><br />
               <span class="feed-item-contents" v-if="feedItem.content"
-                ><span class="feed-item-details-desc">Content: </span>
+                ><span class="feed-item-details-desc">---</span><br />
                 <span v-html="feedItem.content"></span
               ></span>
             </div>
@@ -342,7 +367,7 @@ watchEffect(async () => {
   transform: translateY(-10%);
   font-weight: bold;
   font-size: 0.8rem;
-  color: var(--color-background)
+  color: var(--color-background);
 }
 .item-count {
   opacity: 0.6;
@@ -391,6 +416,12 @@ watchEffect(async () => {
   overflow: hidden;
   display: none;
 }
+
+.feed-item-details.detail-highlight {
+  opacity: 1;
+  outline: 1px solid var(--color-highlight);
+}
+
 .feed-item-details-desc {
   color: var(--color-highlight);
 }
@@ -431,7 +462,7 @@ watchEffect(async () => {
 }
 
 .expand-button,
-.minimize-button{
+.minimize-button {
   display: inline-block;
   position: relative;
   top: 1px;
