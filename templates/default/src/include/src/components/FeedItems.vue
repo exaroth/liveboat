@@ -342,6 +342,7 @@ watchEffect(async () => {
   transform: translateY(-10%);
   font-weight: bold;
   font-size: 0.8rem;
+  color: var(--color-background)
 }
 .item-count {
   opacity: 0.6;
@@ -441,7 +442,7 @@ watchEffect(async () => {
   color: var(--color-text);
   font-size: 1.2rem;
   width: 20px;
-  margin: 0 6px;
+  margin: 0 4px;
 }
 .feed-expand-button {
   color: var(--color-custom);
@@ -449,6 +450,9 @@ watchEffect(async () => {
 }
 .expand-button:hover {
   opacity: 1;
+}
+.minimize-button {
+  font-weight: bold;
 }
 
 @media (min-width: 1150px) {
