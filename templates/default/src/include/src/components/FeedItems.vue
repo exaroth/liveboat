@@ -219,7 +219,7 @@ watchEffect(async () => {
         @click="$emit('expand-feed', dispatchExpandItems())"
         class="expand-button"
         title="Expand"
-        v-if="!props.expand"
+        v-if="!props.expand && !props.archived"
       >
         &#8675;
       </button>
@@ -227,7 +227,7 @@ watchEffect(async () => {
         @click="$emit('unexpand-feed', dispatchExpandItems())"
         class="expand-button"
         title="Unexpand"
-        v-if="props.expand"
+        v-if="props.expand && !props.archived"
       >
         &#8673;
       </button>
