@@ -2,8 +2,6 @@
 import { ref, watchEffect, shallowRef } from 'vue'
 import { useFiltersStore } from '../stores/filters'
 import { RouterLink } from 'vue-router'
-import IconExpand from './icons/IconExpand.vue'
-import IconUnexpand from './icons/IconUnexpand.vue'
 import IconMusic from './icons/IconMusic.vue'
 import IconMovie from './icons/IconMovie.vue'
 import { useEmbedStore } from '../stores/embed'
@@ -156,7 +154,6 @@ const showExpandedArticle = (articleId) => {
   return res
 }
 const handleExpandedArticle = (articleId) => {
-  console.log("dispatching")
   emit('expand-article', articleId)
 }
 const handleUnexpandedArticle = (articleId) => {
@@ -224,7 +221,7 @@ watchEffect(async () => {
         title="Expand"
         v-if="!props.expand"
       >
-        <IconExpand />
+        &#8675;
       </button>
       <button
         @click="$emit('unexpand-feed', dispatchExpandItems())"
@@ -232,7 +229,7 @@ watchEffect(async () => {
         title="Unexpand"
         v-if="props.expand"
       >
-        <IconUnexpand />
+        &#8673;
       </button>
     </div>
     <div class="feed-item-group" v-for="(items, dateStr) in filteredFeedItems" :key="dateStr">
@@ -268,7 +265,7 @@ watchEffect(async () => {
               title="Expand"
               v-if="!showExpandedArticle(feedItem.guid)"
             >
-              <IconExpand />
+              &#8675;
             </button>
             <button
               @click="handleUnexpandedArticle(feedItem.guid)"
@@ -276,7 +273,7 @@ watchEffect(async () => {
               title="Unexpand"
               v-if="showExpandedArticle(feedItem.guid)"
             >
-              <IconUnexpand />
+              &#8673;
             </button>
           </span>
           <span class="feed-item-author" v-if="feedItem.author"> by {{ feedItem.author }}</span>
@@ -289,7 +286,7 @@ watchEffect(async () => {
               ><span class="feed-item-details-desc">Date: </span
               >{{ feedItem.date.toUTCString() }}</span
             >
-            <br/>
+            <br />
 
             <span class="feed-item-url"
               ><span class="feed-item-details-desc">URL: </span>{{ feedItem.url }}</span
@@ -409,6 +406,22 @@ watchEffect(async () => {
   margin-left: 4px;
   opacity: 0.7;
 }
+
+.expand-button {
+  display: inline-block;
+  position: relative;
+  top: 1px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  opacity: 0.8;
+  color: var(--color-text);
+  font-size: 1.2rem;
+}
+.expand-button:hover {
+  opacity: 1;
+}
+
 @media (min-width: 1150px) {
   .feed-group-date {
     text-align: right;

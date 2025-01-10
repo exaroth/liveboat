@@ -28,26 +28,6 @@ ul {
   min-height: 100vh;
 }
 
-.expand-button {
-  display: inline-block;
-  position: relative;
-  top: 1px;
-  cursor: pointer;
-  border: none;
-  background: transparent;
-  opacity: 0.8;
-}
-.expand-button:hover {
-  opacity: 1;
-}
-.expand-button svg {
-  width: 20px;
-  height: 20px;
-  top: 2px;
-  display: block;
-  position: relative;
-  color: var(--color-text);
-}
 
 @media (hover: hover) {
   a:hover {
