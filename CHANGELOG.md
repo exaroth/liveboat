@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Add expansion option for feeds and articles
+- Mark audio and video articles and query feeds accordingly
+- Add total article count to feed items
+- Add custom color to list of available template colors
+- Add ability to show article content directly in the app
+- Add isQuery, articleNum to list of feed serialized attributes for feed
 ## [1.0.7] 2025-01-07
 ### Added
 - Add option to minimize embedded video player in default template
