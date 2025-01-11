@@ -7,6 +7,10 @@ import { useFiltersStore } from '../stores/filters'
 import { useMinimizeStore } from '../stores/minimize'
 import IconMusic from './icons/IconMusic.vue'
 import IconMovie from './icons/IconMovie.vue'
+import IconExpand from './icons/IconExpand.vue'
+import IconMinimize from './icons/IconMinimize.vue'
+import IconMaximize from './icons/IconMaximize.vue'
+import IconTop from './icons/IconTop.vue'
 
 const fStore = useFiltersStore()
 const embedStore = useEmbedStore()
@@ -260,43 +264,45 @@ onMounted(() => {
 <template>
   <div class="feed-wrapper" v-if="feedHasItems()">
     <div class="feed-title">
-      <button
-        @click="minimizeStore.addMinimizedFeed(feed.id)"
-        class="minimize-button"
-        title="Minimize"
-        v-if="!minimizeStore.showFeedMinimized(feed.id)"
-      >
-        -
-      </button>
-      <button
-        @click="minimizeStore.removeMinimizedFeed(feed.id)"
-        class="minimize-button"
-        title="Maximize"
-        v-if="minimizeStore.showFeedMinimized(feed.id)"
-      >
-        +
-      </button>
-      <button
-        @click="$emit('expand-feed', dispatchExpandItems())"
-        class="expand-button feed-expand-button"
-        title="Expand"
-        v-if="!props.expand && !props.archived"
-      >
-        &#8675;
-      </button>
-      <button
-        @click="$emit('unexpand-feed')"
-        class="expand-button feed-expand-button"
-        title="Unexpand"
-        v-if="props.expand && !props.archived"
-      >
-        &#8673;
-      </button>
       <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="feed.title"
         >{{ feed.displayTitle || feed.title }}
         <span v-if="feed.isQuery" class="feed-query-indicator"></span>
         <span class="item-count">({{ feed.itemCount }})</span></router-link
       >
+      <span class="feed-buttons">
+        <button
+          @click="minimizeStore.addMinimizedFeed(feed.id)"
+          class="minimize-button"
+          title="Minimize"
+          v-if="!minimizeStore.showFeedMinimized(feed.id)"
+        >
+          <IconMinimize />
+        </button>
+        <button
+          @click="minimizeStore.removeMinimizedFeed(feed.id)"
+          class="minimize-button"
+          title="Maximize"
+          v-if="minimizeStore.showFeedMinimized(feed.id)"
+        >
+          <IconMaximize />
+        </button>
+        <button
+          @click="$emit('expand-feed', dispatchExpandItems())"
+          class="expand-button feed-expand-button"
+          title="Expand"
+          v-if="!props.expand && !props.archived"
+        >
+          <IconTop />
+        </button>
+        <button
+          @click="$emit('unexpand-feed')"
+          class="expand-button feed-unexpand-button"
+          title="Unexpand"
+          v-if="props.expand && !props.archived"
+        >
+          <IconTop />
+        </button>
+      </span>
     </div>
     <div v-if="!minimizeStore.showFeedMinimized(feed.id)">
       <div class="feed-item-group" v-for="(items, dateStr) in filteredFeedItems" :key="dateStr">
@@ -325,15 +331,15 @@ onMounted(() => {
                 title="Expand"
                 v-if="!showExpandedArticle(feedItem.guid)"
               >
-                &#8675;
+                <IconExpand />
               </button>
               <button
                 @click="handleUnexpandedArticle(feedItem.guid)"
-                class="expand-button article-expand"
+                class="expand-button article-expand article-unexpand"
                 title="Unexpand"
                 v-if="showExpandedArticle(feedItem.guid)"
               >
-                &#8673;
+                <IconExpand />
               </button>
             </span>
             <span class="feed-item-author" v-if="feedItem.author"> by {{ feedItem.author }}</span>
@@ -369,7 +375,6 @@ onMounted(() => {
   display: inline-block;
   height: 18px;
   width: 18px;
-  background-color: var(--color-custom);
   position: relative;
   top: 1px;
   margin: 0 4px;
@@ -382,7 +387,7 @@ onMounted(() => {
   transform: translateY(-10%);
   font-weight: bold;
   font-size: 0.8rem;
-  color: var(--color-background);
+  color: var(--color-custom);
 }
 .item-count {
   opacity: 0.6;
@@ -430,6 +435,7 @@ onMounted(() => {
   border-radius: 10px;
   overflow: hidden;
   display: none;
+  margin: 12px 0;
 }
 
 .feed-item-details.detail-highlight {
@@ -480,25 +486,43 @@ onMounted(() => {
 .minimize-button {
   display: inline-block;
   position: relative;
-  top: 1px;
   cursor: pointer;
   border: none;
   background: transparent;
   opacity: 0.8;
   color: var(--color-text);
   font-size: 1.2rem;
-  width: 20px;
-  margin: 0 4px;
 }
-.feed-expand-button {
+.minimize-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.feed-expand-button,
+.feed-unexpand-button {
   color: var(--color-custom);
-  opacity: 1;
+  opacity: 0.8;
+  top: -2px;;
+}
+.feed-expand-button svg {
+  transform: rotate(180deg);
 }
 .expand-button:hover {
   opacity: 1;
 }
-.minimize-button {
-  font-weight: bold;
+.article-expand {
+  top: 1px;
+}
+.article-expand svg {
+  width: 18px;
+  height: 18px;
+  position: relative;
+  top: 4px;
+  color: var(--color-text);
+  opacity: 0.8;
+}
+.article-unexpand svg {
+  transform: rotate(90deg);
 }
 
 @media (min-width: 1150px) {

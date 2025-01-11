@@ -24,7 +24,6 @@ export const useMinimizeStore = defineStore('minimize', {
       )
     },
     addMinimizedFeed(feedId) {
-      console.log(this.minimizedFeeds)
       this.minimizedFeeds.push(feedId)
       this._saveMinimizedFeeds()
     },
