@@ -274,7 +274,7 @@ onMounted(() => {
           @click="minimizeStore.addMinimizedFeed(feed.id)"
           class="minimize-button"
           title="Minimize"
-          v-if="!minimizeStore.showFeedMinimized(feed.id)"
+          v-if="!minimizeStore.showFeedMinimized(feed.id) && !props.archived"
         >
           <IconMinimize />
         </button>
@@ -282,7 +282,7 @@ onMounted(() => {
           @click="minimizeStore.removeMinimizedFeed(feed.id)"
           class="minimize-button"
           title="Maximize"
-          v-if="minimizeStore.showFeedMinimized(feed.id)"
+          v-if="minimizeStore.showFeedMinimized(feed.id) && !props.archived"
         >
           <IconMaximize />
         </button>

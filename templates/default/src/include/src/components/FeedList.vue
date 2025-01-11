@@ -32,7 +32,7 @@ const handleFeedExpand = (expandData) => {
   expandedArticles.value = expandData.articleIds
 }
 
-const handleFeedUnexpand = (expandData) => {
+const handleFeedUnexpand = () => {
   expandedFeed.value = null
   expandedArticles.value = []
 }
@@ -69,8 +69,7 @@ const showExpandedFeed = (feed) => {
         @unexpand-feed="handleFeedUnexpand"
         @expand-article="handleArticleExpand"
         @unexpand-article="handleArticleUnexpand"
-      >
-      </FeedItems>
+      />
     </Transition>
   </div>
   <EmbedModal
