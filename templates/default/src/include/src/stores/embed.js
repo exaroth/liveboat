@@ -78,10 +78,11 @@ export const useEmbedStore = defineStore('embed', {
       this.showModal = false
       this._updateOverflow()
     },
-    minimizeModal() {
+    minimizeModal(evt) {
       this.minimized = true
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ minimized: true }))
       this._updateOverflow()
+      evt.preventDefault()
     },
     maximizeModal() {
       this.minimized = false

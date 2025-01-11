@@ -8,13 +8,22 @@ const setTimeLimit = (limit) => {
   fStore.$patch({
     daysBackCount: limit,
     filterByDays: true,
+    firehose: false,
   })
 }
 const setItemLimit = (limit) => {
   fStore.$patch({
     itemCount: limit,
     filterByDays: false,
+    firehose: false,
   })
+}
+const setFirehose = () => {
+  fStore.$patch({
+    firehose: true,
+    filterByDays: false,
+  })
+
 }
 
 const filters = ref(fStore.filters)
@@ -43,10 +52,10 @@ watch(searchFeedsTerm, (val) => {
   <div class="filter-container">
     <span class="filter-box"
       ><button
-        :class="{ selected: filters.daysBackCount === 7 && filters.filterByDays === true }"
-        @click="setTimeLimit(7)"
+        :class="{ selected: filters.firehose === true }"
+        @click="setFirehose()"
       >
-        Last week
+      Firehose
       </button></span
     >
     <span class="filter-box"

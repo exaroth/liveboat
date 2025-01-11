@@ -6,6 +6,7 @@ const getDefaultFilters = () => ({
   itemCount: 0,
   daysBackCount: 1,
   filterByDays: true,
+  firehose: false,
   searchTerm: '',
 })
 
@@ -29,6 +30,7 @@ export const useFiltersStore = defineStore('filters', {
         itemCount: this.itemCount,
         daysBackCount: this.daysBackCount,
         filterByDays: this.filterByDays,
+        firehose: this.firehose,
       }
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(d))
     },
@@ -38,5 +40,6 @@ export const useFiltersStore = defineStore('filters', {
     daysBackCount: (state) => state.daysBackCount,
     filterByDays: (state) => state.filterByDays,
     searchTerm: (state) => state.searchTerm,
+    firehose: (state) => state.firehose,
   },
 })
