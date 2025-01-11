@@ -228,15 +228,30 @@ onMounted(() => {
     const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop
     const clientTop = docEl.clientTop || body.clientTop || 0
     const center = scrollTop + window.innerHeight / 2
-    const threshold = window.innerHeight / 6
+    let visibleDetails = []
     for (let detail of itemDetails.value) {
       const box = detail.getBoundingClientRect()
-      const top = box.top + scrollTop - clientTop + (box.height / 2)
-      if (top - threshold <= center && center <= top + threshold) {
-        detail.classList.add('detail-highlight')
-      } else {
+      const boxTop = box.top + scrollTop - clientTop
+      const boxCenter = box.top + scrollTop - clientTop + box.height / 2
+      // filter out invisible details
+      if (boxTop + box.height < scrollTop || scrollTop + window.innerHeight < boxTop) {
         detail.classList.remove('detail-highlight')
+      } else {
+        detail.setAttribute('offsetCenter', Math.abs(center - boxCenter).toString())
+        visibleDetails.push(detail)
       }
+    }
+    if (visibleDetails.length === 0) {
+      return
+    }
+    visibleDetails.sort((a, b) => {
+      return parseFloat(a.getAttribute('offsetCenter')) - parseFloat(b.getAttribute('offsetCenter'))
+    })
+
+    const first = visibleDetails.shift()
+    first.classList.add('detail-highlight')
+    for (let d of visibleDetails) {
+      d.classList.remove('detail-highlight')
     }
   }, 400)
 })
