@@ -38,6 +38,9 @@ const processFeedItems = (feedItems) => {
       enclosureUrl: feedItem.enclosureUrl,
     })
   }
+  result.sort((a, b) => {
+    return b.date - a.date
+  })
   return result
 }
 const fetchFeedItems = async (feedIds, archived) => {
@@ -76,9 +79,12 @@ export const useFeedItemsStore = defineStore('feedItems', () => {
         result = result.concat(data[k])
       }
     }
-    result.sort((a, b) => {
-      return b.date - a.date
-    })
+    // Always resort firehose articles for now
+    if (feedId == null) {
+      result.sort((a, b) => {
+        return b.date - a.date
+      })
+    }
     return result
   }
   return { getFeedItems }

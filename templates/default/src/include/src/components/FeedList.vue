@@ -27,9 +27,11 @@ const audioStore = useAudioStore()
 const feedsStore = useFeedsStore()
 const { feeds } = storeToRefs(feedsStore)
 
-const handleFeedExpand = (expandData) => {
-  expandedFeed.value = expandData.feedId
-  expandedArticles.value = expandData.articleIds
+const handleFeedExpand = async (expandData) => {
+  expandData.then((res) => {
+    expandedFeed.value = res.feedId
+    expandedArticles.value = res.articleIds
+  })
 }
 
 const handleFeedUnexpand = () => {
@@ -42,7 +44,7 @@ const handleArticleExpand = (articleId) => {
 }
 
 const handleArticleUnexpand = (articleId) => {
-  expandedArticles.value = expandedArticles.value.filter((i)=> {
+  expandedArticles.value = expandedArticles.value.filter((i) => {
     return i !== articleId
   })
 }

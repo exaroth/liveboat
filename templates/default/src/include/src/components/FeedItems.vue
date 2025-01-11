@@ -44,7 +44,6 @@ const props = defineProps({
   },
 })
 
-const feedItems = shallowRef([])
 const filteredFeedItems = shallowRef([])
 const initialized = ref(false)
 const emit = defineEmits(['expand-article', 'unexpand-article'])
@@ -94,34 +93,35 @@ const aggregateItems = (items) => {
   return result
 }
 
-const filterFeedItems = (state) => {
+const filterFeedItems = async (state) => {
+  const items = await retrieveItemData()
   if (state.searchTerm) {
-    filteredFeedItems.value = aggregateItems(_filterByTerm(state.searchTerm))
+    filteredFeedItems.value = aggregateItems(_filterByTerm(items, state.searchTerm))
   } else if (state.filterByDays) {
-    filteredFeedItems.value = aggregateItems(_updateItemsWithDate(state.daysBackCount))
+    filteredFeedItems.value = aggregateItems(_updateItemsWithDate(items, state.daysBackCount))
   } else {
-    filteredFeedItems.value = aggregateItems(_updateItemsWithCount(state.itemCount))
+    filteredFeedItems.value = aggregateItems(_updateItemsWithCount(items, state.itemCount))
   }
 }
-const _filterByTerm = (term) => {
+const _filterByTerm = (items, term) => {
   let title = (props.feed.displayTitle || props.feed.title).toLowerCase().split(' ')
   let checker = (arr, target) => target.every((v) => arr.some((vv) => vv.includes(v)))
-  return feedItems.value.filter((f) => {
+  return items.filter((f) => {
     let fTitle = f.title.toLowerCase().split(' ')
     fTitle.push(f.author.toLowerCase())
     return checker(fTitle.concat(title), term.split(' '))
   })
 }
-const _updateItemsWithDate = (daysBack) => {
+const _updateItemsWithDate = (items, daysBack) => {
   let d = new Date()
   d.setDate(d.getDate() - daysBack)
-  return feedItems.value.filter((f) => {
+  return items.filter((f) => {
     return f.date > d
   })
 }
 
-const _updateItemsWithCount = (numItems) => {
-  return feedItems.value.slice(0, numItems)
+const _updateItemsWithCount = (items, numItems) => {
+  return items.slice(0, numItems)
 }
 
 const feedHasItems = () => {
@@ -140,10 +140,11 @@ const handleExpandedArticle = (articleId) => {
 const handleUnexpandedArticle = (articleId) => {
   emit('unexpand-article', articleId)
 }
-const dispatchExpandItems = () => {
+const dispatchExpandItems = async () => {
+  const items = await retrieveItemData()
   return {
     feedId: props.feed.id,
-    articleIds: feedItems.value.map((i) => i.guid),
+    articleIds: items.map((i) => i.guid),
   }
 }
 // ======================
@@ -164,16 +165,20 @@ const showAudioPlayer = (feedItem) => {
   audioStore.setAudioData(feedItem)
   audioStore.showAudioPlayer()
 }
+const retrieveItemData = async () => {
+    return await getFeedItems(props.feed.id, props.archived)
+}
+
 // ===================
 watchEffect(async () => {
   if (!initialized.value) {
-    feedItems.value = await getFeedItems(props.feed.id, props.archived)
+    retrieveItemData()
   }
   initialized.value = true
   if (props.filtered) {
     filterFeedItems(fStore)
   } else {
-    filteredFeedItems.value = aggregateItems(feedItems.value)
+    filteredFeedItems.value = aggregateItems(await retrieveItemData())
   }
 })
 
