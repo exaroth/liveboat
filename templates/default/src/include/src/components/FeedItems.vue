@@ -34,6 +34,10 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  firehose: {
+    type: Boolean,
+    required: true,
+  },
   expand: {
     type: Boolean,
     required: true,
@@ -96,11 +100,17 @@ const filterFeedItems = async (state) => {
   const items = await retrieveItemData()
   if (state.searchTerm) {
     filteredFeedItems.value = aggregateItems(_filterByTerm(items, state.searchTerm))
-  } else if (state.filterByDays) {
-    filteredFeedItems.value = aggregateItems(_updateItemsWithDate(items, state.daysBackCount))
-  } else {
-    filteredFeedItems.value = aggregateItems(_updateItemsWithCount(items, state.itemCount))
+    return
   }
+  if (state.firehose) {
+    filteredFeedItems.value = aggregateItems(items)
+    return
+  }
+  if (state.filterByDays) {
+    filteredFeedItems.value = aggregateItems(_updateItemsWithDate(items, state.daysBackCount))
+    return
+  }
+  filteredFeedItems.value = aggregateItems(_updateItemsWithCount(items, state.itemCount))
 }
 const _filterByTerm = (items, term) => {
   let title = (props.feed.displayTitle || props.feed.title).toLowerCase().split(' ')
@@ -170,7 +180,7 @@ const retrieveItemData = async () => {
 // ===================
 watchEffect(async () => {
   if (!initialized.value) {
-    retrieveItemData()
+    await retrieveItemData()
   }
   initialized.value = true
   if (props.filtered) {
@@ -223,17 +233,18 @@ onMounted(() => {
 <template>
   <div class="feed-wrapper" v-if="feedHasItems()">
     <div class="feed-title">
-      <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="feed.title"
+      <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="!props.firehose"
         >{{ feed.displayTitle || feed.title }}
         <span v-if="feed.isQuery" class="feed-query-indicator"></span>
         <span class="item-count">({{ feed.itemCount }})</span></router-link
       >
+      <a v-else href="#">{{ feed.displayTitle }}</a>
       <span class="feed-buttons">
         <button
           @click="minimizeStore.addMinimizedFeed(feed.id)"
           class="minimize-button"
           title="Minimize"
-          v-if="!minimizeStore.showFeedMinimized(feed.id) && !props.archived"
+          v-if="!minimizeStore.showFeedMinimized(feed.id) && !props.archived && !props.firehose"
         >
           <IconMinimize />
         </button>
@@ -241,7 +252,7 @@ onMounted(() => {
           @click="minimizeStore.removeMinimizedFeed(feed.id)"
           class="minimize-button"
           title="Maximize"
-          v-if="minimizeStore.showFeedMinimized(feed.id) && !props.archived"
+          v-if="minimizeStore.showFeedMinimized(feed.id) && !props.archived && !props.firehose"
         >
           <IconMaximize />
         </button>
@@ -249,7 +260,7 @@ onMounted(() => {
           @click="$emit('expand-feed', dispatchExpandItems())"
           class="expand-button feed-expand-button"
           title="Expand"
-          v-if="!props.expand && !props.archived"
+          v-if="!props.expand && !props.archived && !props.firehose"
         >
           <IconTop />
         </button>
@@ -257,7 +268,7 @@ onMounted(() => {
           @click="$emit('unexpand-feed')"
           class="expand-button feed-unexpand-button"
           title="Unexpand"
-          v-if="props.expand && !props.archived"
+          v-if="props.expand && !props.archived && !props.firehose"
         >
           <IconTop />
         </button>

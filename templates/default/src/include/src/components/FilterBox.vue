@@ -60,7 +60,7 @@ watch(searchFeedsTerm, (val) => {
     >
     <span class="filter-box"
       ><button
-        :class="{ selected: filters.daysBackCount === 1 && filters.filterByDays === true }"
+        :class="{ selected: filters.daysBackCount === 1 && filters.filterByDays === true && !filters.firehose }"
         @click="setTimeLimit(1)"
       >
         Last day
@@ -68,7 +68,7 @@ watch(searchFeedsTerm, (val) => {
     >
     <span class="filter-box"
       ><button
-        :class="{ selected: filters.itemCount === 50 && filters.filterByDays === false }"
+        :class="{ selected: filters.itemCount === 50 && filters.filterByDays === false && !filters.firehose }"
         @click="setItemLimit(50)"
       >
         Last 50
@@ -76,7 +76,7 @@ watch(searchFeedsTerm, (val) => {
     >
     <span class="filter-box"
       ><button
-        :class="{ selected: filters.itemCount === 20 && filters.filterByDays === false }"
+        :class="{ selected: filters.itemCount === 20 && filters.filterByDays === false && !filters.firehose }"
         @click="setItemLimit(20)"
       >
         Last 20

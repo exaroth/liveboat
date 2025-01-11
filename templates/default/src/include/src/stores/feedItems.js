@@ -72,6 +72,7 @@ export const useFeedItemsStore = defineStore('feedItems', () => {
         }
       }
     }
+
     if (feedIds.length > 0) {
       const data = await fetchFeedItems(feedIds, archived)
       if (!archived) {
@@ -83,6 +84,12 @@ export const useFeedItemsStore = defineStore('feedItems', () => {
     }
     // Always resort firehose articles for now
     if (feedId == null) {
+      // cleanup duplicates
+      let temp = {}
+      for (let i of result) {
+        temp[i.guid] = i
+      }
+      result = Object.values(temp)
       result.sort((a, b) => {
         return b.date - a.date
       })
