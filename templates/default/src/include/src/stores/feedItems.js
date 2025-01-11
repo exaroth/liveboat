@@ -17,10 +17,6 @@ const resolveFeedPath = (feedId, archived) => {
 }
 
 const processFeedItems = (feedItems) => {
-  feedItems.sort((a, b) => {
-    return b.date - a.date
-  })
-
   var result = []
   for (let feedItem of feedItems) {
     let date = new Date(feedItem.date * 1000)
@@ -45,24 +41,22 @@ const processFeedItems = (feedItems) => {
   return result
 }
 const fetchFeedItems = async (feedIds, archived) => {
-    const promises = feedIds.map((f) => {
-      return fetch(resolveFeedPath(f, archived))
-    })
+  const promises = feedIds.map((f) => {
+    return fetch(resolveFeedPath(f, archived))
+  })
   const responses = await Promise.all(promises)
   let result = {}
   for (const resp of responses) {
-      const data = await resp.json()
-      result[data.id] = processFeedItems(data.items)
+    const data = await resp.json()
+    result[data.id] = processFeedItems(data.items)
   }
   return result
-
 }
 
 export const useFeedItemsStore = defineStore('feedItems', () => {
   var feedItems = {}
   const feedsStore = useFeedsStore()
   const { feeds } = storeToRefs(feedsStore)
-
 
   async function getFeedItems(feedId, archived) {
     let feedIds = feedId != null ? [feedId] : feeds.value.map((f) => f.id)
@@ -73,17 +67,18 @@ export const useFeedItemsStore = defineStore('feedItems', () => {
         feedIds.splice(idx, 1)
       }
     }
-    if (feedIds.length === 0) {
-      return result
+    if (feedIds.length > 0) {
+      const data = await fetchFeedItems(feedIds, archived)
+      if (!archived) {
+        feedItems = { ...feedItems, ...data }
+      }
+      for (const k in data) {
+        result = result.concat(data[k])
+      }
     }
-    const data = await fetchFeedItems(feedIds, archived)
-    if (!archived) {
-      feedItems = {...feedItems, ...data}
-    }
-    for (const k in data) {
-      result = result.concat(data[k])
-
-    }
+    result.sort((a, b) => {
+      return b.date - a.date
+    })
     return result
   }
   return { getFeedItems }
