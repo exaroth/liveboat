@@ -8,6 +8,7 @@ use serde::ser::{Serialize, SerializeStruct, Serializer};
 use crate::feed_item::FeedItem;
 
 const MAX_TRUNCATED_FEED_ITEMS: usize = 50;
+const TRUNCATED_FEED_ITEM_TIME_CUTOFF: i64 = 2;
 
 /// Representation for single feed as retrieved from database.
 /// Used for storing both url and query based feeds.
@@ -82,12 +83,12 @@ impl Feed {
             return;
         }
         let items = self.items.clone();
-        let last_week_items = items
+        let time_cutoff_items = items
             .into_iter()
-            .filter(|i| i.age() <= 7)
+            .filter(|i| i.age() <= TRUNCATED_FEED_ITEM_TIME_CUTOFF)
             .collect::<Vec<FeedItem>>();
-        if last_week_items.len() >= MAX_TRUNCATED_FEED_ITEMS {
-            self.items = last_week_items;
+        if time_cutoff_items.len() >= MAX_TRUNCATED_FEED_ITEMS {
+            self.items = time_cutoff_items;
             return;
         }
         self.items = self.items[0..MAX_TRUNCATED_FEED_ITEMS].to_vec();

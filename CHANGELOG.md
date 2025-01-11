@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Add firehose option to filters
 - Add expansion option for feeds and articles
 - Mark audio and video articles and query feeds accordingly
 - Add total article count to feed items
@@ -15,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add isQuery, articleNum to list of feed serialized attributes for feed
 ### Changed
 - Filter out empty and hidden feeds in default template
+- Changed time cutoff from truncated feed items from 7 to 2 days
 ## [1.0.7] 2025-01-07
 ### Added
 - Add option to minimize embedded video player in default template

@@ -1,15 +1,18 @@
 import { defineStore } from 'pinia'
 
+const LOCAL_STORAGE_KEY = 'liveboat-default-filters'
+
 const getDefaultFilters = () => ({
   itemCount: 0,
   daysBackCount: 1,
   filterByDays: true,
+  firehose: false,
   searchTerm: '',
 })
 
 const getFilters = () => {
   let result = getDefaultFilters()
-  const savedFilters = localStorage.getItem('filters')
+  const savedFilters = localStorage.getItem(LOCAL_STORAGE_KEY)
   if (savedFilters) {
     result = { ...result, ...JSON.parse(savedFilters) }
   }
@@ -27,8 +30,9 @@ export const useFiltersStore = defineStore('filters', {
         itemCount: this.itemCount,
         daysBackCount: this.daysBackCount,
         filterByDays: this.filterByDays,
+        firehose: this.firehose,
       }
-      localStorage.setItem('filters', JSON.stringify(d))
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(d))
     },
   },
   computed: {
@@ -36,5 +40,6 @@ export const useFiltersStore = defineStore('filters', {
     daysBackCount: (state) => state.daysBackCount,
     filterByDays: (state) => state.filterByDays,
     searchTerm: (state) => state.searchTerm,
+    firehose: (state) => state.firehose,
   },
 })

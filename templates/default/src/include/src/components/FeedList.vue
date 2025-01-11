@@ -7,6 +7,7 @@ import EmbedModal from './EmbedModal.vue'
 import { useFeedsStore } from '@/stores/feeds'
 import { useEmbedStore } from '@/stores/embed'
 import { useAudioStore } from '@/stores/audio'
+import { useFiltersStore } from '@/stores/filters'
 import { storeToRefs } from 'pinia'
 
 const props = defineProps({
@@ -25,14 +26,18 @@ const expandedArticles = ref([])
 const embedStore = useEmbedStore()
 const audioStore = useAudioStore()
 const feedsStore = useFeedsStore()
+const filterStore = useFiltersStore()
+
 const { feeds } = storeToRefs(feedsStore)
 
-const handleFeedExpand = (expandData) => {
-  expandedFeed.value = expandData.feedId
-  expandedArticles.value = expandData.articleIds
+const handleFeedExpand = async (expandData) => {
+  expandData.then((res) => {
+    expandedFeed.value = res.feedId
+    expandedArticles.value = res.articleIds
+  })
 }
 
-const handleFeedUnexpand = (expandData) => {
+const handleFeedUnexpand = () => {
   expandedFeed.value = null
   expandedArticles.value = []
 }
@@ -42,7 +47,7 @@ const handleArticleExpand = (articleId) => {
 }
 
 const handleArticleUnexpand = (articleId) => {
-  expandedArticles.value = expandedArticles.value.filter((i)=> {
+  expandedArticles.value = expandedArticles.value.filter((i) => {
     return i !== articleId
   })
 }
@@ -53,24 +58,46 @@ const showExpandedFeed = (feed) => {
   }
   return feed.id === expandedFeed.value
 }
+
+const generateFirehoseFeed = () => {
+  return {
+    id: null,
+    url: null,
+    title: 'Firehose',
+    displayTitle: 'Firehose',
+    itemCount: 0,
+    isQuery: false,
+  }
+}
 </script>
 
 <template>
   <FilterBox />
-  <div class="feed-list-wrapper" v-for="feed in feeds" :key="feed.id">
+  <div v-if="filterStore.firehose">
+    <FeedItems
+      :feed="generateFirehoseFeed()"
+      :filtered="props.filtered"
+      :archived="props.archived"
+      :firehose="true"
+      :expandedArticles="expandedArticles"
+      @expand-article="handleArticleExpand"
+      @unexpand-article="handleArticleUnexpand"
+    />
+  </div>
+  <div class="feed-list-wrapper" v-else v-for="feed in feeds" :key="feed.id">
     <Transition>
       <FeedItems
         :feed="feed"
         :filtered="props.filtered"
         :archived="props.archived"
         :expand="showExpandedFeed(feed)"
+        :firehose="false"
         :expandedArticles="expandedArticles"
         @expand-feed="handleFeedExpand"
         @unexpand-feed="handleFeedUnexpand"
         @expand-article="handleArticleExpand"
         @unexpand-article="handleArticleUnexpand"
-      >
-      </FeedItems>
+      />
     </Transition>
   </div>
   <EmbedModal
