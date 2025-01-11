@@ -64,10 +64,12 @@ export const useFeedItemsStore = defineStore('feedItems', () => {
   async function getFeedItems(feedId, archived) {
     let feedIds = feedId != null ? [feedId] : feeds.value.map((f) => f.id)
     let result = []
-    for (const [idx, fId] of feedIds.entries()) {
-      if (feedItems[fId] != null) {
-        result = result.concat(feedItems[fId])
-        feedIds.splice(idx, 1)
+    if (!archived) {
+      for (const [idx, fId] of feedIds.entries()) {
+        if (feedItems[fId] != null) {
+          result = result.concat(feedItems[fId])
+          feedIds.splice(idx, 1)
+        }
       }
     }
     if (feedIds.length > 0) {
