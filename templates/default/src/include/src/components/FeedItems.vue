@@ -76,7 +76,6 @@ const truncate = (v) => {
 }
 // ===============
 
-
 const aggregateItems = (items) => {
   let result = {}
   let now = new Date()
@@ -128,7 +127,6 @@ const feedHasItems = () => {
   return Object.keys(filteredFeedItems.value).length !== 0
 }
 
-
 // Feed/Article expansion
 // ======================
 const showExpandedArticle = (articleId) => {
@@ -166,7 +164,7 @@ const showAudioPlayer = (feedItem) => {
   audioStore.showAudioPlayer()
 }
 const retrieveItemData = async () => {
-    return await getFeedItems(props.feed.id, props.archived)
+  return await getFeedItems(props.feed.id, props.archived)
 }
 
 // ===================
@@ -307,22 +305,14 @@ onMounted(() => {
             <span class="feed-item-domain">({{ feedItem.domain }})</span>
             <div
               :class="{ 'feed-item-details': true, expanded: showExpandedArticle(feedItem.guid) }"
-              v-if="showExpandedArticle(feedItem.guid)"
+              v-if="showExpandedArticle(feedItem.guid) && feedItem.content"
               ref="itemDetails"
             >
-              <span class="feed-item-date"
-                ><span class="feed-item-details-desc">Date: </span
-                >{{ feedItem.date.toUTCString() }}</span
-              >
-              <br />
-
-              <span class="feed-item-url"
-                ><span class="feed-item-details-desc">URL: </span>{{ feedItem.url }}</span
-              ><br />
-              <span class="feed-item-contents" v-if="feedItem.content"
-                ><span class="feed-item-details-desc">---</span><br />
-                <span v-html="feedItem.content"></span
-              ></span>
+              <span class="feed-item-contents"
+                ><span class="feed-item-details-desc">-------</span><br />
+                <span v-html="feedItem.content"></span><br />
+                <span class="feed-item-details-desc">--------</span>
+              </span>
             </div>
           </li>
         </TransitionGroup>
@@ -391,17 +381,9 @@ onMounted(() => {
 }
 .feed-item-details {
   opacity: 0.8;
-  outline: 1px solid rgb(from var(--color-highlight) r g b / 60%);
-  padding: 20px;
-  border-radius: 10px;
+  padding: 40px;
   overflow: hidden;
   display: none;
-  margin: 12px 0;
-}
-
-.feed-item-details.detail-highlight {
-  opacity: 1;
-  outline: 1px solid var(--color-highlight);
 }
 
 .feed-item-details-desc {
@@ -410,6 +392,10 @@ onMounted(() => {
 .feed-item-details.expanded {
   display: block;
 }
+.feed-item-details.detail-highlight {
+  opacity: 1;
+}
+
 .feed-item-domain {
   opacity: 0.4;
   font-size: 0.72rem;
