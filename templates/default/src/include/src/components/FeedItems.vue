@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 import { useEmbedStore } from '../stores/embed'
 import { useAudioStore } from '../stores/audio'
 import { useFiltersStore } from '../stores/filters'
+import { useFeedItemsStore } from '../stores/feedItems'
 import { useMinimizeStore } from '../stores/minimize'
 import IconMusic from './icons/IconMusic.vue'
 import IconMovie from './icons/IconMovie.vue'
@@ -16,6 +17,9 @@ const fStore = useFiltersStore()
 const embedStore = useEmbedStore()
 const audioStore = useAudioStore()
 const minimizeStore = useMinimizeStore()
+const fItemsStore = useFeedItemsStore()
+
+const { getFeedItems } = fItemsStore
 
 const props = defineProps({
   feed: {
@@ -73,34 +77,6 @@ const truncate = (v) => {
 }
 // ===============
 
-const processFeedItems = (feedItems) => {
-  feedItems.sort((a, b) => {
-    return b.date - a.date
-  })
-
-  var result = []
-  for (let feedItem of feedItems) {
-    let date = new Date(feedItem.date * 1000)
-    let url
-    try {
-      url = new URL(feedItem.url)
-    } catch {
-      console.log('Could not fetch URL for article: ', feedItem)
-      continue
-    }
-    result.push({
-      title: feedItem.title,
-      url: feedItem.url,
-      date: date,
-      domain: url.hostname,
-      guid: feedItem.guid,
-      content: feedItem.content,
-      author: feedItem.author,
-      enclosureUrl: feedItem.enclosureUrl,
-    })
-  }
-  return result
-}
 
 const aggregateItems = (items) => {
   let result = {}
@@ -152,18 +128,6 @@ const feedHasItems = () => {
   return Object.keys(filteredFeedItems.value).length !== 0
 }
 
-const resolveFeedPath = (feedId) => {
-  let basePath = `feeds/${feedId}`
-  if (props.archived) {
-    basePath = basePath + '_archive'
-  }
-  let pathPrefix = window.sitePath || '/'
-  if (!pathPrefix.endsWith('/')) {
-    pathPrefix = pathPrefix + '/'
-  }
-  let feedUrl = `${pathPrefix}${basePath}.json?bt=${window.buildTime}`
-  return feedUrl
-}
 
 // Feed/Article expansion
 // ======================
@@ -203,15 +167,7 @@ const showAudioPlayer = (feedItem) => {
 // ===================
 watchEffect(async () => {
   if (!initialized.value) {
-    const url = resolveFeedPath(props.feed.id)
-    let data
-    try {
-      data = await (await fetch(url)).json()
-    } catch {
-      console.error('Could not fetch feed data for feed ', url)
-      return
-    }
-    feedItems.value = processFeedItems(data.items)
+    feedItems.value = await getFeedItems(props.feed.id, props.archived)
   }
   initialized.value = true
   if (props.filtered) {
@@ -502,7 +458,7 @@ onMounted(() => {
 .feed-unexpand-button {
   color: var(--color-custom);
   opacity: 0.8;
-  top: -2px;;
+  top: -2px;
 }
 .feed-expand-button svg {
   transform: rotate(180deg);
