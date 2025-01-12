@@ -112,6 +112,7 @@ const filterFeedItems = async (state) => {
   }
   filteredFeedItems.value = aggregateItems(_updateItemsWithCount(items, state.itemCount))
 }
+
 const _filterByTerm = (items, term) => {
   let title = (props.feed.displayTitle || props.feed.title).toLowerCase().split(' ')
   let checker = (arr, target) => target.every((v) => arr.some((vv) => vv.includes(v)))
@@ -320,9 +321,8 @@ onMounted(() => {
               ref="itemDetails"
             >
               <span class="feed-item-contents"
-                ><span class="feed-item-details-desc">-------</span><br />
+                ><span class="feed-item-details-desc">---</span><br />
                 <span v-html="feedItem.content"></span><br />
-                <span class="feed-item-details-desc">--------</span>
               </span>
             </div>
           </li>
@@ -392,7 +392,7 @@ onMounted(() => {
 }
 .feed-item-details {
   opacity: 0.8;
-  padding: 40px;
+  padding: 10px 60px;
   overflow: hidden;
   display: none;
 }
