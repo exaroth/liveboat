@@ -320,10 +320,10 @@ onMounted(() => {
               v-if="showExpandedArticle(feedItem.guid) && feedItem.content"
               ref="itemDetails"
             >
-              <span class="feed-item-contents"
+              <a :href="feedItem.url" target="_blank" class="feed-item-contents"
                 ><span class="feed-item-details-desc">---</span><br />
-                <span v-html="feedItem.content"></span><br />
-              </span>
+                {{ feedItem.content }}
+              </a>
             </div>
           </li>
         </TransitionGroup>
@@ -333,6 +333,12 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.feed-item-contents {
+  display: block;
+}
+.feed-item-contents:hover {
+  background: transparent;
+}
 .feed-query-indicator {
   display: inline-block;
   height: 18px;
