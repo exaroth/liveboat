@@ -9,6 +9,7 @@ pub mod cli;
 pub mod errors;
 pub mod utils;
 pub mod db;
+pub mod content;
 
 pub mod handlers;
 pub mod builders;

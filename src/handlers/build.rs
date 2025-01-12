@@ -2,16 +2,16 @@
 #[allow(unused_imports)]
 use mockall::Sequence;
 
+use log::{info, trace, warn};
 use std::cell::RefCell;
 use std::fs::read_to_string;
 use std::sync::Arc;
-use log::{info, trace, warn};
 
 use anyhow::Result;
 
 use crate::args::Args;
-use crate::builders::spa_builder::SinglePageBuilder;
 use crate::builders::aux::Builder;
+use crate::builders::spa_builder::SinglePageBuilder;
 use crate::db::{Connector, DBConnector};
 use crate::errors::FilesystemError;
 use crate::feed::Feed;
@@ -20,6 +20,7 @@ use crate::opts::Options;
 use crate::paths::Paths;
 use crate::template::{SimpleContext, TemplateConfig};
 use crate::urls::UrlReader;
+use crate::content::process_article_content;
 
 /// Build controller faciliates the process of parsing url
 /// files, retrieving feed information from db, generating feed objects
@@ -100,10 +101,7 @@ impl BuildController {
 
     /// Retrieve builder instance to be used for generating static content.
     /// At the moment there is only SPA builder implemented.
-    fn get_builder<'a>(
-        &'a self,
-        context: &'a SimpleContext,
-    ) -> Result<Box<dyn Builder + 'a>> {
+    fn get_builder<'a>(&'a self, context: &'a SimpleContext) -> Result<Box<dyn Builder + 'a>> {
         let simple_builder = SinglePageBuilder::init(
             self.paths.tmp_dir(),
             self.paths.build_dir(),
@@ -135,10 +133,7 @@ impl BuildController {
     }
 
     /// Retrieve article data from db and populate it with data from urls.
-    fn get_url_feeds(
-        &self,
-        db_connector: &impl Connector,
-    ) -> Result<Vec<Arc<RefCell<Feed>>>> {
+    fn get_url_feeds(&self, db_connector: &impl Connector) -> Result<Vec<Arc<RefCell<Feed>>>> {
         let url_feeds = self.url_reader.get_url_feeds();
         let urls = url_feeds.iter().map(|u| u.url.clone()).collect();
         trace!("List of urls to retrieve: {}", format!("{:?}", urls));
@@ -161,10 +156,7 @@ impl BuildController {
     /// Process query feed objects as defined in urls file - this is done by matching
     /// rules for each article against those defined by the user, we generate feed object
     /// for each query feed marking it appropriately.
-    fn get_query_feeds(
-        &self,
-        feeds: &Vec<Arc<RefCell<Feed>>>,
-    ) -> Result<Vec<Feed>> {
+    fn get_query_feeds(&self, feeds: &Vec<Arc<RefCell<Feed>>>) -> Result<Vec<Feed>> {
         let mut result = Vec::new();
         let query_feeds = &self.url_reader.get_query_urls()?;
         for query_f in query_feeds {
@@ -197,7 +189,17 @@ impl BuildController {
         db_connector: &impl Connector,
         days_back: u64,
     ) -> Result<Vec<FeedItem>> {
-        return db_connector.get_feed_items(days_back);
+        let mut db_data = db_connector.get_feed_items(days_back)?;
+        for item in db_data.iter_mut() {
+            let res = process_article_content(item.url(), &mut item.content().clone());
+            if res.is_err() {
+                info!("Error processing content {}, {}", item.content(), res.unwrap_err());
+                continue;
+            }
+            let new_content = res.unwrap();
+            item.set_content(new_content);
+        }
+        return Ok(db_data.clone());
     }
 }
 

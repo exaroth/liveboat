@@ -57,9 +57,12 @@ impl FeedItem {
         return &self.feed_url;
     }
 
-    #[allow(dead_code)]
     pub fn title(&self) -> &String {
         return &self.title;
+    }
+
+    pub fn url(&self) -> &String {
+        return &self.url
     }
 
     #[allow(dead_code)]
@@ -74,6 +77,13 @@ impl FeedItem {
 
     pub fn date(&self) -> i64 {
         return self.date;
+    }
+
+    pub fn content(&self) -> &String {
+        return &self.content;
+    }
+    pub fn set_content(&mut self, content: String) {
+        self.content = content
     }
 
     /// Return age of the article (in days).
