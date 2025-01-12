@@ -76,6 +76,14 @@ impl Feed {
         self._sorted = true
     }
 
+    pub fn truncated_iter(&mut self) -> impl Iterator<Item = &mut FeedItem> {
+        return self.items
+            .iter_mut()
+            .take(MAX_TRUNCATED_FEED_ITEMS)
+            .filter(|i| i.age() <= TRUNCATED_FEED_ITEM_TIME_CUTOFF)
+
+    }
+
     /// Compact list of articles to either 50 or week max so
     /// that we dont have to load all the articles at the same time.
     pub fn truncate_items(&mut self) {

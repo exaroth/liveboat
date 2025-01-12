@@ -70,11 +70,6 @@ impl FeedItem {
         return self.guid;
     }
 
-    /// set a pointer to feed associated with the article.
-    pub fn set_ptr(&mut self, f_p: Arc<RefCell<Feed>>) {
-        self.feed_ptr = Some(f_p)
-    }
-
     pub fn date(&self) -> i64 {
         return self.date;
     }
@@ -82,8 +77,18 @@ impl FeedItem {
     pub fn content(&self) -> &String {
         return &self.content;
     }
+
+    /// Set a pointer to feed associated with the article.
+    pub fn set_ptr(&mut self, f_p: Arc<RefCell<Feed>>) {
+        self.feed_ptr = Some(f_p)
+    }
+
     pub fn set_content(&mut self, content: String) {
         self.content = content
+    }
+
+    pub fn set_url(&mut self, url: String) {
+        self.url = url
     }
 
     /// Return age of the article (in days).

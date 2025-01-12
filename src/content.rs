@@ -5,8 +5,10 @@ use readability::extractor;
 use regex::Regex;
 use url::Url;
 
+use crate::opts::Options;
+
 /// Fetch direct link from Reddits RSS content.
-pub fn get_reddit_direct_link(url: &Url, content: &String) -> Option<Url> {
+fn get_reddit_direct_link(url: &Url, content: &String) -> Option<Url> {
     let host = url.host();
     if host.is_none() || host.unwrap().to_string() != String::from("www.reddit.com") {
         return None;
@@ -43,14 +45,20 @@ pub fn get_reddit_direct_link(url: &Url, content: &String) -> Option<Url> {
 }
 
 /// Prettify article content
-pub fn process_article_content(url_string: &String, content: &mut String) -> Result<String> {
+pub fn process_article_content(
+    url_string: &String,
+    content: &mut String,
+    options: &Options,
+) -> Result<(String, String)> {
     let mut scrape = false;
     let mut url = Url::parse(url_string)?;
     // TODO: add option
-    let r_res = get_reddit_direct_link(&url, &content);
-    if r_res.is_some() {
-        url = r_res.unwrap();
-        scrape = true;
+    if options.scrape_reddit_links {
+        let r_res = get_reddit_direct_link(&url, &content);
+        if r_res.is_some() {
+            url = r_res.unwrap();
+            scrape = true;
+        }
     }
     let result: extractor::Product;
     if scrape {
@@ -61,5 +69,5 @@ pub fn process_article_content(url_string: &String, content: &mut String) -> Res
 
     let mut content = result.content;
     content = content.trim().to_string();
-    Ok(content)
+    Ok((content, url.to_string()))
 }

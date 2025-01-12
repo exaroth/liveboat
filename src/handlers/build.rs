@@ -12,6 +12,7 @@ use anyhow::Result;
 use crate::args::Args;
 use crate::builders::aux::Builder;
 use crate::builders::spa_builder::SinglePageBuilder;
+use crate::content::process_article_content;
 use crate::db::{Connector, DBConnector};
 use crate::errors::FilesystemError;
 use crate::feed::Feed;
@@ -20,7 +21,6 @@ use crate::opts::Options;
 use crate::paths::Paths;
 use crate::template::{SimpleContext, TemplateConfig};
 use crate::urls::UrlReader;
-use crate::content::process_article_content;
 
 /// Build controller faciliates the process of parsing url
 /// files, retrieving feed information from db, generating feed objects
@@ -128,7 +128,22 @@ impl BuildController {
             }
         }
         for f in feeds {
-            f.borrow_mut().sort_items()
+            f.borrow_mut().sort_items();
+            for item in f.borrow_mut().truncated_iter() {
+                let res =
+                    process_article_content(item.url(), &mut item.content().clone(), &self.options);
+                if res.is_err() {
+                    info!(
+                        "Error processing content {}, {}",
+                        item.content(),
+                        res.unwrap_err()
+                    );
+                    continue;
+                }
+                let (new_content, new_url) = res.unwrap();
+                item.set_content(new_content);
+                item.set_url(new_url);
+            }
         }
     }
 
@@ -189,17 +204,8 @@ impl BuildController {
         db_connector: &impl Connector,
         days_back: u64,
     ) -> Result<Vec<FeedItem>> {
-        let mut db_data = db_connector.get_feed_items(days_back)?;
-        for item in db_data.iter_mut() {
-            let res = process_article_content(item.url(), &mut item.content().clone());
-            if res.is_err() {
-                info!("Error processing content {}, {}", item.content(), res.unwrap_err());
-                continue;
-            }
-            let new_content = res.unwrap();
-            item.set_content(new_content);
-        }
-        return Ok(db_data.clone());
+        let db_data = db_connector.get_feed_items(days_back)?;
+        return Ok(db_data);
     }
 }
 
