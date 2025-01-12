@@ -76,12 +76,26 @@ impl Feed {
         self._sorted = true
     }
 
-    pub fn truncated_iter(&mut self) -> impl Iterator<Item = &mut FeedItem> {
-        return self.items
-            .iter_mut()
-            .take(MAX_TRUNCATED_FEED_ITEMS)
+    /// Fetch number of items in the feed that will be held if feed
+    /// is to become trunacted.
+    pub fn truncated_items_count(&self) -> usize {
+        if self.items.len() <= MAX_TRUNCATED_FEED_ITEMS {
+            return self.items.len();
+        }
+        let age_cutoff_items = self
+            .items
+            .iter()
             .filter(|i| i.age() <= TRUNCATED_FEED_ITEM_TIME_CUTOFF)
+            .count();
+        return MAX_TRUNCATED_FEED_ITEMS.max(age_cutoff_items);
+    }
 
+    pub fn truncated_iter(&mut self) -> impl Iterator<Item = &mut FeedItem> {
+        let count = self.truncated_items_count();
+        return self
+            .items
+            .iter_mut()
+            .take(count)
     }
 
     /// Compact list of articles to either 50 or week max so
@@ -139,7 +153,7 @@ impl Feed {
     }
 
     pub fn is_query_feed(&self) -> bool {
-        return self._is_query
+        return self._is_query;
     }
 
     pub fn is_empty(&self) -> bool {

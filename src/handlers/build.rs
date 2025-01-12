@@ -6,6 +6,7 @@ use log::{info, trace, warn};
 use std::cell::RefCell;
 use std::fs::read_to_string;
 use std::sync::Arc;
+use std::io::{self, Write};
 
 use anyhow::Result;
 
@@ -129,6 +130,11 @@ impl BuildController {
         }
         for f in feeds {
             f.borrow_mut().sort_items();
+            println!(
+                "Processing content for feed: {}, total items: {}",
+                f.borrow().title(),
+                f.borrow().truncated_items_count()
+            );
             for item in f.borrow_mut().truncated_iter() {
                 let res =
                     process_article_content(item.url(), &mut item.content().clone(), &self.options);
@@ -138,6 +144,7 @@ impl BuildController {
                         item.content(),
                         res.unwrap_err()
                     );
+                    item.set_content(String::new());
                     continue;
                 }
                 let (new_content, new_url) = res.unwrap();

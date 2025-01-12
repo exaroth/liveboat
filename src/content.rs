@@ -7,6 +7,13 @@ use url::Url;
 
 use crate::opts::Options;
 
+const REDDIT_SELF_REFERENTIAL_DOMAINS: &[&str] = &[
+    "www.reddit.com",
+    "i.redd.it",
+    "old.reddit.com",
+    "new.reddit.com",
+];
+
 /// Fetch direct link from Reddits RSS content.
 fn get_reddit_direct_link(url: &Url, content: &String) -> Option<Url> {
     let host = url.host();
@@ -36,7 +43,9 @@ fn get_reddit_direct_link(url: &Url, content: &String) -> Option<Url> {
         info!("No host found in {}", &caps[0]);
         return None;
     }
-    if host.unwrap().to_string().as_str() == "www.reddit.com" {
+    let domain = host.unwrap().to_string();
+    let self_referential = REDDIT_SELF_REFERENTIAL_DOMAINS.iter().any(|d| d == &domain);
+    if self_referential {
         info!("Self referential reddit link found, skipping");
         return None;
     }
@@ -47,27 +56,29 @@ fn get_reddit_direct_link(url: &Url, content: &String) -> Option<Url> {
 /// Prettify article content
 pub fn process_article_content(
     url_string: &String,
-    content: &mut String,
+    original_content: &mut String,
     options: &Options,
 ) -> Result<(String, String)> {
     let mut scrape = false;
     let mut url = Url::parse(url_string)?;
-    // TODO: add option
     if options.scrape_reddit_links {
-        let r_res = get_reddit_direct_link(&url, &content);
+        let r_res = get_reddit_direct_link(&url, &original_content);
         if r_res.is_some() {
             url = r_res.unwrap();
             scrape = true;
         }
     }
-    let result: extractor::Product;
+    let mut content = String::new();
+    let result: Result<extractor::Product, readability::error::Error>;
     if scrape {
-        result = extractor::scrape(&url.as_str())?;
+        result = extractor::scrape(&url.as_str());
     } else {
-        result = extractor::extract(&mut content.as_bytes(), &url)?;
+        result = extractor::extract(&mut original_content.as_bytes(), &url);
+    }
+    if result.is_ok() {
+        let t = result.unwrap();
+        content = t.text;
     }
 
-    let mut content = result.content;
-    content = content.trim().to_string();
-    Ok((content, url.to_string()))
+    Ok((content.trim().to_string(), url.to_string()))
 }
