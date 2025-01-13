@@ -14,6 +14,8 @@ const REDDIT_SELF_REFERENTIAL_DOMAINS: &[&str] = &[
     "new.reddit.com",
 ];
 
+const NON_SCRAPEABLE_DOMAINS: &[&str] = &["www.bloomberg.com", "www.youtube.com"];
+
 /// Fetch direct link from Reddits RSS content.
 fn get_reddit_direct_link(url: &Url, content: &String) -> Option<Url> {
     let host = url.host();
@@ -77,7 +79,9 @@ pub fn process_article_content(
     }
     if result.is_ok() {
         let t = result.unwrap();
-        content = t.text;
+        if t.text.trim() != "" {
+            content = t.content;
+        }
     }
 
     Ok((content.trim().to_string(), url.to_string()))

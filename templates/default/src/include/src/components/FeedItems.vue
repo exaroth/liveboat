@@ -140,8 +140,8 @@ const feedHasItems = () => {
 
 // Feed/Article expansion
 // ======================
-const showExpandedArticle = (articleId) => {
-  return props.expandedArticles.indexOf(articleId) > -1
+const showExpandedArticle = (article) => {
+  return props.expandedArticles.indexOf(article.guid) > -1 && article.content.length > 6
 }
 const handleExpandedArticle = (articleId) => {
   emit('expand-article', articleId)
@@ -300,7 +300,7 @@ onMounted(() => {
                 @click="handleExpandedArticle(feedItem.guid)"
                 class="expand-button article-expand"
                 title="Expand"
-                v-if="!showExpandedArticle(feedItem.guid)"
+                v-if="!showExpandedArticle(feedItem)"
               >
                 <IconExpand />
               </button>
@@ -308,7 +308,7 @@ onMounted(() => {
                 @click="handleUnexpandedArticle(feedItem.guid)"
                 class="expand-button article-expand article-unexpand"
                 title="Unexpand"
-                v-if="showExpandedArticle(feedItem.guid)"
+                v-if="showExpandedArticle(feedItem)"
               >
                 <IconExpand />
               </button>
@@ -316,14 +316,14 @@ onMounted(() => {
             <span class="feed-item-author" v-if="feedItem.author"> by {{ feedItem.author }}</span>
             <span class="feed-item-domain">({{ feedItem.domain }})</span>
             <div
-              :class="{ 'feed-item-details': true, expanded: showExpandedArticle(feedItem.guid) }"
-              v-if="showExpandedArticle(feedItem.guid) && feedItem.content"
+              :class="{ 'feed-item-details': true, expanded: showExpandedArticle(feedItem) }"
+                v-if="showExpandedArticle(feedItem)"
               ref="itemDetails"
             >
-              <a :href="feedItem.url" target="_blank" class="feed-item-contents"
-                ><span class="feed-item-details-desc">---</span><br />
-                {{ feedItem.content }}
-              </a>
+              <span class="feed-item-contents">
+                <span class="feed-item-details-desc">---</span><br />
+                <span v-html="feedItem.content"></span><br />
+              </span>
             </div>
           </li>
         </TransitionGroup>
@@ -338,6 +338,9 @@ onMounted(() => {
 }
 .feed-item-contents:hover {
   background: transparent;
+}
+.feed-item-contents :deep(p) {
+  margin-bottom: 12px;
 }
 .feed-query-indicator {
   display: inline-block;
@@ -404,7 +407,7 @@ onMounted(() => {
 }
 
 .feed-item-details-desc {
-  color: var(--color-highlight);
+  color: var(--color-custom);
 }
 .feed-item-details.expanded {
   display: block;
