@@ -9,6 +9,7 @@ mod paths;
 mod template;
 mod urls;
 mod utils;
+mod content;
 mod builders;
 mod handlers;
 

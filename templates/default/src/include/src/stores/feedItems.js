@@ -34,6 +34,7 @@ const processFeedItems = (feedItems) => {
       domain: url.hostname,
       guid: feedItem.guid,
       content: feedItem.content,
+      contentLength: feedItem.contentLength,
       author: feedItem.author,
       enclosureUrl: feedItem.enclosureUrl,
     })

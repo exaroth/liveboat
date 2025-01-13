@@ -1,12 +1,12 @@
+use chrono::DateTime;
 use log::info;
 use rand::{distributions::Alphanumeric, Rng};
-use chrono::DateTime;
+use std::cmp::Ordering;
 use std::fs;
 use std::fs::File;
 use std::io;
 use std::io::copy as ioCopy;
 use std::path::Path;
-use std::cmp::Ordering;
 
 #[cfg(not(test))]
 use chrono::Local;
@@ -16,8 +16,6 @@ use chrono::Utc;
 
 use anyhow::{anyhow, Result};
 use env_logger::Env;
-
-
 
 /// Representation of Versioning used by liveboat,
 /// conforming to <major>.<minor>.<patch> format.
@@ -80,13 +78,11 @@ pub fn now() -> DateTime<Utc> {
 pub fn init_logger(debug: bool) {
     let llevel = match debug {
         true => "info",
-        false => "warn",
+        false => "error",
     };
     env_logger::Builder::from_env(Env::default().default_filter_or(llevel)).init();
     info!("Logger initialized")
 }
-
-
 
 /// Generate random string with given length.
 pub fn generate_random_string(len: usize) -> String {
