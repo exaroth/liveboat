@@ -12,6 +12,7 @@ import IconExpand from './icons/IconExpand.vue'
 import IconMinimize from './icons/IconMinimize.vue'
 import IconMaximize from './icons/IconMaximize.vue'
 import IconTop from './icons/IconTop.vue'
+import ItemContent from './ItemContent.vue'
 
 const fStore = useFiltersStore()
 const embedStore = useEmbedStore()
@@ -52,6 +53,7 @@ const filteredFeedItems = shallowRef([])
 const initialized = ref(false)
 const emit = defineEmits(['expand-article', 'unexpand-article'])
 const itemDetails = ref(null)
+const itemContents = ref(null)
 
 fStore.$subscribe((state) => {
   filterFeedItems(state.payload)
@@ -191,42 +193,46 @@ watchEffect(async () => {
   }
 })
 
+const updateArticleHighlighting = () => {
+  if (!itemDetails.value || itemDetails.value.length === 0) {
+    return
+  }
+  const body = document.body
+  const docEl = document.documentElement
+
+  const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop
+  const clientTop = docEl.clientTop || body.clientTop || 0
+  const center = scrollTop + window.innerHeight / 2
+  let visibleDetails = []
+  for (let detail of itemDetails.value) {
+    const box = detail.getBoundingClientRect()
+    const boxTop = box.top + scrollTop - clientTop
+    const boxCenter = box.top + scrollTop - clientTop + box.height / 2
+    // filter out invisible details
+    if (boxTop + box.height < scrollTop || scrollTop + window.innerHeight < boxTop) {
+      detail.classList.remove('detail-highlight')
+    } else {
+      detail.setAttribute('offsetCenter', Math.abs(center - boxCenter).toString())
+      visibleDetails.push(detail)
+    }
+  }
+  if (visibleDetails.length === 0) {
+    return
+  }
+  visibleDetails.sort((a, b) => {
+    return parseFloat(a.getAttribute('offsetCenter')) - parseFloat(b.getAttribute('offsetCenter'))
+  })
+
+  const first = visibleDetails.shift()
+  first.classList.add('detail-highlight')
+  for (let d of visibleDetails) {
+    d.classList.remove('detail-highlight')
+  }
+}
+
 onMounted(() => {
   setInterval(() => {
-    if (!itemDetails.value || itemDetails.value.length === 0) {
-      return
-    }
-    const body = document.body
-    const docEl = document.documentElement
-
-    const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop
-    const clientTop = docEl.clientTop || body.clientTop || 0
-    const center = scrollTop + window.innerHeight / 2
-    let visibleDetails = []
-    for (let detail of itemDetails.value) {
-      const box = detail.getBoundingClientRect()
-      const boxTop = box.top + scrollTop - clientTop
-      const boxCenter = box.top + scrollTop - clientTop + box.height / 2
-      // filter out invisible details
-      if (boxTop + box.height < scrollTop || scrollTop + window.innerHeight < boxTop) {
-        detail.classList.remove('detail-highlight')
-      } else {
-        detail.setAttribute('offsetCenter', Math.abs(center - boxCenter).toString())
-        visibleDetails.push(detail)
-      }
-    }
-    if (visibleDetails.length === 0) {
-      return
-    }
-    visibleDetails.sort((a, b) => {
-      return parseFloat(a.getAttribute('offsetCenter')) - parseFloat(b.getAttribute('offsetCenter'))
-    })
-
-    const first = visibleDetails.shift()
-    first.classList.add('detail-highlight')
-    for (let d of visibleDetails) {
-      d.classList.remove('detail-highlight')
-    }
+    updateArticleHighlighting()
   }, 400)
 })
 </script>
@@ -261,7 +267,12 @@ onMounted(() => {
           @click="$emit('expand-feed', dispatchExpandItems())"
           class="expand-button feed-expand-button"
           title="Expand"
-          v-if="!props.expand && !props.archived && !props.firehose && !minimizeStore.showFeedMinimized(feed.id)"
+          v-if="
+            !props.expand &&
+            !props.archived &&
+            !props.firehose &&
+            !minimizeStore.showFeedMinimized(feed.id)
+          "
         >
           <IconTop />
         </button>
@@ -317,13 +328,10 @@ onMounted(() => {
             <span class="feed-item-domain">({{ feedItem.domain }})</span>
             <div
               :class="{ 'feed-item-details': true, expanded: showExpandedArticle(feedItem) }"
-                v-if="showExpandedArticle(feedItem)"
+              v-if="showExpandedArticle(feedItem)"
               ref="itemDetails"
             >
-              <span class="feed-item-contents">
-                <span class="feed-item-details-desc">---</span><br />
-                <span v-html="feedItem.content"></span><br />
-              </span>
+              <ItemContent :content="feedItem.content" :contentLength="feedItem.contentLength" />
             </div>
           </li>
         </TransitionGroup>
@@ -333,15 +341,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.feed-item-contents {
-  display: block;
-}
-.feed-item-contents:hover {
-  background: transparent;
-}
-.feed-item-contents :deep(p) {
-  margin-bottom: 12px;
-}
 .feed-query-indicator {
   display: inline-block;
   height: 18px;
@@ -406,9 +405,6 @@ onMounted(() => {
   display: none;
 }
 
-.feed-item-details-desc {
-  color: var(--color-custom);
-}
 .feed-item-details.expanded {
   display: block;
 }
