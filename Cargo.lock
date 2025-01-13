@@ -1365,7 +1365,7 @@ dependencies = [
  "nix",
  "opml",
  "rand",
- "readability",
+ "readability-liveboat",
  "regex",
  "reqwest 0.12.9",
  "resolve-path",
@@ -1941,8 +1941,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "readability"
-version = "0.3.0"
+name = "readability-liveboat"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a059085ce64e6117cf86b6200b7599a451551269fcfcca58812ae55504dc2f69"
 dependencies = [
  "html5ever",
  "lazy_static",

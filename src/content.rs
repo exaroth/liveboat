@@ -1,7 +1,7 @@
 use log::info;
 
 use anyhow::Result;
-use readability::extractor;
+use readability_liveboat::extractor;
 use regex::Regex;
 use url::Url;
 
@@ -70,7 +70,7 @@ pub fn process_article_content(
         }
     }
     let mut content = String::new();
-    let result: Result<extractor::Product, readability::error::Error>;
+    let result: Result<extractor::Product, readability_liveboat::error::Error>;
     if scrape {
         result = extractor::scrape(&url.as_str());
     } else {
