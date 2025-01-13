@@ -14,8 +14,6 @@ const REDDIT_SELF_REFERENTIAL_DOMAINS: &[&str] = &[
     "new.reddit.com",
 ];
 
-const NON_SCRAPEABLE_DOMAINS: &[&str] = &["www.bloomberg.com", "www.youtube.com"];
-
 /// Fetch direct link from Reddits RSS content.
 fn get_reddit_direct_link(url: &Url, content: &String) -> Option<Url> {
     let host = url.host();
@@ -60,9 +58,10 @@ pub fn process_article_content(
     url_string: &String,
     original_content: &mut String,
     options: &Options,
-) -> Result<(String, String)> {
+) -> Result<(String, String, usize)> {
     let mut scrape = false;
     let mut url = Url::parse(url_string)?;
+    let mut content_length = 0;
     if options.scrape_reddit_links {
         let r_res = get_reddit_direct_link(&url, &original_content);
         if r_res.is_some() {
@@ -79,10 +78,9 @@ pub fn process_article_content(
     }
     if result.is_ok() {
         let t = result.unwrap();
-        if t.text.trim() != "" {
-            content = t.content;
-        }
+        content = t.content;
+        content_length = t.text.len();
     }
 
-    Ok((content.trim().to_string(), url.to_string()))
+    Ok((content.trim().to_string(), url.to_string(), content_length))
 }
