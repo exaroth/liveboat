@@ -141,7 +141,7 @@ const feedHasItems = () => {
 // Feed/Article expansion
 // ======================
 const showExpandedArticle = (article) => {
-  return props.expandedArticles.indexOf(article.guid) > -1 && article.content.length > 6
+  return props.expandedArticles.indexOf(article.guid) > -1 && article.contentLength > 0
 }
 const handleExpandedArticle = (articleId) => {
   emit('expand-article', articleId)
@@ -261,7 +261,7 @@ onMounted(() => {
           @click="$emit('expand-feed', dispatchExpandItems())"
           class="expand-button feed-expand-button"
           title="Expand"
-          v-if="!props.expand && !props.archived && !props.firehose"
+          v-if="!props.expand && !props.archived && !props.firehose && !minimizeStore.showFeedMinimized(feed.id)"
         >
           <IconTop />
         </button>
@@ -300,7 +300,7 @@ onMounted(() => {
                 @click="handleExpandedArticle(feedItem.guid)"
                 class="expand-button article-expand"
                 title="Expand"
-                v-if="!showExpandedArticle(feedItem)"
+                v-if="!showExpandedArticle(feedItem) && feedItem.contentLength > 0"
               >
                 <IconExpand />
               </button>
@@ -308,7 +308,7 @@ onMounted(() => {
                 @click="handleUnexpandedArticle(feedItem.guid)"
                 class="expand-button article-expand article-unexpand"
                 title="Unexpand"
-                v-if="showExpandedArticle(feedItem)"
+                v-if="showExpandedArticle(feedItem) && feedItem.contentLength > 0"
               >
                 <IconExpand />
               </button>
