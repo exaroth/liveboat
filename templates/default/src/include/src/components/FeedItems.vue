@@ -398,4 +398,9 @@ onMounted(() => {
     left: -94px;
   }
 }
+@media (max-width: 500px) {
+  .feed-item-details {
+    padding: 6px 10px;
+  }
+}
 </style>
