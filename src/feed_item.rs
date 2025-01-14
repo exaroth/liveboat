@@ -31,6 +31,7 @@ pub struct FeedItem {
     enc_mime: Option<String>,
     flags: Option<String>,
     content_length: usize,
+    comments_url: Option<String>,
     pub feed_ptr: Option<Arc<RefCell<Feed>>>,
 }
 
@@ -50,6 +51,7 @@ impl FeedItem {
             enc_mime: row.get(10)?,
             flags: row.get(11)?,
             content_length: 0,
+            comments_url: None,
             feed_ptr: None,
         };
         Ok(feed_item)
@@ -79,6 +81,9 @@ impl FeedItem {
     pub fn content(&self) -> &String {
         return &self.content;
     }
+    pub fn comments_url(&self) -> &Option<String> {
+        return &self.comments_url;
+    }
 
     /// Set a pointer to feed associated with the article.
     pub fn set_ptr(&mut self, f_p: Arc<RefCell<Feed>>) {
@@ -92,6 +97,11 @@ impl FeedItem {
     pub fn set_content_length(&mut self, size: usize) {
         self.content_length = size
     }
+
+    pub fn set_comments_url(&mut self, url: String) {
+        self.comments_url = Some(url)
+    }
+
 
     pub fn set_url(&mut self, url: String) {
         self.url = url
@@ -178,6 +188,7 @@ impl FeedItem {
             enc_mime: None,
             flags: None,
             feed_ptr: None,
+            comments_url: None,
             content_length: 0,
         };
     }
@@ -251,7 +262,7 @@ impl Serialize for FeedItem {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("FeedItem", 11)?;
+        let mut state = serializer.serialize_struct("FeedItem", 12)?;
         state.serialize_field("title", &self.title)?;
         state.serialize_field("url", &self.url)?;
         state.serialize_field("date", &self.date)?;
@@ -263,6 +274,7 @@ impl Serialize for FeedItem {
         state.serialize_field("flags", &self.flags)?;
         state.serialize_field("enclosureUrl", &self.enc_url)?;
         state.serialize_field("enclosureMime", &self.enc_mime)?;
+        state.serialize_field("commentsUrl", &self.comments_url)?;
         state.end()
     }
 }
