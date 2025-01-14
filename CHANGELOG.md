@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add isQuery, articleNum, contentLength to list of feed serialized attributes for feed
 - Process all article content removing all superfluous elements and making it more readablea
 - Add option to scrape Reddit RSS references and substitute content with reddit comment links
+>>>>>>> 4c636f180b938870cf5032d62708bff57c6fda8a
 ### Changed
 - Filter out empty and hidden feeds in default template
 - Changed time cutoff from truncated feed items from 7 to 2 days
