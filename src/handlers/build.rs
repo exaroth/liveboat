@@ -147,10 +147,13 @@ impl BuildController {
                     item.set_content(String::new());
                     continue;
                 }
-                let (new_content, new_url, content_length) = res.unwrap();
+                let (new_content, new_url, content_length, comments_url) = res.unwrap();
                 item.set_content_length(content_length);
                 item.set_content(new_content);
                 item.set_url(new_url);
+                if comments_url.is_some() {
+                    item.set_comments_url(comments_url.unwrap())
+                }
             }
         }
     }
