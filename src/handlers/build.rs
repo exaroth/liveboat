@@ -2,16 +2,18 @@
 #[allow(unused_imports)]
 use mockall::Sequence;
 
+use log::{info, trace, warn};
 use std::cell::RefCell;
 use std::fs::read_to_string;
 use std::sync::Arc;
-use log::{info, trace, warn};
+use std::io::{self, Write};
 
 use anyhow::Result;
 
 use crate::args::Args;
-use crate::builders::spa_builder::SinglePageBuilder;
 use crate::builders::aux::Builder;
+use crate::builders::spa_builder::SinglePageBuilder;
+use crate::content::process_article_content;
 use crate::db::{Connector, DBConnector};
 use crate::errors::FilesystemError;
 use crate::feed::Feed;
@@ -100,10 +102,7 @@ impl BuildController {
 
     /// Retrieve builder instance to be used for generating static content.
     /// At the moment there is only SPA builder implemented.
-    fn get_builder<'a>(
-        &'a self,
-        context: &'a SimpleContext,
-    ) -> Result<Box<dyn Builder + 'a>> {
+    fn get_builder<'a>(&'a self, context: &'a SimpleContext) -> Result<Box<dyn Builder + 'a>> {
         let simple_builder = SinglePageBuilder::init(
             self.paths.tmp_dir(),
             self.paths.build_dir(),
@@ -130,15 +129,34 @@ impl BuildController {
             }
         }
         for f in feeds {
-            f.borrow_mut().sort_items()
+            f.borrow_mut().sort_items();
+            println!(
+                "Processing content for feed: {}, total items: {}",
+                f.borrow().title(),
+                f.borrow().truncated_items_count()
+            );
+            for item in f.borrow_mut().truncated_iter() {
+                let res =
+                    process_article_content(item.url(), &mut item.content().clone(), &self.options);
+                if res.is_err() {
+                    info!(
+                        "Error processing content {}, {}",
+                        item.content(),
+                        res.unwrap_err()
+                    );
+                    item.set_content(String::new());
+                    continue;
+                }
+                let (new_content, new_url, content_length) = res.unwrap();
+                item.set_content_length(content_length);
+                item.set_content(new_content);
+                item.set_url(new_url);
+            }
         }
     }
 
     /// Retrieve article data from db and populate it with data from urls.
-    fn get_url_feeds(
-        &self,
-        db_connector: &impl Connector,
-    ) -> Result<Vec<Arc<RefCell<Feed>>>> {
+    fn get_url_feeds(&self, db_connector: &impl Connector) -> Result<Vec<Arc<RefCell<Feed>>>> {
         let url_feeds = self.url_reader.get_url_feeds();
         let urls = url_feeds.iter().map(|u| u.url.clone()).collect();
         trace!("List of urls to retrieve: {}", format!("{:?}", urls));
@@ -161,10 +179,7 @@ impl BuildController {
     /// Process query feed objects as defined in urls file - this is done by matching
     /// rules for each article against those defined by the user, we generate feed object
     /// for each query feed marking it appropriately.
-    fn get_query_feeds(
-        &self,
-        feeds: &Vec<Arc<RefCell<Feed>>>,
-    ) -> Result<Vec<Feed>> {
+    fn get_query_feeds(&self, feeds: &Vec<Arc<RefCell<Feed>>>) -> Result<Vec<Feed>> {
         let mut result = Vec::new();
         let query_feeds = &self.url_reader.get_query_urls()?;
         for query_f in query_feeds {
@@ -197,7 +212,8 @@ impl BuildController {
         db_connector: &impl Connector,
         days_back: u64,
     ) -> Result<Vec<FeedItem>> {
-        return db_connector.get_feed_items(days_back);
+        let db_data = db_connector.get_feed_items(days_back)?;
+        return Ok(db_data);
     }
 }
 

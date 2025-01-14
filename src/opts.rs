@@ -52,6 +52,9 @@ pub struct Options {
     /// Whether or not to show articles marked as read by Newsboat
     #[serde(default = "default_bool::<true>")]
     pub show_read_articles: bool,
+    /// Define whether to scrape reddit rss links
+    #[serde(default = "default_bool::<true>")]
+    pub scrape_reddit_links: bool,
     /// Define whether or not to include article content in generated
     /// rss feeds (might increase size significantly)
     #[serde(default = "default_bool::<true>")]
@@ -91,6 +94,7 @@ impl Options {
             template_name: default_template_name(),
             include_article_content_in_rss_feeds: false,
             time_threshold: 20,
+            scrape_reddit_links: true,
             newsboat_urls_file: default_newsboat_url_file(),
             newsboat_cache_file: default_newsboat_cache_file(),
             build_dir: default_build_dir(),

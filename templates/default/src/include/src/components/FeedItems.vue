@@ -1,6 +1,5 @@
 <script setup>
 import { ref, watchEffect, shallowRef, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
 import { useEmbedStore } from '../stores/embed'
 import { useAudioStore } from '../stores/audio'
 import { useFiltersStore } from '../stores/filters'
@@ -9,9 +8,8 @@ import { useMinimizeStore } from '../stores/minimize'
 import IconMusic from './icons/IconMusic.vue'
 import IconMovie from './icons/IconMovie.vue'
 import IconExpand from './icons/IconExpand.vue'
-import IconMinimize from './icons/IconMinimize.vue'
-import IconMaximize from './icons/IconMaximize.vue'
-import IconTop from './icons/IconTop.vue'
+import ItemContent from './ItemContent.vue'
+import FeedHeader from './FeedHeader.vue'
 
 const fStore = useFiltersStore()
 const embedStore = useEmbedStore()
@@ -50,7 +48,7 @@ const props = defineProps({
 
 const filteredFeedItems = shallowRef([])
 const initialized = ref(false)
-const emit = defineEmits(['expand-article', 'unexpand-article'])
+const emit = defineEmits(['expand-article', 'unexpand-article', 'expand-feed', 'unexpand-feed'])
 const itemDetails = ref(null)
 
 fStore.$subscribe((state) => {
@@ -112,6 +110,7 @@ const filterFeedItems = async (state) => {
   }
   filteredFeedItems.value = aggregateItems(_updateItemsWithCount(items, state.itemCount))
 }
+
 const _filterByTerm = (items, term) => {
   let title = (props.feed.displayTitle || props.feed.title).toLowerCase().split(' ')
   let checker = (arr, target) => target.every((v) => arr.some((vv) => vv.includes(v)))
@@ -139,8 +138,8 @@ const feedHasItems = () => {
 
 // Feed/Article expansion
 // ======================
-const showExpandedArticle = (articleId) => {
-  return props.expandedArticles.indexOf(articleId) > -1
+const showExpandedArticle = (article) => {
+  return props.expandedArticles.indexOf(article.guid) > -1 && article.contentLength > 0
 }
 const handleExpandedArticle = (articleId) => {
   emit('expand-article', articleId)
@@ -148,13 +147,8 @@ const handleExpandedArticle = (articleId) => {
 const handleUnexpandedArticle = (articleId) => {
   emit('unexpand-article', articleId)
 }
-const dispatchExpandItems = async () => {
-  const items = await retrieveItemData()
-  return {
-    feedId: props.feed.id,
-    articleIds: items.map((i) => i.guid),
-  }
-}
+const handleFeedExpand = (pr) => emit('expand-feed', pr)
+const handleFeedUnexpand = (pr) => emit('unexpand-feed', pr)
 // ======================
 
 // Embed functionality
@@ -190,90 +184,60 @@ watchEffect(async () => {
   }
 })
 
+const updateArticleHighlighting = () => {
+  if (!itemDetails.value || itemDetails.value.length === 0) {
+    return
+  }
+  const body = document.body
+  const docEl = document.documentElement
+
+  const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop
+  const clientTop = docEl.clientTop || body.clientTop || 0
+  const center = scrollTop + window.innerHeight / 2
+  let visibleDetails = []
+  for (let detail of itemDetails.value) {
+    const box = detail.getBoundingClientRect()
+    const boxTop = box.top + scrollTop - clientTop
+    const boxCenter = box.top + scrollTop - clientTop + box.height / 2
+    // filter out invisible details
+    if (boxTop + box.height < scrollTop || scrollTop + window.innerHeight < boxTop) {
+      detail.classList.remove('detail-highlight')
+    } else {
+      detail.setAttribute('offsetCenter', Math.abs(center - boxCenter).toString())
+      visibleDetails.push(detail)
+    }
+  }
+  if (visibleDetails.length === 0) {
+    return
+  }
+  visibleDetails.sort((a, b) => {
+    return parseFloat(a.getAttribute('offsetCenter')) - parseFloat(b.getAttribute('offsetCenter'))
+  })
+
+  const first = visibleDetails.shift()
+  first.classList.add('detail-highlight')
+  for (let d of visibleDetails) {
+    d.classList.remove('detail-highlight')
+  }
+}
+
 onMounted(() => {
   setInterval(() => {
-    if (!itemDetails.value || itemDetails.value.length === 0) {
-      return
-    }
-    const body = document.body
-    const docEl = document.documentElement
-
-    const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop
-    const clientTop = docEl.clientTop || body.clientTop || 0
-    const center = scrollTop + window.innerHeight / 2
-    let visibleDetails = []
-    for (let detail of itemDetails.value) {
-      const box = detail.getBoundingClientRect()
-      const boxTop = box.top + scrollTop - clientTop
-      const boxCenter = box.top + scrollTop - clientTop + box.height / 2
-      // filter out invisible details
-      if (boxTop + box.height < scrollTop || scrollTop + window.innerHeight < boxTop) {
-        detail.classList.remove('detail-highlight')
-      } else {
-        detail.setAttribute('offsetCenter', Math.abs(center - boxCenter).toString())
-        visibleDetails.push(detail)
-      }
-    }
-    if (visibleDetails.length === 0) {
-      return
-    }
-    visibleDetails.sort((a, b) => {
-      return parseFloat(a.getAttribute('offsetCenter')) - parseFloat(b.getAttribute('offsetCenter'))
-    })
-
-    const first = visibleDetails.shift()
-    first.classList.add('detail-highlight')
-    for (let d of visibleDetails) {
-      d.classList.remove('detail-highlight')
-    }
+    updateArticleHighlighting()
   }, 400)
 })
 </script>
 
 <template>
   <div class="feed-wrapper" v-if="feedHasItems()">
-    <div class="feed-title">
-      <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="!props.firehose"
-        >{{ feed.displayTitle || feed.title }}
-        <span v-if="feed.isQuery" class="feed-query-indicator"></span>
-        <span class="item-count">({{ feed.itemCount }})</span></router-link
-      >
-      <a v-else href="#">{{ feed.displayTitle }}</a>
-      <span class="feed-buttons">
-        <button
-          @click="minimizeStore.addMinimizedFeed(feed.id)"
-          class="minimize-button"
-          title="Minimize"
-          v-if="!minimizeStore.showFeedMinimized(feed.id) && !props.archived && !props.firehose"
-        >
-          <IconMinimize />
-        </button>
-        <button
-          @click="minimizeStore.removeMinimizedFeed(feed.id)"
-          class="minimize-button"
-          title="Maximize"
-          v-if="minimizeStore.showFeedMinimized(feed.id) && !props.archived && !props.firehose"
-        >
-          <IconMaximize />
-        </button>
-        <button
-          @click="$emit('expand-feed', dispatchExpandItems())"
-          class="expand-button feed-expand-button"
-          title="Expand"
-          v-if="!props.expand && !props.archived && !props.firehose"
-        >
-          <IconTop />
-        </button>
-        <button
-          @click="$emit('unexpand-feed')"
-          class="expand-button feed-unexpand-button"
-          title="Unexpand"
-          v-if="props.expand && !props.archived && !props.firehose"
-        >
-          <IconTop />
-        </button>
-      </span>
-    </div>
+    <FeedHeader
+      :feed="feed"
+      :archived="props.archived"
+      :expand="props.expand"
+      :firehose="props.firehose"
+      @expand-feed="handleFeedExpand"
+      @unexpand-feed="handleFeedUnexpand"
+    />
     <div v-if="!minimizeStore.showFeedMinimized(feed.id)">
       <div class="feed-item-group" v-for="(items, dateStr) in filteredFeedItems" :key="dateStr">
         <span class="feed-group-date" v-if="dateStr">{{ dateStr }}</span>
@@ -299,7 +263,7 @@ onMounted(() => {
                 @click="handleExpandedArticle(feedItem.guid)"
                 class="expand-button article-expand"
                 title="Expand"
-                v-if="!showExpandedArticle(feedItem.guid)"
+                v-if="!showExpandedArticle(feedItem) && feedItem.contentLength > 0"
               >
                 <IconExpand />
               </button>
@@ -307,7 +271,7 @@ onMounted(() => {
                 @click="handleUnexpandedArticle(feedItem.guid)"
                 class="expand-button article-expand article-unexpand"
                 title="Unexpand"
-                v-if="showExpandedArticle(feedItem.guid)"
+                v-if="showExpandedArticle(feedItem) && feedItem.contentLength > 0"
               >
                 <IconExpand />
               </button>
@@ -315,15 +279,11 @@ onMounted(() => {
             <span class="feed-item-author" v-if="feedItem.author"> by {{ feedItem.author }}</span>
             <span class="feed-item-domain">({{ feedItem.domain }})</span>
             <div
-              :class="{ 'feed-item-details': true, expanded: showExpandedArticle(feedItem.guid) }"
-              v-if="showExpandedArticle(feedItem.guid) && feedItem.content"
+              :class="{ 'feed-item-details': true, expanded: showExpandedArticle(feedItem) }"
+              v-if="showExpandedArticle(feedItem)"
               ref="itemDetails"
             >
-              <span class="feed-item-contents"
-                ><span class="feed-item-details-desc">-------</span><br />
-                <span v-html="feedItem.content"></span><br />
-                <span class="feed-item-details-desc">--------</span>
-              </span>
+              <ItemContent :content="feedItem.content" :contentLength="feedItem.contentLength" />
             </div>
           </li>
         </TransitionGroup>
@@ -333,28 +293,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.feed-query-indicator {
-  display: inline-block;
-  height: 18px;
-  width: 18px;
-  position: relative;
-  top: 1px;
-  margin: 0 4px;
-  border-radius: 50%;
-}
-.feed-query-indicator::after {
-  content: 'Q';
-  display: block;
-  text-align: center;
-  transform: translateY(-10%);
-  font-weight: bold;
-  font-size: 0.8rem;
-  color: var(--color-custom);
-}
-.item-count {
-  opacity: 0.6;
-  margin-left: 4px;
-}
 .feed-item {
   line-height: 34px;
   width: 100%;
@@ -372,19 +310,6 @@ onMounted(() => {
   color: var(--color-highlight);
   position: relative;
 }
-.feed-title {
-  padding: 0px 0px 0px 50px;
-  margin: 0px 0px 14px 0px;
-  width: 100%;
-  border-bottom: 2px solid var(--color-accent);
-}
-
-.feed-title a {
-  display: inline-block;
-  background-color: var(--color-accent);
-  padding: 2px 20px 0px 20px;
-  border-radius: 3px 3px 0px 0px;
-}
 
 .article-expand {
   opacity: 0.7;
@@ -392,14 +317,11 @@ onMounted(() => {
 }
 .feed-item-details {
   opacity: 0.8;
-  padding: 40px;
+  padding: 10px 60px;
   overflow: hidden;
   display: none;
 }
 
-.feed-item-details-desc {
-  color: var(--color-highlight);
-}
 .feed-item-details.expanded {
   display: block;
 }
@@ -440,8 +362,7 @@ onMounted(() => {
   opacity: 0.7;
 }
 
-.expand-button,
-.minimize-button {
+.expand-button {
   display: inline-block;
   position: relative;
   cursor: pointer;
@@ -451,20 +372,7 @@ onMounted(() => {
   color: var(--color-text);
   font-size: 1.2rem;
 }
-.minimize-button svg {
-  width: 20px;
-  height: 20px;
-}
 
-.feed-expand-button,
-.feed-unexpand-button {
-  color: var(--color-custom);
-  opacity: 0.8;
-  top: -2px;
-}
-.feed-expand-button svg {
-  transform: rotate(180deg);
-}
 .expand-button:hover {
   opacity: 1;
 }
@@ -488,6 +396,11 @@ onMounted(() => {
     text-align: right;
     position: absolute;
     left: -94px;
+  }
+}
+@media (max-width: 500px) {
+  .feed-item-details {
+    padding: 6px 10px;
   }
 }
 </style>

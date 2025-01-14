@@ -30,6 +30,7 @@ pub struct FeedItem {
     enc_url: Option<String>,
     enc_mime: Option<String>,
     flags: Option<String>,
+    content_length: usize,
     pub feed_ptr: Option<Arc<RefCell<Feed>>>,
 }
 
@@ -48,6 +49,7 @@ impl FeedItem {
             enc_url: row.get(9)?,
             enc_mime: row.get(10)?,
             flags: row.get(11)?,
+            content_length: 0,
             feed_ptr: None,
         };
         Ok(feed_item)
@@ -57,9 +59,12 @@ impl FeedItem {
         return &self.feed_url;
     }
 
-    #[allow(dead_code)]
     pub fn title(&self) -> &String {
         return &self.title;
+    }
+
+    pub fn url(&self) -> &String {
+        return &self.url
     }
 
     #[allow(dead_code)]
@@ -67,13 +72,29 @@ impl FeedItem {
         return self.guid;
     }
 
-    /// set a pointer to feed associated with the article.
+    pub fn date(&self) -> i64 {
+        return self.date;
+    }
+
+    pub fn content(&self) -> &String {
+        return &self.content;
+    }
+
+    /// Set a pointer to feed associated with the article.
     pub fn set_ptr(&mut self, f_p: Arc<RefCell<Feed>>) {
         self.feed_ptr = Some(f_p)
     }
 
-    pub fn date(&self) -> i64 {
-        return self.date;
+    pub fn set_content(&mut self, content: String) {
+        self.content = content
+    }
+
+    pub fn set_content_length(&mut self, size: usize) {
+        self.content_length = size
+    }
+
+    pub fn set_url(&mut self, url: String) {
+        self.url = url
     }
 
     /// Return age of the article (in days).
@@ -157,6 +178,7 @@ impl FeedItem {
             enc_mime: None,
             flags: None,
             feed_ptr: None,
+            content_length: 0,
         };
     }
 }
@@ -229,7 +251,7 @@ impl Serialize for FeedItem {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("FeedItem", 10)?;
+        let mut state = serializer.serialize_struct("FeedItem", 11)?;
         state.serialize_field("title", &self.title)?;
         state.serialize_field("url", &self.url)?;
         state.serialize_field("date", &self.date)?;
@@ -237,6 +259,7 @@ impl Serialize for FeedItem {
         state.serialize_field("guid", &self.guid)?;
         state.serialize_field("unread", &self.unread)?;
         state.serialize_field("content", &self.content)?;
+        state.serialize_field("contentLength", &self.content_length)?;
         state.serialize_field("flags", &self.flags)?;
         state.serialize_field("enclosureUrl", &self.enc_url)?;
         state.serialize_field("enclosureMime", &self.enc_mime)?;
