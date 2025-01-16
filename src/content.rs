@@ -58,13 +58,15 @@ pub fn process_article_content(
     url_string: &String,
     original_content: &mut String,
     options: &Options,
-) -> Result<(String, String, usize)> {
+) -> Result<(String, String, usize, Option<String>)> {
     let mut scrape = false;
     let mut url = Url::parse(url_string)?;
     let mut content_length = 0;
+    let mut comments_url = None;
     if options.scrape_reddit_links {
         let r_res = get_reddit_direct_link(&url, &original_content);
         if r_res.is_some() {
+            comments_url = Some(url_string.clone());
             url = r_res.unwrap();
             scrape = true;
         }
@@ -82,5 +84,5 @@ pub fn process_article_content(
         content_length = t.text.len();
     }
 
-    Ok((content.trim().to_string(), url.to_string(), content_length))
+    Ok((content.trim().to_string(), url.to_string(), content_length, comments_url))
 }

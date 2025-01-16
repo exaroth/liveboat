@@ -8,6 +8,7 @@ import { useMinimizeStore } from '../stores/minimize'
 import IconMusic from './icons/IconMusic.vue'
 import IconMovie from './icons/IconMovie.vue'
 import IconExpand from './icons/IconExpand.vue'
+import IconComments from './icons/IconComments.vue'
 import ItemContent from './ItemContent.vue'
 import FeedHeader from './FeedHeader.vue'
 
@@ -136,6 +137,10 @@ const feedHasItems = () => {
   return Object.keys(filteredFeedItems.value).length !== 0
 }
 
+const openCommentsUrl = (article) => {
+  window.open(article.commentsUrl, '_blank').focus()
+}
+
 // Feed/Article expansion
 // ======================
 const showExpandedArticle = (article) => {
@@ -261,7 +266,7 @@ onMounted(() => {
               <a v-else :href="feedItem.url" target="_blank">{{ truncate(feedItem.title) }}</a>
               <button
                 @click="handleExpandedArticle(feedItem.guid)"
-                class="expand-button article-expand"
+                class="article-button article-expand"
                 title="Expand"
                 v-if="!showExpandedArticle(feedItem) && feedItem.contentLength > 0"
               >
@@ -269,11 +274,19 @@ onMounted(() => {
               </button>
               <button
                 @click="handleUnexpandedArticle(feedItem.guid)"
-                class="expand-button article-expand article-unexpand"
+                class="article-button article-unexpand"
                 title="Unexpand"
                 v-if="showExpandedArticle(feedItem) && feedItem.contentLength > 0"
               >
                 <IconExpand />
+              </button>
+              <button
+                @click="openCommentsUrl(feedItem)"
+                class="article-button comments-button"
+                title="Comments"
+                v-if="feedItem.commentsUrl"
+              >
+                <IconComments />
               </button>
             </span>
             <span class="feed-item-author" v-if="feedItem.author"> by {{ feedItem.author }}</span>
@@ -362,7 +375,7 @@ onMounted(() => {
   opacity: 0.7;
 }
 
-.expand-button {
+.article-button {
   display: inline-block;
   position: relative;
   cursor: pointer;
@@ -371,15 +384,16 @@ onMounted(() => {
   opacity: 0.8;
   color: var(--color-text);
   font-size: 1.2rem;
+  padding: 0 0 0 4px;
 }
 
-.expand-button:hover {
+.article-button:hover {
   opacity: 1;
 }
 .article-expand {
   top: 1px;
 }
-.article-expand svg {
+.article-button svg {
   width: 18px;
   height: 18px;
   position: relative;
@@ -389,6 +403,8 @@ onMounted(() => {
 }
 .article-unexpand svg {
   transform: rotate(90deg);
+}
+.comments-button {
 }
 
 @media (min-width: 1150px) {

@@ -123,6 +123,10 @@ const dispatchExpandItems = async () => {
   width: 20px;
   height: 20px;
 }
+.minimize-button {
+  top: 1px;
+  margin-left: 4px;
+}
 
 .feed-expand-button,
 .feed-unexpand-button {
