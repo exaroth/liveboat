@@ -1,4 +1,3 @@
-import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useFeedsStore } from '@/stores/feeds'
 import { storeToRefs } from 'pinia'
@@ -35,6 +34,7 @@ const processFeedItems = (feedItems) => {
       guid: feedItem.guid,
       content: feedItem.content,
       contentLength: feedItem.contentLength,
+      commentsUrl: feedItem.commentsUrl,
       author: feedItem.author,
       enclosureUrl: feedItem.enclosureUrl,
     })
