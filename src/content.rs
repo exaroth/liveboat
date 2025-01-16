@@ -14,6 +14,33 @@ const REDDIT_SELF_REFERENTIAL_DOMAINS: &[&str] = &[
     "new.reddit.com",
 ];
 
+#[derive(Debug)]
+pub struct ContentProcessingResult {
+    pub content: String,
+    pub text: String,
+    pub url: String,
+    pub comments_url: Option<String>,
+}
+
+impl ContentProcessingResult {
+    
+    /// Return length of the content, this
+    /// will return length of the actual 
+    /// text contained excluding any HTML tags.
+    pub fn content_length(&self) -> usize {
+        return self.text.len()
+    }
+
+    fn default(url: String) -> ContentProcessingResult {
+        return ContentProcessingResult{
+            content: String::new(),
+            text: String::new(),
+            url: url,
+            comments_url: None,
+        }
+    }
+}
+
 /// Fetch direct link from Reddits RSS content.
 fn get_reddit_direct_link(url: &Url, content: &String) -> Option<Url> {
     let host = url.host();
@@ -53,36 +80,36 @@ fn get_reddit_direct_link(url: &Url, content: &String) -> Option<Url> {
     return Some(r_url);
 }
 
-/// Prettify article content
+/// Process article comment 
 pub fn process_article_content(
     url_string: &String,
     original_content: &mut String,
     options: &Options,
-) -> Result<(String, String, usize, Option<String>)> {
+) -> Result<ContentProcessingResult> {
     let mut scrape = false;
-    let mut url = Url::parse(url_string)?;
-    let mut content_length = 0;
-    let mut comments_url = None;
+    let mut result = ContentProcessingResult::default(url_string.clone());
+    let url = Url::parse(url_string)?;
     if options.scrape_reddit_links {
         let r_res = get_reddit_direct_link(&url, &original_content);
         if r_res.is_some() {
-            comments_url = Some(url_string.clone());
-            url = r_res.unwrap();
+            result.comments_url = Some(url_string.clone());
+            result.url = r_res.unwrap().to_string();
             scrape = true;
         }
+    } else if options.scrape_hn_links{
+        println!("{:?}", "depro");
     }
-    let mut content = String::new();
-    let result: Result<extractor::Product, readability_liveboat::error::Error>;
+    let extract_result: Result<extractor::Product, readability_liveboat::error::Error>;
     if scrape {
-        result = extractor::scrape(&url.as_str());
+        extract_result = extractor::scrape(&url.as_str());
     } else {
-        result = extractor::extract(&mut original_content.as_bytes(), &url);
+        extract_result = extractor::extract(&mut original_content.as_bytes(), &url);
     }
-    if result.is_ok() {
-        let t = result.unwrap();
-        content = t.content;
-        content_length = t.text.len();
+    if extract_result.is_ok() {
+        let t = extract_result.unwrap();
+        result.content = t.content;
+        result.text = t.text
     }
 
-    Ok((content.trim().to_string(), url.to_string(), content_length, comments_url))
+    Ok(result)
 }

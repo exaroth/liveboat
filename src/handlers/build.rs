@@ -168,12 +168,12 @@ impl BuildController {
                     item.set_content(String::new());
                     continue;
                 }
-                let (new_content, new_url, content_length, comments_url) = res.unwrap();
-                item.set_content_length(content_length);
-                item.set_content(new_content);
-                item.set_url(new_url);
-                if comments_url.is_some() {
-                    item.set_comments_url(comments_url.unwrap())
+                let content_processing_result = res.unwrap();
+                item.set_content_length(content_processing_result.content_length());
+                item.set_content(content_processing_result.content);
+                item.set_url(content_processing_result.url);
+                if content_processing_result.comments_url.is_some() {
+                    item.set_comments_url(content_processing_result.comments_url.unwrap())
                 }
                 count += 1
             }
