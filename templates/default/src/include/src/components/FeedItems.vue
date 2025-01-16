@@ -282,8 +282,8 @@ onMounted(() => {
               </button>
               <button
                 @click="openCommentsUrl(feedItem)"
-                class="article-button"
-                title="Unexpand"
+                class="article-button comments-button"
+                title="Comments"
                 v-if="feedItem.commentsUrl"
               >
                 <IconComments />
@@ -384,6 +384,7 @@ onMounted(() => {
   opacity: 0.8;
   color: var(--color-text);
   font-size: 1.2rem;
+  padding: 0 0 0 4px;
 }
 
 .article-button:hover {
@@ -402,6 +403,8 @@ onMounted(() => {
 }
 .article-unexpand svg {
   transform: rotate(90deg);
+}
+.comments-button {
 }
 
 @media (min-width: 1150px) {
