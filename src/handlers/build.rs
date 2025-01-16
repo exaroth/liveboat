@@ -141,7 +141,7 @@ impl BuildController {
         }
 
     }
-    
+
     /// Process content of each url article, removing all extraneous elements
     /// and scraping source data when required.
     fn process_article_content(&self, feeds: &Vec<Arc<RefCell<Feed>>>) {
