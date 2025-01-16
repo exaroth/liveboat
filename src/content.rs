@@ -23,9 +23,9 @@ pub struct ContentProcessingResult {
 }
 
 impl ContentProcessingResult {
-    
+
     /// Return length of the content, this
-    /// will return length of the actual 
+    /// will return length of the actual
     /// text contained excluding any HTML tags.
     pub fn content_length(&self) -> usize {
         return self.text.len()
@@ -80,7 +80,8 @@ fn get_reddit_direct_link(url: &Url, content: &String) -> Option<Url> {
     return Some(r_url);
 }
 
-/// Process article comment 
+/// Process article content, filtering all extraneous data
+/// and retrieving comments urls when necessary
 pub fn process_article_content(
     url_string: &String,
     original_content: &mut String,
@@ -101,7 +102,7 @@ pub fn process_article_content(
     }
     let extract_result: Result<extractor::Product, readability_liveboat::error::Error>;
     if scrape {
-        extract_result = extractor::scrape(&url.as_str());
+        extract_result = extractor::scrape(&result.url.as_str());
     } else {
         extract_result = extractor::extract(&mut original_content.as_bytes(), &url);
     }
