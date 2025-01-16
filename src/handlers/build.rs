@@ -88,6 +88,7 @@ impl BuildController {
         let feed_items = self.get_feed_items(&db_connector, self.options.time_threshold)?;
         let feeds = self.get_url_feeds(&db_connector)?;
         self.populate_url_feeds(&feeds, &feed_items);
+        self.process_article_content(&feeds);
         let q_feeds = self.get_query_feeds(&feeds)?;
         let tpl_config = TemplateConfig::get_config_for_template(self.paths.template_path())?;
         let ctx = SimpleContext::init(
@@ -138,6 +139,12 @@ impl BuildController {
                 continue;
             }
         }
+
+    }
+    
+    /// Process content of each url article, removing all extraneous elements
+    /// and scraping source data when required.
+    fn process_article_content(&self, feeds: &Vec<Arc<RefCell<Feed>>>) {
         for f in feeds {
             f.borrow_mut().sort_items();
             let title = f.borrow().title().clone();

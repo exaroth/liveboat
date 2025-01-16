@@ -55,6 +55,11 @@ pub struct Options {
     /// Define whether to scrape reddit rss links
     #[serde(default = "default_bool::<true>")]
     pub scrape_reddit_links: bool,
+    /// If set to true Liveboat will scrape all external
+    /// Hackers News links and subsitute the content with
+    /// retrieved data.
+    #[serde(default = "default_bool::<true>")]
+    pub scrape_hn_links: bool,
     /// Define whether or not to include article content in generated
     /// rss feeds (might increase size significantly)
     #[serde(default = "default_bool::<true>")]
@@ -95,6 +100,7 @@ impl Options {
             include_article_content_in_rss_feeds: false,
             time_threshold: 20,
             scrape_reddit_links: true,
+            scrape_hn_links: true,
             newsboat_urls_file: default_newsboat_url_file(),
             newsboat_cache_file: default_newsboat_cache_file(),
             build_dir: default_build_dir(),
