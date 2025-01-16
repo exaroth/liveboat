@@ -6,9 +6,9 @@ use log::{info, trace, warn};
 use std::cell::RefCell;
 use std::fs::read_to_string;
 use std::sync::Arc;
-use std::io::{self, Write};
 
 use anyhow::Result;
+use console::Term;
 
 use crate::args::Args;
 use crate::builders::aux::Builder;
@@ -32,6 +32,16 @@ pub struct BuildController {
     options: Options,
     url_reader: UrlReader,
     debug: bool,
+}
+
+macro_rules! print_flush {
+    ( $($t:tt)* ) => {
+        {
+            let term = Term::stdout();
+            term.clear_last_lines(1).unwrap();
+            term.write_line(format!($($t)* ).as_str()).unwrap();
+        }
+    }
 }
 
 impl BuildController {
@@ -130,12 +140,16 @@ impl BuildController {
         }
         for f in feeds {
             f.borrow_mut().sort_items();
-            println!(
-                "Processing content for feed: {}, total items: {}",
-                f.borrow().title(),
-                f.borrow().truncated_items_count()
-            );
+            let title = f.borrow().title().clone();
+            let item_c = f.borrow().truncated_items_count();
+            let mut count = 1;
             for item in f.borrow_mut().truncated_iter() {
+                print_flush!(
+                    "Processing content for feed: {}, {}/{}",
+                    title,
+                    count,
+                    item_c
+                );
                 let res =
                     process_article_content(item.url(), &mut item.content().clone(), &self.options);
                 if res.is_err() {
@@ -154,6 +168,7 @@ impl BuildController {
                 if comments_url.is_some() {
                     item.set_comments_url(comments_url.unwrap())
                 }
+                count += 1
             }
         }
     }

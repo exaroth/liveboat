@@ -61,6 +61,7 @@ impl FeedItem {
         return &self.feed_url;
     }
 
+    #[allow(dead_code)]
     pub fn title(&self) -> &String {
         return &self.title;
     }
@@ -81,6 +82,8 @@ impl FeedItem {
     pub fn content(&self) -> &String {
         return &self.content;
     }
+
+    #[allow(dead_code)]
     pub fn comments_url(&self) -> &Option<String> {
         return &self.comments_url;
     }
