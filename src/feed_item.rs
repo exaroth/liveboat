@@ -161,7 +161,7 @@ impl FeedItem {
             let f = self.feed_ptr.unwrap();
             item.set_source(Some(Source {
                 title: Some(f.borrow().display_title().clone()),
-                url: f.borrow().feedlink.clone(),
+                url: f.borrow().feedlink().clone(),
             }));
             let mut categories = Vec::new();
             for cat in f.borrow().tags.clone() {

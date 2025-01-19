@@ -139,7 +139,6 @@ impl BuildController {
                 continue;
             }
         }
-
     }
 
     /// Process content of each url article, removing all extraneous elements
@@ -148,6 +147,8 @@ impl BuildController {
         for f in feeds {
             f.borrow_mut().sort_items();
             let title = f.borrow().title().clone();
+            let feedlink = f.borrow().feedlink().clone();
+            let feed_url = f.borrow().url().clone();
             let item_c = f.borrow().truncated_items_count();
             let mut count = 1;
             for item in f.borrow_mut().truncated_iter() {
@@ -157,8 +158,13 @@ impl BuildController {
                     count,
                     item_c
                 );
-                let res =
-                    process_article_content(item.url(), &mut item.content().clone(), &self.options);
+                let res = process_article_content(
+                    item.url(),
+                    &feedlink,
+                    &feed_url,
+                    &mut item.content().clone(),
+                    &self.options,
+                );
                 if res.is_err() {
                     info!(
                         "Error processing content {}, {}",

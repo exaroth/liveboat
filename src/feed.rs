@@ -18,7 +18,7 @@ pub struct Feed {
     pub title: String,
     display_title: String,
     url: String,
-    pub feedlink: String,
+    feedlink: String,
     pub items: Vec<FeedItem>,
     hidden: bool,
     pub tags: Vec<String>,
@@ -138,6 +138,10 @@ impl Feed {
 
     pub fn title(&self) -> &String {
         return &self.title;
+    }
+
+    pub fn feedlink(&self) -> &String {
+        return &self.feedlink;
     }
 
     pub fn display_title(&self) -> &String {
