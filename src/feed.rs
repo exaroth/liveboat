@@ -8,6 +8,7 @@ use serde::ser::{Serialize, SerializeStruct, Serializer};
 use crate::feed_item::FeedItem;
 
 const MAX_TRUNCATED_FEED_ITEMS: usize = 50;
+const TRUNCATED_FEED_ITEM_TIME_CUTOFF: i64 = 2;
 
 /// Representation for single feed as retrieved from database.
 /// Used for storing both url and query based feeds.
@@ -17,7 +18,7 @@ pub struct Feed {
     pub title: String,
     display_title: String,
     url: String,
-    pub feedlink: String,
+    feedlink: String,
     pub items: Vec<FeedItem>,
     hidden: bool,
     pub tags: Vec<String>,
@@ -75,6 +76,28 @@ impl Feed {
         self._sorted = true
     }
 
+    /// Fetch number of items in the feed that will be held if feed
+    /// is to become trunacted.
+    pub fn truncated_items_count(&self) -> usize {
+        if self.items.len() <= MAX_TRUNCATED_FEED_ITEMS {
+            return self.items.len();
+        }
+        let age_cutoff_items = self
+            .items
+            .iter()
+            .filter(|i| i.age() <= TRUNCATED_FEED_ITEM_TIME_CUTOFF)
+            .count();
+        return MAX_TRUNCATED_FEED_ITEMS.max(age_cutoff_items);
+    }
+
+    pub fn truncated_iter(&mut self) -> impl Iterator<Item = &mut FeedItem> {
+        let count = self.truncated_items_count();
+        return self
+            .items
+            .iter_mut()
+            .take(count)
+    }
+
     /// Compact list of articles to either 50 or week max so
     /// that we dont have to load all the articles at the same time.
     pub fn truncate_items(&mut self) {
@@ -82,12 +105,12 @@ impl Feed {
             return;
         }
         let items = self.items.clone();
-        let last_week_items = items
+        let time_cutoff_items = items
             .into_iter()
-            .filter(|i| i.age() <= 7)
+            .filter(|i| i.age() <= TRUNCATED_FEED_ITEM_TIME_CUTOFF)
             .collect::<Vec<FeedItem>>();
-        if last_week_items.len() >= MAX_TRUNCATED_FEED_ITEMS {
-            self.items = last_week_items;
+        if time_cutoff_items.len() >= MAX_TRUNCATED_FEED_ITEMS {
+            self.items = time_cutoff_items;
             return;
         }
         self.items = self.items[0..MAX_TRUNCATED_FEED_ITEMS].to_vec();
@@ -117,6 +140,10 @@ impl Feed {
         return &self.title;
     }
 
+    pub fn feedlink(&self) -> &String {
+        return &self.feedlink;
+    }
+
     pub fn display_title(&self) -> &String {
         return &self.display_title;
     }
@@ -130,7 +157,7 @@ impl Feed {
     }
 
     pub fn is_query_feed(&self) -> bool {
-        return self._is_query
+        return self._is_query;
     }
 
     pub fn is_empty(&self) -> bool {
@@ -183,7 +210,7 @@ impl Serialize for Feed {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("Feed", 6)?;
+        let mut state = serializer.serialize_struct("Feed", 10)?;
         state.serialize_field("id", &self.id)?;
         state.serialize_field("title", &self.title)?;
         state.serialize_field("displayTitle", &self.display_title)?;
@@ -192,6 +219,7 @@ impl Serialize for Feed {
         state.serialize_field("isQuery", &self._is_query)?;
         state.serialize_field("isEmpty", &self.is_empty())?;
         state.serialize_field("isHidden", &self.is_hidden())?;
+        state.serialize_field("itemCount", &self.items.len())?;
         state.serialize_field("items", &self.items)?;
         state.end()
     }

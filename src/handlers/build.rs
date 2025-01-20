@@ -2,16 +2,18 @@
 #[allow(unused_imports)]
 use mockall::Sequence;
 
+use log::{info, trace, warn};
 use std::cell::RefCell;
 use std::fs::read_to_string;
 use std::sync::Arc;
-use log::{info, trace, warn};
 
 use anyhow::Result;
+use console::Term;
 
 use crate::args::Args;
-use crate::builders::spa_builder::SinglePageBuilder;
 use crate::builders::aux::Builder;
+use crate::builders::spa_builder::SinglePageBuilder;
+use crate::content::process_article_content;
 use crate::db::{Connector, DBConnector};
 use crate::errors::FilesystemError;
 use crate::feed::Feed;
@@ -30,6 +32,16 @@ pub struct BuildController {
     options: Options,
     url_reader: UrlReader,
     debug: bool,
+}
+
+macro_rules! print_flush {
+    ( $($t:tt)* ) => {
+        {
+            let term = Term::stdout();
+            term.clear_last_lines(1).unwrap();
+            term.write_line(format!($($t)* ).as_str()).unwrap();
+        }
+    }
 }
 
 impl BuildController {
@@ -76,6 +88,7 @@ impl BuildController {
         let feed_items = self.get_feed_items(&db_connector, self.options.time_threshold)?;
         let feeds = self.get_url_feeds(&db_connector)?;
         self.populate_url_feeds(&feeds, &feed_items);
+        self.process_article_content(&feeds);
         let q_feeds = self.get_query_feeds(&feeds)?;
         let tpl_config = TemplateConfig::get_config_for_template(self.paths.template_path())?;
         let ctx = SimpleContext::init(
@@ -100,10 +113,7 @@ impl BuildController {
 
     /// Retrieve builder instance to be used for generating static content.
     /// At the moment there is only SPA builder implemented.
-    fn get_builder<'a>(
-        &'a self,
-        context: &'a SimpleContext,
-    ) -> Result<Box<dyn Builder + 'a>> {
+    fn get_builder<'a>(&'a self, context: &'a SimpleContext) -> Result<Box<dyn Builder + 'a>> {
         let simple_builder = SinglePageBuilder::init(
             self.paths.tmp_dir(),
             self.paths.build_dir(),
@@ -129,16 +139,56 @@ impl BuildController {
                 continue;
             }
         }
+    }
+
+    /// Process content of each url article, removing all extraneous elements
+    /// and scraping source data when required.
+    fn process_article_content(&self, feeds: &Vec<Arc<RefCell<Feed>>>) {
         for f in feeds {
-            f.borrow_mut().sort_items()
+            f.borrow_mut().sort_items();
+            let title = f.borrow().title().clone();
+            let feedlink = f.borrow().feedlink().clone();
+            let feed_url = f.borrow().url().clone();
+            let item_c = f.borrow().truncated_items_count();
+            let mut count = 1;
+            for item in f.borrow_mut().truncated_iter() {
+                print_flush!(
+                    "Processing content for feed: {}, {}/{}",
+                    title,
+                    count,
+                    item_c
+                );
+                let res = process_article_content(
+                    item.url(),
+                    &feedlink,
+                    &feed_url,
+                    &mut item.content().clone(),
+                    &self.options,
+                );
+                if res.is_err() {
+                    info!(
+                        "Error processing content {}, {}",
+                        item.content(),
+                        res.unwrap_err()
+                    );
+                    item.set_content(String::new());
+                    continue;
+                }
+                let content_processing_result = res.unwrap();
+                item.set_content_length(content_processing_result.content_length());
+                item.set_content(content_processing_result.content);
+                item.set_url(content_processing_result.url);
+                item.set_text(content_processing_result.text);
+                if content_processing_result.comments_url.is_some() {
+                    item.set_comments_url(content_processing_result.comments_url.unwrap())
+                }
+                count += 1
+            }
         }
     }
 
     /// Retrieve article data from db and populate it with data from urls.
-    fn get_url_feeds(
-        &self,
-        db_connector: &impl Connector,
-    ) -> Result<Vec<Arc<RefCell<Feed>>>> {
+    fn get_url_feeds(&self, db_connector: &impl Connector) -> Result<Vec<Arc<RefCell<Feed>>>> {
         let url_feeds = self.url_reader.get_url_feeds();
         let urls = url_feeds.iter().map(|u| u.url.clone()).collect();
         trace!("List of urls to retrieve: {}", format!("{:?}", urls));
@@ -161,10 +211,7 @@ impl BuildController {
     /// Process query feed objects as defined in urls file - this is done by matching
     /// rules for each article against those defined by the user, we generate feed object
     /// for each query feed marking it appropriately.
-    fn get_query_feeds(
-        &self,
-        feeds: &Vec<Arc<RefCell<Feed>>>,
-    ) -> Result<Vec<Feed>> {
+    fn get_query_feeds(&self, feeds: &Vec<Arc<RefCell<Feed>>>) -> Result<Vec<Feed>> {
         let mut result = Vec::new();
         let query_feeds = &self.url_reader.get_query_urls()?;
         for query_f in query_feeds {
@@ -197,7 +244,8 @@ impl BuildController {
         db_connector: &impl Connector,
         days_back: u64,
     ) -> Result<Vec<FeedItem>> {
-        return db_connector.get_feed_items(days_back);
+        let db_data = db_connector.get_feed_items(days_back)?;
+        return Ok(db_data);
     }
 }
 

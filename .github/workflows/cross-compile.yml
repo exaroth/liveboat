@@ -71,9 +71,7 @@ jobs:
           tag: nightly
           overwrite: true
         if: |
-          github.event.client_payload.ref == 'refs/heads/develop' ||
-          startsWith(github.event.client_payload.ref, 'refs/heads/feature/') ||
-          startsWith(github.event.client_payload.ref, 'refs/heads/release/')
+          github.event.client_payload.ref == 'refs/heads/develop'
 
       - name: Upload checksums
         uses: svenstaro/upload-release-action@v2
@@ -84,9 +82,7 @@ jobs:
           tag: nightly
           overwrite: true
         if: |
-          github.event.client_payload.ref == 'refs/heads/develop' ||
-          startsWith(github.event.client_payload.ref, 'refs/heads/feature/') ||
-          startsWith(github.event.client_payload.ref, 'refs/heads/release/')
+          github.event.client_payload.ref == 'refs/heads/develop'
 
       - name: Upload binaries for tag
         uses: svenstaro/upload-release-action@v2

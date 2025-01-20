@@ -4,7 +4,6 @@ Liveboat
 </h1>
 
 <h2 align="center">
-<img align="center" width="572" src="demo.gif?raw=true" alt="Demo"><br/>
 See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo</a>
 </h2>
 
@@ -61,11 +60,37 @@ Pre-built binaries are available at the [Releases](https://github.com/exaroth/li
 After cloning repository run `make setup && make build` to build the binary. Rustc/Cargo required.
 
 ## Usage
+After installing Liveboat execute `liveboat -x init` to set up configuration and download the build templates.
 
 If you're not Newsboat user yet see [Newsboat documentation](https://newsboat.org/releases/2.10.2/docs/newsboat.html) for set up and configuration details.
 <br/>
 <br/>
-After installing Liveboat execute `liveboat -x init` to set up configuration and download the build templates.
+
+### Executing manually
+
+
+```
+Usage: liveboat [OPTIONS] [BUILD_TARGET]...
+
+Arguments:
+  [BUILD_TARGET]...  Optional path to build directory
+
+Options:
+      --cache-file <CACHE_FILE>        Path to newsboat db cache
+      --url-file <URL_FILE>            Path to newsboat urls file
+      --build-dir <BUILD_DIR>          Path to build directory
+      --template-path <TEMPLATE_PATH>  Path to directory containing Liveboat template
+      --config-file <CONFIG_FILE>      path to liveboat config file
+      --debug                          Print verbose code execution info
+      --use-nightly                    If set will use nightly channel for updates
+  -x <COMMAND>                         Command to execute [available options: build, init, update] [default: build]
+  -h, --help                           Print help
+  -V, --version                        Print version
+```
+
+> [!IMPORTANT]
+> During every update Liveboat will only regenerate template files and feed list, if you want to add additional files or directories such as git repository feel free to do so as these won't be overwritten when rebuilding feed pages.
+
 
 ### Running on every Newsboat update
 
@@ -93,31 +118,6 @@ If you don't want to run Liveboat on every Newsboat rebuild you can set up a cro
 
 To manually rebuild Newsboat feeds and generate the page every 30 minutes
 
-### Executing manually
-
-
-```
-Usage: liveboat [OPTIONS] [BUILD_TARGET]...
-
-Arguments:
-  [BUILD_TARGET]...  Optional path to build directory
-
-Options:
-      --cache-file <CACHE_FILE>        Path to newsboat db cache
-      --url-file <URL_FILE>            Path to newsboat urls file
-      --build-dir <BUILD_DIR>          Path to build directory
-      --template-path <TEMPLATE_PATH>  Path to directory containing Liveboat template
-      --config-file <CONFIG_FILE>      path to liveboat config file
-      --debug                          Print verbose code execution info
-      --use-nightly                    If set will use nightly channel for updates
-  -x <COMMAND>                         Command to execute [available options: build, init, update] [default: build]
-  -h, --help                           Print help
-  -V, --version                        Print version
-```
-
-> [!IMPORTANT]
-> During every update Liveboat will only regenerate template files and feed list, if you want to add additional files or directories such as git repository feel free to do so as these won't be overwritten when rebuilding feed pages.
-
 ### Options file
 
 Configuration file can be found at `~/.config/liveboat/config.toml` and stores options related to page generation.
@@ -128,6 +128,8 @@ Configuration file can be found at `~/.config/liveboat/config.toml` and stores o
 - `time_threshold` - Amount of time in the past (in days) for which Liveboat should look for when retrieving articles. 
 - `template_name` - Name of the template to use when generating the feed page, templates are stored at `~/.config/liveboat/templates`, if you want to use template located elsewhere use `--template-path` argument when invoking Liveboat.
 - `include_article_content_in_rss_feeds` - Set this option to true to include article content in aggregated rss xml file, it might increase file size significantly
+- `scrape_reddit_links` - If set to true Liveboat will attempt to scrape all external Reddit links substituting retrieved content with that defined in the RSS feed (default `true`)
+- `scrape_hn_links` - This option will trigger scraping of all external links attached to HN RSS feeds - supported feeds are official Ycombinator feed (`news.ycombinator.com/rss`) as well as [hnrss.org](https://hnrss.github.io/) feeds
 - `build_dir` - Default path to directory where Liveboat will output feed page files, can be overwritten via `--build-dir` argument.
 - `newsboat_urls_file` - Path to Newsboat urls file.
 - `newsboat_cache_file` - Path to file containing Newsboat cache db.

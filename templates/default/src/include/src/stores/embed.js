@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 
+const LOCAL_STORAGE_KEY = 'liveboat-default-embed'
+
 const getDefaultEmbedSettings = () => ({
   configs: embedConfigs,
   showModal: false,
@@ -10,7 +12,7 @@ const getDefaultEmbedSettings = () => ({
 
 const getEmbedSettings = () => {
   let result = getDefaultEmbedSettings()
-  const savedSettings = localStorage.getItem('embed')
+  const savedSettings = localStorage.getItem(LOCAL_STORAGE_KEY)
   if (savedSettings) {
     result = { ...result, ...JSON.parse(savedSettings) }
   }
@@ -76,14 +78,15 @@ export const useEmbedStore = defineStore('embed', {
       this.showModal = false
       this._updateOverflow()
     },
-    minimizeModal() {
+    minimizeModal(evt) {
       this.minimized = true
-      localStorage.setItem('embed', JSON.stringify({ minimized: true }))
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ minimized: true }))
       this._updateOverflow()
+      evt.preventDefault()
     },
     maximizeModal() {
       this.minimized = false
-      localStorage.setItem('embed', JSON.stringify({ minimized: false }))
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ minimized: false }))
       this._updateOverflow()
     },
   },

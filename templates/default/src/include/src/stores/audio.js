@@ -17,7 +17,7 @@ export const useAudioStore = defineStore('audio', {
       if (!url) {
         return false
       }
-      const parts = URL.parse(url).pathname.split('/')
+      const parts = new URL(url).pathname.split('/')
       if (parts.length == 0) {
         return false
       }
@@ -29,7 +29,7 @@ export const useAudioStore = defineStore('audio', {
       return false
     },
 
-    setAudioData(feedName, feedLink, feedItem) {
+    setAudioData(feedItem) {
       if (!feedItem.enclosureUrl) {
         console.error('invalid audio feed item: ', feedItem)
         return
@@ -37,8 +37,8 @@ export const useAudioStore = defineStore('audio', {
       this.audioUrl = feedItem.enclosureUrl
       this.linkName = feedItem.title
       this.linkUrl = feedItem.url
-      this.feedName = feedName
-      this.feedLink = feedLink
+      // this.feedName = feedName
+      // this.feedLink = feedLink
     },
     showAudioPlayer() {
       this.audioPlayerVisible = true

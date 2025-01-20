@@ -26,7 +26,7 @@ const props = defineProps({
 
 <template>
   <div id="embed-modal-wrapper" :class="{ minimized: embedStore.minimized }">
-    <div id="embed-modal-overlay"></div>
+    <div id="embed-modal-overlay" @click="embedStore.hideEmbedModal()"></div>
     <div id="modal-container" v-if="props.embedCode">
       <p class="modal-text-bkp">Loading...</p>
       <div v-html="props.embedCode"></div>
@@ -36,7 +36,7 @@ const props = defineProps({
     </div>
     <div id="modal-buttons">
       <a id="modal-close" @click="embedStore.hideEmbedModal()"><IconClose /></a>
-      <a id="modal-minimize" v-if="!embedStore.minimized" @click="embedStore.minimizeModal()"
+      <a id="modal-minimize" v-if="!embedStore.minimized" @click="embedStore.minimizeModal($event)"
         ><IconMinimize
       /></a>
       <a id="modal-maximize" v-if="embedStore.minimized" @click="embedStore.maximizeModal()"

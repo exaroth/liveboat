@@ -26,10 +26,13 @@ pub struct FeedItem {
     date: i64,
     unread: bool,
     content: String,
+    text: Option<String>,
     guid: i64,
     enc_url: Option<String>,
     enc_mime: Option<String>,
     flags: Option<String>,
+    content_length: usize,
+    comments_url: Option<String>,
     pub feed_ptr: Option<Arc<RefCell<Feed>>>,
 }
 
@@ -48,6 +51,9 @@ impl FeedItem {
             enc_url: row.get(9)?,
             enc_mime: row.get(10)?,
             flags: row.get(11)?,
+            content_length: 0,
+            text: None,
+            comments_url: None,
             feed_ptr: None,
         };
         Ok(feed_item)
@@ -62,18 +68,56 @@ impl FeedItem {
         return &self.title;
     }
 
+    pub fn url(&self) -> &String {
+        return &self.url
+    }
+
     #[allow(dead_code)]
     pub fn guid(&self) -> i64 {
         return self.guid;
     }
 
-    /// set a pointer to feed associated with the article.
+    pub fn date(&self) -> i64 {
+        return self.date;
+    }
+
+    pub fn content(&self) -> &String {
+        return &self.content;
+    }
+
+    #[allow(dead_code)]
+    pub fn comments_url(&self) -> &Option<String> {
+        return &self.comments_url;
+    }
+
+    #[allow(dead_code)]
+    pub fn text(&self) -> &Option<String> {
+        return &self.text;
+    }
+
+    /// Set a pointer to feed associated with the article.
     pub fn set_ptr(&mut self, f_p: Arc<RefCell<Feed>>) {
         self.feed_ptr = Some(f_p)
     }
 
-    pub fn date(&self) -> i64 {
-        return self.date;
+    pub fn set_content(&mut self, content: String) {
+        self.content = content
+    }
+
+    pub fn set_content_length(&mut self, size: usize) {
+        self.content_length = size
+    }
+
+    pub fn set_comments_url(&mut self, url: String) {
+        self.comments_url = Some(url)
+    }
+
+    pub fn set_text(&mut self, text: String) {
+        self.text = Some(text)
+    }
+
+    pub fn set_url(&mut self, url: String) {
+        self.url = url
     }
 
     /// Return age of the article (in days).
@@ -112,13 +156,13 @@ impl FeedItem {
             .build();
 
         if include_content {
-            item.set_content(self.content.clone())
+            item.set_content(self.text.clone())
         }
         if self.feed_ptr.is_some() {
             let f = self.feed_ptr.unwrap();
             item.set_source(Some(Source {
                 title: Some(f.borrow().display_title().clone()),
-                url: f.borrow().feedlink.clone(),
+                url: f.borrow().feedlink().clone(),
             }));
             let mut categories = Vec::new();
             for cat in f.borrow().tags.clone() {
@@ -156,7 +200,10 @@ impl FeedItem {
             enc_url: None,
             enc_mime: None,
             flags: None,
+            text: None,
             feed_ptr: None,
+            comments_url: None,
+            content_length: 0,
         };
     }
 }
@@ -229,16 +276,19 @@ impl Serialize for FeedItem {
     where
         S: Serializer,
     {
-        let mut state = serializer.serialize_struct("FeedItem", 10)?;
+        let mut state = serializer.serialize_struct("FeedItem", 12)?;
         state.serialize_field("title", &self.title)?;
         state.serialize_field("url", &self.url)?;
         state.serialize_field("date", &self.date)?;
         state.serialize_field("author", &self.author)?;
+        state.serialize_field("guid", &self.guid)?;
         state.serialize_field("unread", &self.unread)?;
         state.serialize_field("content", &self.content)?;
+        state.serialize_field("contentLength", &self.content_length)?;
         state.serialize_field("flags", &self.flags)?;
         state.serialize_field("enclosureUrl", &self.enc_url)?;
         state.serialize_field("enclosureMime", &self.enc_mime)?;
+        state.serialize_field("commentsUrl", &self.comments_url)?;
         state.end()
     }
 }

@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.1.0] 2025-01-20
+### Added
+- Add firehose option to filters
+- Add expansion option for feeds and articles
+- Add total article count to feed items
+- Add custom color to list of available template colors
+- Add comments button to articles from Reddit
+- Add ability to show article content directly in the app
+- Add isQuery, articleNum, contentLength to list of feed serialized attributes for feed
+- Process all article content removing all superfluous elements and making it more readable
+- Add option to scrape Reddit and Hacker News RSS references and substitute content with retrieved content
+### Changed
+- Filter out empty and hidden feeds in default template
+- Changed time cutoff from truncated feed items from 7 to 2 days
+### Fixed
+- Fix parsing of urls for older iOS devices
 ## [1.0.7] 2025-01-07
 ### Added
 - Add option to minimize embedded video player in default template
