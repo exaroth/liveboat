@@ -90,7 +90,7 @@ fn generate_feed_outline(f: &Feed) -> Outline {
     feed_outline.title = Some(f.display_title().clone());
     feed_outline.text = f.display_title().clone();
     feed_outline.xml_url = Some(f.url().clone());
-    feed_outline.html_url = Some(f.feedlink.clone());
+    feed_outline.html_url = Some(f.feedlink().clone());
     feed_outline.r#type = Some("rss".to_string());
     return feed_outline;
 }

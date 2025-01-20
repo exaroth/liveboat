@@ -88,6 +88,7 @@ impl BuildController {
         let feed_items = self.get_feed_items(&db_connector, self.options.time_threshold)?;
         let feeds = self.get_url_feeds(&db_connector)?;
         self.populate_url_feeds(&feeds, &feed_items);
+        self.process_article_content(&feeds);
         let q_feeds = self.get_query_feeds(&feeds)?;
         let tpl_config = TemplateConfig::get_config_for_template(self.paths.template_path())?;
         let ctx = SimpleContext::init(
@@ -138,9 +139,16 @@ impl BuildController {
                 continue;
             }
         }
+    }
+
+    /// Process content of each url article, removing all extraneous elements
+    /// and scraping source data when required.
+    fn process_article_content(&self, feeds: &Vec<Arc<RefCell<Feed>>>) {
         for f in feeds {
             f.borrow_mut().sort_items();
             let title = f.borrow().title().clone();
+            let feedlink = f.borrow().feedlink().clone();
+            let feed_url = f.borrow().url().clone();
             let item_c = f.borrow().truncated_items_count();
             let mut count = 1;
             for item in f.borrow_mut().truncated_iter() {
@@ -150,8 +158,13 @@ impl BuildController {
                     count,
                     item_c
                 );
-                let res =
-                    process_article_content(item.url(), &mut item.content().clone(), &self.options);
+                let res = process_article_content(
+                    item.url(),
+                    &feedlink,
+                    &feed_url,
+                    &mut item.content().clone(),
+                    &self.options,
+                );
                 if res.is_err() {
                     info!(
                         "Error processing content {}, {}",
@@ -161,12 +174,13 @@ impl BuildController {
                     item.set_content(String::new());
                     continue;
                 }
-                let (new_content, new_url, content_length, comments_url) = res.unwrap();
-                item.set_content_length(content_length);
-                item.set_content(new_content);
-                item.set_url(new_url);
-                if comments_url.is_some() {
-                    item.set_comments_url(comments_url.unwrap())
+                let content_processing_result = res.unwrap();
+                item.set_content_length(content_processing_result.content_length());
+                item.set_content(content_processing_result.content);
+                item.set_url(content_processing_result.url);
+                item.set_text(content_processing_result.text);
+                if content_processing_result.comments_url.is_some() {
+                    item.set_comments_url(content_processing_result.comments_url.unwrap())
                 }
                 count += 1
             }

@@ -26,6 +26,7 @@ pub struct FeedItem {
     date: i64,
     unread: bool,
     content: String,
+    text: Option<String>,
     guid: i64,
     enc_url: Option<String>,
     enc_mime: Option<String>,
@@ -51,6 +52,7 @@ impl FeedItem {
             enc_mime: row.get(10)?,
             flags: row.get(11)?,
             content_length: 0,
+            text: None,
             comments_url: None,
             feed_ptr: None,
         };
@@ -88,6 +90,11 @@ impl FeedItem {
         return &self.comments_url;
     }
 
+    #[allow(dead_code)]
+    pub fn text(&self) -> &Option<String> {
+        return &self.text;
+    }
+
     /// Set a pointer to feed associated with the article.
     pub fn set_ptr(&mut self, f_p: Arc<RefCell<Feed>>) {
         self.feed_ptr = Some(f_p)
@@ -105,6 +112,9 @@ impl FeedItem {
         self.comments_url = Some(url)
     }
 
+    pub fn set_text(&mut self, text: String) {
+        self.text = Some(text)
+    }
 
     pub fn set_url(&mut self, url: String) {
         self.url = url
@@ -146,13 +156,13 @@ impl FeedItem {
             .build();
 
         if include_content {
-            item.set_content(self.content.clone())
+            item.set_content(self.text.clone())
         }
         if self.feed_ptr.is_some() {
             let f = self.feed_ptr.unwrap();
             item.set_source(Some(Source {
                 title: Some(f.borrow().display_title().clone()),
-                url: f.borrow().feedlink.clone(),
+                url: f.borrow().feedlink().clone(),
             }));
             let mut categories = Vec::new();
             for cat in f.borrow().tags.clone() {
@@ -190,6 +200,7 @@ impl FeedItem {
             enc_url: None,
             enc_mime: None,
             flags: None,
+            text: None,
             feed_ptr: None,
             comments_url: None,
             content_length: 0,
