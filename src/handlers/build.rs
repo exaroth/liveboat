@@ -178,6 +178,7 @@ impl BuildController {
                 item.set_content_length(content_processing_result.content_length());
                 item.set_content(content_processing_result.content);
                 item.set_url(content_processing_result.url);
+                item.set_text(content_processing_result.text);
                 if content_processing_result.comments_url.is_some() {
                     item.set_comments_url(content_processing_result.comments_url.unwrap())
                 }
