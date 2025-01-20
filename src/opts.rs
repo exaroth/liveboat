@@ -97,7 +97,7 @@ impl Options {
             site_path: default_site_path(),
             show_read_articles: true,
             template_name: default_template_name(),
-            include_article_content_in_rss_feeds: false,
+            include_article_content_in_rss_feeds: true,
             time_threshold: 20,
             scrape_reddit_links: true,
             scrape_hn_links: true,
