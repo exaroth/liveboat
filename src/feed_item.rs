@@ -90,6 +90,7 @@ impl FeedItem {
         return &self.comments_url;
     }
 
+    #[allow(dead_code)]
     pub fn text(&self) -> &Option<String> {
         return &self.text;
     }
