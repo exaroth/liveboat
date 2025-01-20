@@ -1942,9 +1942,9 @@ dependencies = [
 
 [[package]]
 name = "readability-liveboat"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0e20ccf43c6acbb868ac561a035bbc76d18ca57337cbb2a5905b00ec27245e4"
+checksum = "7a691376ca3f60cd336ef60c80798a63c26a49c5d5647a1ed3cc09d938fcd835"
 dependencies = [
  "html5ever",
  "lazy_static",
