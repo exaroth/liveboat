@@ -52,6 +52,9 @@ pub fn process_article_content(
     original_content: &mut String,
     options: &Options,
 ) -> Result<ContentProcessingResult> {
+    // Wrap original content in article tag so that content links without any html
+    // tags can still be processed by the extractor. (kw)
+    let original_content = format!("<article>{}</article>", original_content);
     let mut scrape = false;
     let mut result = ContentProcessingResult::default(url_string.clone());
     let mut url = Url::parse(url_string)?;
@@ -65,7 +68,7 @@ pub fn process_article_content(
         }
     }
     if options.scrape_hn_links && !scrape {
-        let h_res = get_hn_links(&url, feedlink, feed_url, original_content)?;
+        let h_res = get_hn_links(&url, feedlink, feed_url, &original_content)?;
         if h_res.is_some() {
             let h_parts = h_res.unwrap();
             result.comments_url = Some(h_parts.0);
