@@ -17,7 +17,7 @@ export const useAudioStore = defineStore('audio', {
       if (!url) {
         return false
       }
-      const parts = URL.parse(url).pathname.split('/')
+      const parts = new URL(url).pathname.split('/')
       if (parts.length == 0) {
         return false
       }
