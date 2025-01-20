@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add ability to show article content directly in the app
 - Add isQuery, articleNum, contentLength to list of feed serialized attributes for feed
 - Process all article content removing all superfluous elements and making it more readable
-- Add option to scrape Reddit RSS references and substitute content with Reddit comment links
+- Add option to scrape Reddit and Hacker News RSS references and substitute content with retrieved content
 ### Changed
 - Filter out empty and hidden feeds in default template
 - Changed time cutoff from truncated feed items from 7 to 2 days
