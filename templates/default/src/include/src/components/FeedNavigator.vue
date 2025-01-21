@@ -4,6 +4,12 @@ import { useNavStore } from '../stores/nav'
 
 export default {
   name: 'FeedNavigator',
+  props: {
+    show: {
+      type: Boolean,
+      required: true,
+    },
+  },
   created() {
     window.addEventListener('scroll', () => {
       this.implicitFeedSelection = null
@@ -91,17 +97,19 @@ export default {
 </script>
 
 <template>
-  <div id="feed-navigator" v-if="navStore.feeds.length > 0">
-    <h3 id="nav-header-title">Feed List</h3>
-    <div id="nav-container" ref="navContainer">
-      <ul id="navigator-links" v-for="f in navStore.feeds" :key="f.index">
-        <li
-          :class="{ 'navigator-link': true, 'navigator-link-active': getActiveFeed(f.index) }"
-          :ref="'navigatorLink-' + f.index"
-        >
-          <a @click="goToFeed(f.ref, f.index)" v-html="f.title" />
-        </li>
-      </ul>
+  <div id="feed-navigator-overlay" :class="{ 'navigator-visible': show }">
+    <div id="feed-navigator" v-if="navStore.feeds.length > 0">
+      <h3 id="nav-header-title">Feed List</h3>
+      <div id="nav-container" ref="navContainer">
+        <ul id="navigator-links" v-for="f in navStore.feeds" :key="f.index">
+          <li
+            :class="{ 'navigator-link': true, 'navigator-link-active': getActiveFeed(f.index) }"
+            :ref="'navigatorLink-' + f.index"
+          >
+            <a @click="goToFeed(f.ref, f.index)" v-html="f.title" />
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -112,6 +120,42 @@ export default {
   top: 50%;
   transform: translateY(-50%);
   right: 140px;
+}
+
+@media (max-width: 1900px) {
+  #feed-navigator {
+    position: relative;
+    left: 40px;
+    right: auto;
+  }
+  #feed-navigator-overlay.navigator-visible {
+    display: block;
+  }
+
+  #feed-navigator-overlay {
+    display: none;
+    right: 0;
+    top: 0;
+    position: fixed;
+    background-color: rgb(from var(--color-background) r g b / 95%);
+;
+    height: 100vh;
+    width: 600px;
+    z-index: 8;
+    border-left: 1px solid var(--color-accent);
+  }
+
+  #nav-container {
+    height: 80vh !important;
+  }
+  .navigator-link {
+    font-size: 1.2em;
+  }
+}
+@media (max-width: 810px) {
+  #feed-navigator-overlay {
+    width: 100vw !important;
+  }
 }
 
 #nav-container {
@@ -139,7 +183,7 @@ export default {
   text-overflow: ellipsis;
   padding-left: 10px;
   position: relative;
-  border-left: 0.6px solid rgb(from var(--color-accent) r g b / 60%);
+  border-left: 1px solid rgb(from var(--color-accent) r g b / 60%);
 }
 
 .navigator-link.navigator-link-active {
@@ -154,13 +198,5 @@ export default {
   height: 100%;
   background-color: var(--color-highlight);
   position: absolute;
-}
-
-@media (max-width: 1900px) {
-  #feed-navigator {
-    position: relative;
-    left: 0;
-    top: 0;
-  }
 }
 </style>

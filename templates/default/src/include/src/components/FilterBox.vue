@@ -1,7 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useFiltersStore } from '../stores/filters'
-import FeedNavigator from './FeedNavigator.vue'
 
 const fStore = useFiltersStore()
 
@@ -105,7 +104,6 @@ watch(searchFeedsTerm, (val) => {
         />
       </span>
     </ul>
-    <FeedNavigator v-if="!filters.firehose" />
   </div>
 </template>
 

@@ -8,6 +8,7 @@ import IconHeart from './icons/IconHeart.vue'
 import IconTop from './icons/IconTop.vue'
 import IconRss from './icons/IconRss.vue'
 import IconOPML from './icons/IconOPML.vue'
+import IconNav from './icons/IconNav.vue'
 import IconLiveboat from './icons/IconLiveboat.vue'
 import IconRefresh from './icons/IconRefresh.vue'
 
@@ -51,6 +52,12 @@ let bTimeInterval = setInterval(async () => {
   }
 }, 10 * 1000)
 
+const emit = defineEmits(['toggle-nav'])
+
+const toggleNav = () => {
+  emit('toggle-nav')
+}
+
 const refreshPage = () => {
   window.location.reload()
 }
@@ -69,7 +76,7 @@ const refreshPage = () => {
     <div class="header-title">
       <h2>
         <IconLiveboat />
-        <a :href="sitePath" v-html="pageTitle"/>
+        <a :href="sitePath" v-html="pageTitle" />
       </h2>
       <h5>Page last updated on {{ buildTime.toUTCString() }}</h5>
       <div id="icons-aggro">
@@ -80,8 +87,17 @@ const refreshPage = () => {
   </div>
   <div id="side-buttons-wrapper">
     <div v-if="!embedStore.showModal" id="side-buttons">
-      <a title="Scroll to top" v-if="showScrollToTop" @click="scrollToTop()"><IconTop /></a>
-      <a title="New feeds available" v-if="showRefresh" @click="refreshPage()"><IconRefresh /></a>
+      <a id="side-button-top" title="Scroll to top" v-if="showScrollToTop" @click="scrollToTop()"
+        ><IconTop
+      /></a>
+      <a
+        id="side-button-refresh"
+        title="New feeds available"
+        v-if="showRefresh"
+        @click="refreshPage()"
+        ><IconRefresh
+      /></a>
+      <a id="side-button-nav" title="Show navigation" @click="toggleNav()"><IconNav /></a>
     </div>
   </div>
 </template>
@@ -141,7 +157,7 @@ const refreshPage = () => {
 #side-buttons-wrapper {
   position: fixed;
   right: 60px;
-  z-index: 997;
+  z-index: 9;
   top: 40%;
   transform: translateY(-40%);
 }
@@ -155,6 +171,7 @@ const refreshPage = () => {
   width: 38px;
   opacity: 0.6;
   cursor: pointer;
+  margin-bottom: 20px;
 }
 #side-buttons a:hover {
   opacity: 1;
@@ -169,7 +186,7 @@ const refreshPage = () => {
 #icons-aggro {
   position: absolute;
   right: 0;
-  bottom: -12px;;
+  bottom: -12px;
   width: 100px;
 }
 
@@ -198,11 +215,16 @@ const refreshPage = () => {
   }
 }
 
-
 @media (max-width: 1640px) {
   #side-buttons-wrapper {
     right: 20px;
-    top: 40px;
+    top: 70px;
+  }
+}
+
+@media (min-width: 1901px) {
+  #side-button-nav {
+    display: none
   }
 }
 </style>

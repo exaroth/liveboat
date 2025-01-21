@@ -1,5 +1,5 @@
 <script setup>
-import { shallowRef, onMounted, onUpdated, onUnmounted } from 'vue'
+import { shallowRef, onMounted, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useMinimizeStore } from '../stores/minimize'
 import { useFeedItemsStore } from '../stores/feedItems'
