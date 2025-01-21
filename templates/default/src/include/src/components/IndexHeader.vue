@@ -67,9 +67,6 @@ const refreshPage = () => {
   <div class="header-crumbs">
     <span>
       <h5>Page generated with <IconHeart /> by Liveboat</h5>
-      <a href="https://github.com/exaroth/liveboat" target="_blank">
-        <IconGithub id="github-link"></IconGithub>
-      </a>
     </span>
   </div>
   <div class="header-container">
@@ -80,6 +77,9 @@ const refreshPage = () => {
       </h2>
       <h5>Page last updated on {{ buildTime.toUTCString() }}</h5>
       <div id="icons-aggro">
+        <a id="icon-github" href="https://github.com/exaroth/liveboat" target="_blank">
+          <IconGithub />
+        </a>
         <a id="icon-rss" href="rss.xml" target="_blank"><IconRss /></a>
         <a id="icon-opml" href="opml.xml" target="_blank"><IconOPML /></a>
       </div>
@@ -141,14 +141,6 @@ const refreshPage = () => {
   padding: 0;
   bottom: 0;
 }
-#github-link {
-  width: 28px;
-  height: 28px;
-  position: absolute;
-  right: 0px;
-  top: 36px;
-  opacity: 0.9;
-}
 
 .header-crumbs svg:hover {
   opacity: 1;
@@ -189,15 +181,25 @@ const refreshPage = () => {
   position: absolute;
   right: 0;
   bottom: -12px;
-  width: 100px;
+  width: 200px;
 }
 
 #icon-rss svg,
-#icon-opml svg {
+#icon-opml svg,
+#icon-github svg {
+  fill: var(--color-text);
   display: inline-block;
   float: right;
   margin-left: 10px;
 }
+
+#icon-github svg {
+  width: 22px;
+  height: 22px;
+  top: 7px;
+  right: -5px;
+}
+
 #icon-rss svg {
   width: 20px;
   height: 20px;
@@ -222,10 +224,6 @@ const refreshPage = () => {
 
   .header-crumbs h5 {
     display: none;
-  }
-
-  #github-link {
-    top: 12px;
   }
 }
 
