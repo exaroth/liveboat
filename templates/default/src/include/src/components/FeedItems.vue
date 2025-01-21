@@ -411,6 +411,7 @@ onMounted(() => {
 }
 
 .comments-button {
+  top: 4px;
 }
 
 .article-expand {

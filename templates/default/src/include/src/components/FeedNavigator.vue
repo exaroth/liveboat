@@ -11,6 +11,19 @@ export default {
   },
   mounted() {
     setInterval(() => {
+      this.updateHighlight()
+    }, 300)
+  },
+  data() {
+    return {
+      implicitFeedSelection: null,
+    }
+  },
+  computed: {
+    ...mapStores(useNavStore),
+  },
+  methods: {
+    updateHighlight() {
       for (const feed of this.navStore.feeds) {
         if (feed.minimized) {
           continue
@@ -32,20 +45,31 @@ export default {
           const nextY = nextF.ref.getBoundingClientRect().top + scrollTop - clientTop
           if (nextY > yTarget && feed.index !== this.navStore.activeFeed) {
             this.navStore.setActiveFeed(feed.index)
+            this.recomputeNavScroll(feed.index)
           }
         }
       }
-    }, 300)
-  },
-  data() {
-    return {
-      implicitFeedSelection: null,
-    }
-  },
-  computed: {
-    ...mapStores(useNavStore),
-  },
-  methods: {
+    },
+    recomputeNavScroll(fIndex) {
+      const navC = this.$refs.navContainer
+      let navE = this.$refs['navigatorLink-' + fIndex]
+      if (!navE || navE.length === 0) {
+        return
+      }
+      navE = navE[0]
+      if (navE.offsetTop > navC.scrollTop + navC.clientHeight) {
+        navC.scroll({
+          top: navE.offsetTop - navC.clientHeight + 40,
+        })
+        return
+      }
+      if (navE.offsetTop < navC.scrollTop) {
+        navC.scroll({
+          top: Math.max(navE.offsetTop - 40, 0),
+        })
+        return
+      }
+    },
     getActiveFeed(feedIndex) {
       if (this.implicitFeedSelection != null) {
         return this.implicitFeedSelection === feedIndex
@@ -66,14 +90,17 @@ export default {
 <template>
   <div id="feed-navigator">
     <h3 id="nav-header-title">Feed List</h3>
-    <ul id="navigator-links" v-for="f in navStore.feeds" :key="f.index">
-      <li
-        :class="{ 'navigator-link': true, 'navigator-link-active': getActiveFeed(f.index) }"
-        v-if="!f.minimized"
-      >
-        <a @click="goToFeed(f.ref, f.index)" v-html="f.title" />
-      </li>
-    </ul>
+    <div id="nav-container" ref="navContainer">
+      <ul id="navigator-links" v-for="f in navStore.feeds" :key="f.index">
+        <li
+          :class="{ 'navigator-link': true, 'navigator-link-active': getActiveFeed(f.index) }"
+          v-if="!f.minimized"
+          :ref="'navigatorLink-' + f.index"
+        >
+          <a @click="goToFeed(f.ref, f.index)" v-html="f.title" />
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -82,13 +109,18 @@ export default {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  width: 320px;
-  height: 60vh;
   right: 140px;
+}
+
+#nav-container {
+  height: 60vh;
+  width: 320px;
+  position: relative;
   overflow: scroll;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 #nav-header-title {
   margin-bottom: 6px;
   padding-left: 10px;
