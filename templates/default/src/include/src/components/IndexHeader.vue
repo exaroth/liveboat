@@ -231,8 +231,9 @@ const refreshPage = () => {
 
 @media (max-width: 1640px) {
   #side-buttons-wrapper {
+    transform: none;
     right: 20px;
-    top: 40px;
+    top: 20px;
   }
 }
 
