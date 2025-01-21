@@ -1,5 +1,5 @@
 <script setup>
-import { shallowRef, onMounted, onUpdated } from 'vue'
+import { shallowRef, onMounted, onUpdated, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useMinimizeStore } from '../stores/minimize'
 import { useFeedItemsStore } from '../stores/feedItems'
@@ -60,11 +60,17 @@ const getNavData = () => {
 }
 
 onMounted(() => {
-  navStore.addFeed(getNavData())
+  if (!props.firehose && !props.archived) {
+    navStore.addFeed(getNavData())
+  }
 })
 
 onUpdated(() => {
   navStore.updateFeed(getNavData())
+})
+
+onUnmounted(() => {
+  navStore.deleteFeed(props.feedIndex)
 })
 </script>
 

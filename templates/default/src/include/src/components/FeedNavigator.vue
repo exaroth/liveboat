@@ -24,8 +24,14 @@ export default {
   },
   methods: {
     updateHighlight() {
+      if (this.navStore.feeds.length === 0) {
+        return
+      }
       for (const feed of this.navStore.feeds) {
         if (feed.minimized) {
+          continue
+        }
+        if (feed.ref == null) {
           continue
         }
         const body = document.body
@@ -39,8 +45,8 @@ export default {
         const yTarget = scrollTop + window.innerHeight / 2
         if (y <= yTarget) {
           const nextF = this.navStore.feeds[feed.index + 1]
-          if (!nextF) {
-            return
+          if (!nextF || !nextF.ref) {
+            continue
           }
           const nextY = nextF.ref.getBoundingClientRect().top + scrollTop - clientTop
           if (nextY > yTarget && feed.index !== this.navStore.activeFeed) {

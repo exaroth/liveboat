@@ -105,7 +105,7 @@ watch(searchFeedsTerm, (val) => {
         />
       </span>
     </ul>
-    <FeedNavigator />
+    <FeedNavigator v-if="!filters.firehose" />
   </div>
 </template>
 
