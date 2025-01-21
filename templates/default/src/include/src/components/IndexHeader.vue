@@ -69,7 +69,7 @@ const refreshPage = () => {
     <div class="header-title">
       <h2>
         <IconLiveboat />
-        <a :href="sitePath">{{ pageTitle }}</a>
+        <a :href="sitePath" v-html="pageTitle"/>
       </h2>
       <h5>Page last updated on {{ buildTime.toUTCString() }}</h5>
       <div id="icons-aggro">
@@ -140,7 +140,7 @@ const refreshPage = () => {
 
 #side-buttons-wrapper {
   position: fixed;
-  right: 40px;
+  right: 60px;
   z-index: 997;
   top: 40%;
   transform: translateY(-40%);
@@ -198,7 +198,8 @@ const refreshPage = () => {
   }
 }
 
-@media (max-width: 900px) {
+
+@media (max-width: 1640px) {
   #side-buttons-wrapper {
     right: 20px;
     top: 40px;

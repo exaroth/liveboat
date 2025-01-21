@@ -84,7 +84,7 @@ const generateFirehoseFeed = () => {
       @unexpand-article="handleArticleUnexpand"
     />
   </div>
-  <div class="feed-list-wrapper" v-else v-for="feed in feeds" :key="feed.id">
+  <div class="feed-list-wrapper" v-else v-for="(feed, index) in feeds" :key="index">
     <Transition>
       <FeedItems
         :feed="feed"
@@ -93,6 +93,7 @@ const generateFirehoseFeed = () => {
         :expand="showExpandedFeed(feed)"
         :firehose="false"
         :expandedArticles="expandedArticles"
+        :feedIndex="index"
         @expand-feed="handleFeedExpand"
         @unexpand-feed="handleFeedUnexpand"
         @expand-article="handleArticleExpand"

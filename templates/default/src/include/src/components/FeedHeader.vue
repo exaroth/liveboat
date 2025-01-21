@@ -1,14 +1,19 @@
 <script setup>
+import { shallowRef, onMounted, onUpdated } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useMinimizeStore } from '../stores/minimize'
 import { useFeedItemsStore } from '../stores/feedItems'
+import { useNavStore } from '../stores/nav'
 import IconMinimize from './icons/IconMinimize.vue'
 import IconMaximize from './icons/IconMaximize.vue'
 import IconTop from './icons/IconTop.vue'
 
 const fItemsStore = useFeedItemsStore()
+const navStore = useNavStore()
 const minimizeStore = useMinimizeStore()
 const { getFeedItems } = fItemsStore
+
+const feedHeaderRef = shallowRef(null)
 
 const props = defineProps({
   feed: {
@@ -27,6 +32,10 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  feedIndex: {
+    type: Number,
+    required: false,
+  },
 })
 
 const retrieveItemData = async () => {
@@ -39,14 +48,61 @@ const dispatchExpandItems = async () => {
     feedId: props.feed.id,
     articleIds: items.map((i) => i.guid),
   }
-
 }
+
+const getNavData = () => {
+  return {
+    ref: feedHeaderRef,
+    title: props.feed.displayTitle,
+    index: props.feedIndex,
+    minimized: minimizeStore.showFeedMinimized(props.feed.id),
+  }
+}
+
+const dispatchActiveHeader = () => {
+  if (props.feedIndex !== navStore.activeFeed) {
+    navStore.setActiveFeed(props.feedIndex)
+  }
+}
+
+onMounted(() => {
+  navStore.addFeed(getNavData())
+  setInterval(() => {
+    if (feedHeaderRef.value == null) {
+      return
+    }
+    const body = document.body
+    const docEl = document.documentElement
+    const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop
+    const clientTop = docEl.clientTop || body.clientTop || 0
+    const y = feedHeaderRef.value.getBoundingClientRect().top + scrollTop - clientTop
+    if (y > scrollTop + window.innerHeight) {
+      return
+    }
+
+    const yTarget = scrollTop + window.innerHeight / 4
+    if (y <= yTarget) {
+      const nextF = navStore.feeds[props.feedIndex + 1]
+      if (!nextF) {
+        return
+      }
+      const nextY = nextF.ref.getBoundingClientRect().top + scrollTop - clientTop
+      if (nextY > yTarget) {
+        dispatchActiveHeader(props.feedIndex)
+      }
+    }
+  }, 400)
+})
+
+onUpdated(() => {
+  navStore.updateFeed(getNavData())
+})
 </script>
 
 <template>
-  <div class="feed-title">
+  <div class="feed-title" ref="feedHeaderRef">
     <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="!props.firehose"
-      >{{ feed.displayTitle || feed.title }}
+      ><span v-html="feed.displayTitle || feed.title" />
       <span v-if="feed.isQuery" class="feed-query-indicator"></span>
       <span class="item-count">({{ feed.itemCount }})</span></router-link
     >

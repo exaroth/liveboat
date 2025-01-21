@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useFiltersStore } from '../stores/filters'
+import FeedNavigator from './FeedNavigator.vue'
 
 const fStore = useFiltersStore()
 
@@ -23,7 +24,6 @@ const setFirehose = () => {
     firehose: true,
     filterByDays: false,
   })
-
 }
 
 const filters = ref(fStore.filters)
@@ -50,45 +50,62 @@ watch(searchFeedsTerm, (val) => {
 
 <template>
   <div class="filter-container">
-    <span class="filter-box"
-      ><button
-        :class="{ selected: filters.firehose === true }"
-        @click="setFirehose()"
-      >
-      Firehose
-      </button></span
-    >
-    <span class="filter-box"
-      ><button
-        :class="{ selected: filters.daysBackCount === 1 && filters.filterByDays === true && !filters.firehose }"
-        @click="setTimeLimit(1)"
-      >
-        Last day
-      </button></span
-    >
-    <span class="filter-box"
-      ><button
-        :class="{ selected: filters.itemCount === 50 && filters.filterByDays === false && !filters.firehose }"
-        @click="setItemLimit(50)"
-      >
-        Last 50
-      </button></span
-    >
-    <span class="filter-box"
-      ><button
-        :class="{ selected: filters.itemCount === 20 && filters.filterByDays === false && !filters.firehose }"
-        @click="setItemLimit(20)"
-      >
-        Last 20
-      </button></span
-    >
-    <span id="filter-search">
-      <input
-        placeholder="Search"
-        :value="searchFeedsTerm"
-        @input="(event) => (searchFeedsTerm = event.target.value)"
-      />
-    </span>
+    <ul id="filter-boxes">
+      <li>
+        <span class="filter-box"
+          ><button :class="{ selected: filters.firehose === true }" @click="setFirehose()">
+            Firehose
+          </button></span
+        >
+      </li>
+      <li>
+        <span class="filter-box"
+          ><button
+            :class="{
+              selected:
+                filters.daysBackCount === 1 && filters.filterByDays === true && !filters.firehose,
+            }"
+            @click="setTimeLimit(1)"
+          >
+            Last day
+          </button></span
+        >
+      </li>
+      <li>
+        <span class="filter-box"
+          ><button
+            :class="{
+              selected:
+                filters.itemCount === 50 && filters.filterByDays === false && !filters.firehose,
+            }"
+            @click="setItemLimit(50)"
+          >
+            Last 50
+          </button></span
+        >
+      </li>
+      <li>
+        <span class="filter-box"
+          ><button
+            :class="{
+              selected:
+                filters.itemCount === 20 && filters.filterByDays === false && !filters.firehose,
+            }"
+            @click="setItemLimit(20)"
+          >
+            Last 20
+          </button></span
+        >
+      </li>
+      <span id="filter-search">
+        <input
+          placeholder="Search"
+          :value="searchFeedsTerm"
+          @input="(event) => (searchFeedsTerm = event.target.value)"
+        />
+      </span>
+    </ul>
+    <FeedNavigator />
   </div>
 </template>
 
@@ -97,6 +114,7 @@ watch(searchFeedsTerm, (val) => {
   width: 100%;
   padding: 20px 0px 20px 0px;
   margin: 0px 0px 24px 0px;
+  position: relative;
 }
 
 .filter-box {
