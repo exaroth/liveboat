@@ -65,10 +65,6 @@ onMounted(() => {
   }
 })
 
-onUpdated(() => {
-  navStore.updateFeed(getNavData())
-})
-
 onUnmounted(() => {
   navStore.deleteFeed(props.feedIndex)
 })

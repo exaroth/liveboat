@@ -18,13 +18,6 @@ export const useNavStore = defineStore('nav', {
         return a.index - b.index
       })
     },
-    updateFeed(feedData) {
-      const idx = this.feeds.findIndex((f) => (f.index = feedData.index))
-      if (idx === -1) {
-        return
-      }
-      this.feeds[idx] = feedData
-    },
     setActiveFeed(feedIndex) {
       this.activeFeed = feedIndex
     },

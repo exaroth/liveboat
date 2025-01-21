@@ -94,7 +94,7 @@ export default {
 </script>
 
 <template>
-  <div id="feed-navigator">
+  <div id="feed-navigator" v-if="navStore.feeds.length > 0">
     <h3 id="nav-header-title">Feed List</h3>
     <div id="nav-container" ref="navContainer">
       <ul id="navigator-links" v-for="f in navStore.feeds" :key="f.index">
