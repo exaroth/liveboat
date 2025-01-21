@@ -4,6 +4,11 @@ import { useNavStore } from '../stores/nav'
 
 export default {
   name: 'FeedNavigator',
+  created() {
+    window.addEventListener('scroll', () => {
+      this.implicitFeedSelection = null
+    })
+  },
   mounted() {
     setInterval(() => {
       for (const feed of this.navStore.feeds) {
@@ -32,15 +37,24 @@ export default {
       }
     }, 300)
   },
+  data() {
+    return {
+      implicitFeedSelection: null,
+    }
+  },
   computed: {
     ...mapStores(useNavStore),
   },
   methods: {
     getActiveFeed(feedIndex) {
-      return this.navStore.activeFeed == feedIndex
+      if (this.implicitFeedSelection != null) {
+        return this.implicitFeedSelection === feedIndex
+      }
+      return this.navStore.activeFeed === feedIndex
     },
-    goToFeed(ref) {
-      const y = ref.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2
+    goToFeed(ref, index) {
+      const y = ref.getBoundingClientRect().top + window.scrollY - window.innerHeight / 3
+      this.implicitFeedSelection = index
       window.scroll({
         top: y,
       })
@@ -57,7 +71,7 @@ export default {
         :class="{ 'navigator-link': true, 'navigator-link-active': getActiveFeed(f.index) }"
         v-if="!f.minimized"
       >
-        <a @click="goToFeed(f.ref)" v-html="f.title" />
+        <a @click="goToFeed(f.ref, f.index)" v-html="f.title" />
       </li>
     </ul>
   </div>
