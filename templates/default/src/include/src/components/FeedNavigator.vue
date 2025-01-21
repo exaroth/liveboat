@@ -28,9 +28,6 @@ export default {
         return
       }
       for (const feed of this.navStore.feeds) {
-        if (feed.minimized) {
-          continue
-        }
         if (feed.ref == null) {
           continue
         }
@@ -100,7 +97,6 @@ export default {
       <ul id="navigator-links" v-for="f in navStore.feeds" :key="f.index">
         <li
           :class="{ 'navigator-link': true, 'navigator-link-active': getActiveFeed(f.index) }"
-          v-if="!f.minimized"
           :ref="'navigatorLink-' + f.index"
         >
           <a @click="goToFeed(f.ref, f.index)" v-html="f.title" />
