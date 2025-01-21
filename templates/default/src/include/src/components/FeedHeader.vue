@@ -59,39 +59,8 @@ const getNavData = () => {
   }
 }
 
-const dispatchActiveHeader = () => {
-  if (props.feedIndex !== navStore.activeFeed) {
-    navStore.setActiveFeed(props.feedIndex)
-  }
-}
-
 onMounted(() => {
   navStore.addFeed(getNavData())
-  setInterval(() => {
-    if (feedHeaderRef.value == null) {
-      return
-    }
-    const body = document.body
-    const docEl = document.documentElement
-    const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop
-    const clientTop = docEl.clientTop || body.clientTop || 0
-    const y = feedHeaderRef.value.getBoundingClientRect().top + scrollTop - clientTop
-    if (y > scrollTop + window.innerHeight) {
-      return
-    }
-
-    const yTarget = scrollTop + window.innerHeight / 4
-    if (y <= yTarget) {
-      const nextF = navStore.feeds[props.feedIndex + 1]
-      if (!nextF) {
-        return
-      }
-      const nextY = nextF.ref.getBoundingClientRect().top + scrollTop - clientTop
-      if (nextY > yTarget) {
-        dispatchActiveHeader(props.feedIndex)
-      }
-    }
-  }, 400)
 })
 
 onUpdated(() => {

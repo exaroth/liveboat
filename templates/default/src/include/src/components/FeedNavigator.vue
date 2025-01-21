@@ -4,13 +4,33 @@ import { useNavStore } from '../stores/nav'
 
 export default {
   name: 'FeedNavigator',
-  created() {
-    console.log('created')
-  },
-  data() {},
-  watch() {},
   mounted() {
-    console.log('mounted')
+    setInterval(() => {
+      for (const feed of this.navStore.feeds) {
+        if (feed.minimized) {
+          continue
+        }
+        const body = document.body
+        const docEl = document.documentElement
+        const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop
+        const clientTop = docEl.clientTop || body.clientTop || 0
+        const y = feed.ref.getBoundingClientRect().top + scrollTop - clientTop
+        if (y > scrollTop + window.innerHeight) {
+          return
+        }
+        const yTarget = scrollTop + window.innerHeight / 2
+        if (y <= yTarget) {
+          const nextF = this.navStore.feeds[feed.index + 1]
+          if (!nextF) {
+            return
+          }
+          const nextY = nextF.ref.getBoundingClientRect().top + scrollTop - clientTop
+          if (nextY > yTarget && feed.index !== this.navStore.activeFeed) {
+            this.navStore.setActiveFeed(feed.index)
+          }
+        }
+      }
+    }, 300)
   },
   computed: {
     ...mapStores(useNavStore),
@@ -20,7 +40,7 @@ export default {
       return this.navStore.activeFeed == feedIndex
     },
     goToFeed(ref) {
-      const y = ref.getBoundingClientRect().top + window.scrollY - window.innerHeight / 4
+      const y = ref.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2
       window.scroll({
         top: y,
       })
