@@ -166,6 +166,7 @@ const refreshPage = () => {
   position: sticky;
   width: 38px;
 }
+
 #side-buttons a {
   float: right;
   width: 38px;
@@ -173,6 +174,7 @@ const refreshPage = () => {
   cursor: pointer;
   margin-bottom: 20px;
 }
+
 #side-buttons a:hover {
   opacity: 1;
   background-color: none;
