@@ -205,13 +205,25 @@ const refreshPage = () => {
 }
 
 @media (max-width: 640px) {
+  .header-container {
+    margin: 0;
+  }
+  .header-title h5 {
+    display: none;
+  }
+  .header-title h2 {
+    font-size: 1.4rem;
+  }
+
   .header-crumbs {
     top: 2px;
     right: 12px;
   }
+
   .header-crumbs h5 {
     display: none;
   }
+
   #github-link {
     top: 12px;
   }
@@ -220,13 +232,13 @@ const refreshPage = () => {
 @media (max-width: 1640px) {
   #side-buttons-wrapper {
     right: 20px;
-    top: 70px;
+    top: 40px;
   }
 }
 
 @media (min-width: 1901px) {
   #side-button-nav {
-    display: none
+    display: none;
   }
 }
 </style>
