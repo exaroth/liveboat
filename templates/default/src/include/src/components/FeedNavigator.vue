@@ -33,14 +33,26 @@ export default {
       if (this.navStore.feeds.length === 0) {
         return
       }
+      const body = document.body
+      const docEl = document.documentElement
+      const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop
+      const clientTop = docEl.clientTop || body.clientTop || 0
+
+      if (scrollTop === 0) {
+        this.navStore.setActiveFeed(0)
+        this.recomputeNavScroll(0)
+        return
+      }
+      if (scrollTop + window.innerHeight === body.offsetHeight) {
+        const idx = this.navStore.feeds.length - 1
+        this.navStore.setActiveFeed(idx)
+        this.recomputeNavScroll(idx)
+        return
+      }
       for (const feed of this.navStore.feeds) {
         if (feed.ref == null) {
           continue
         }
-        const body = document.body
-        const docEl = document.documentElement
-        const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop
-        const clientTop = docEl.clientTop || body.clientTop || 0
         const y = feed.ref.getBoundingClientRect().top + scrollTop - clientTop
         if (y > scrollTop + window.innerHeight) {
           return
@@ -86,7 +98,7 @@ export default {
       return this.navStore.activeFeed === feedIndex
     },
     goToFeed(ref, index) {
-      const y = ref.getBoundingClientRect().top + window.scrollY - window.innerHeight / 3
+      const y = ref.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2
       this.implicitFeedSelection = index
       window.scroll({
         top: y,
@@ -197,5 +209,4 @@ export default {
     width: 100vw !important;
   }
 }
-
 </style>
