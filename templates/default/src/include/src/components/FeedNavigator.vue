@@ -39,14 +39,12 @@ export default {
       const clientTop = docEl.clientTop || body.clientTop || 0
 
       if (scrollTop === 0) {
-        this.navStore.setActiveFeed(0)
-        this.recomputeNavScroll(0)
+        this.setActiveFeed(0, false)
         return
       }
       if (scrollTop + window.innerHeight === body.offsetHeight) {
         const idx = this.navStore.feeds.length - 1
-        this.navStore.setActiveFeed(idx)
-        this.recomputeNavScroll(idx)
+        this.setActiveFeed(idx, false)
         return
       }
       for (const feed of this.navStore.feeds) {
@@ -65,10 +63,15 @@ export default {
           }
           const nextY = nextF.ref.getBoundingClientRect().top + scrollTop - clientTop
           if (nextY > yTarget && feed.index !== this.navStore.activeFeed) {
-            this.navStore.setActiveFeed(feed.index)
-            this.recomputeNavScroll(feed.index)
+            this.setActiveFeed(feed.index, true)
           }
         }
+      }
+    },
+    setActiveFeed(feedIndex, recomputeScroll) {
+      this.navStore.setActiveFeed(feedIndex)
+      if (this.implicitFeedSelection == null && recomputeScroll) {
+        this.recomputeNavScroll(feedIndex)
       }
     },
     recomputeNavScroll(fIndex) {
@@ -80,13 +83,13 @@ export default {
       navE = navE[0]
       if (navE.offsetTop > navC.scrollTop + navC.clientHeight) {
         navC.scroll({
-          top: navE.offsetTop - navC.clientHeight + 40,
+          top: navE.offsetTop - navC.clientHeight + 80,
         })
         return
       }
       if (navE.offsetTop < navC.scrollTop) {
         navC.scroll({
-          top: Math.max(navE.offsetTop - 40, 0),
+          top: Math.max(navE.offsetTop - 80, 0),
         })
         return
       }
