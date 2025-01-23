@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import FeedItems from './FeedItems.vue'
 import AudioPlayer from './AudioPlayer.vue'
 import FilterBox from './FilterBox.vue'
+import FeedNavigator from './FeedNavigator.vue'
 import EmbedModal from './EmbedModal.vue'
 import { useFeedsStore } from '@/stores/feeds'
 import { useEmbedStore } from '@/stores/embed'
@@ -16,6 +17,10 @@ const props = defineProps({
     required: true,
   },
   archived: {
+    type: Boolean,
+    required: true,
+  },
+  showNav: {
     type: Boolean,
     required: true,
   },
@@ -72,6 +77,7 @@ const generateFirehoseFeed = () => {
 </script>
 
 <template>
+  <FeedNavigator v-if="!props.archived" :show="showNav"/>
   <FilterBox />
   <div v-if="filterStore.firehose">
     <FeedItems
@@ -84,7 +90,7 @@ const generateFirehoseFeed = () => {
       @unexpand-article="handleArticleUnexpand"
     />
   </div>
-  <div class="feed-list-wrapper" v-else v-for="feed in feeds" :key="feed.id">
+  <div class="feed-list-wrapper" v-else v-for="(feed, index) in feeds" :key="index">
     <Transition>
       <FeedItems
         :feed="feed"
@@ -93,6 +99,7 @@ const generateFirehoseFeed = () => {
         :expand="showExpandedFeed(feed)"
         :firehose="false"
         :expandedArticles="expandedArticles"
+        :feedIndex="index"
         @expand-feed="handleFeedExpand"
         @unexpand-feed="handleFeedUnexpand"
         @expand-article="handleArticleExpand"

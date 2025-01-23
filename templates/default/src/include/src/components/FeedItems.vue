@@ -45,6 +45,10 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  feedIndex: {
+    type: Number,
+    required: false
+  }
 })
 
 const filteredFeedItems = shallowRef([])
@@ -240,6 +244,7 @@ onMounted(() => {
       :archived="props.archived"
       :expand="props.expand"
       :firehose="props.firehose"
+      :feedIndex="props.feedIndex"
       @expand-feed="handleFeedExpand"
       @unexpand-feed="handleFeedUnexpand"
     />
@@ -310,24 +315,21 @@ onMounted(() => {
   line-height: 34px;
   width: 100%;
 }
+
 .feed-wrapper {
   padding: 0px 0px 12px 0px;
 }
 
 .feed-item-group {
   position: relative;
-  transition: visibility 2s;
 }
+
 .feed-group-date {
   width: 94px;
   color: var(--color-highlight);
   position: relative;
 }
 
-.article-expand {
-  opacity: 0.7;
-  top: 4px;
-}
 .feed-item-details {
   opacity: 0.8;
   padding: 10px 60px;
@@ -390,21 +392,31 @@ onMounted(() => {
 .article-button:hover {
   opacity: 1;
 }
+
 .article-expand {
   top: 1px;
 }
+
 .article-button svg {
   width: 18px;
   height: 18px;
   position: relative;
-  top: 4px;
+  top: 1px;
   color: var(--color-text);
   opacity: 0.8;
 }
+
 .article-unexpand svg {
   transform: rotate(90deg);
 }
+
 .comments-button {
+  top: 4px;
+}
+
+.article-expand {
+  opacity: 0.7;
+  top: 4px;
 }
 
 @media (min-width: 1150px) {

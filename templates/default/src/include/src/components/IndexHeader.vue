@@ -8,6 +8,7 @@ import IconHeart from './icons/IconHeart.vue'
 import IconTop from './icons/IconTop.vue'
 import IconRss from './icons/IconRss.vue'
 import IconOPML from './icons/IconOPML.vue'
+import IconNav from './icons/IconNav.vue'
 import IconLiveboat from './icons/IconLiveboat.vue'
 import IconRefresh from './icons/IconRefresh.vue'
 
@@ -51,6 +52,12 @@ let bTimeInterval = setInterval(async () => {
   }
 }, 10 * 1000)
 
+const emit = defineEmits(['toggle-nav'])
+
+const toggleNav = () => {
+  emit('toggle-nav')
+}
+
 const refreshPage = () => {
   window.location.reload()
 }
@@ -60,19 +67,19 @@ const refreshPage = () => {
   <div class="header-crumbs">
     <span>
       <h5>Page generated with <IconHeart /> by Liveboat</h5>
-      <a href="https://github.com/exaroth/liveboat" target="_blank">
-        <IconGithub id="github-link"></IconGithub>
-      </a>
     </span>
   </div>
   <div class="header-container">
     <div class="header-title">
       <h2>
         <IconLiveboat />
-        <a :href="sitePath">{{ pageTitle }}</a>
+        <a :href="sitePath" v-html="pageTitle" />
       </h2>
       <h5>Page last updated on {{ buildTime.toUTCString() }}</h5>
       <div id="icons-aggro">
+        <a id="icon-github" href="https://github.com/exaroth/liveboat" target="_blank">
+          <IconGithub />
+        </a>
         <a id="icon-rss" href="rss.xml" target="_blank"><IconRss /></a>
         <a id="icon-opml" href="opml.xml" target="_blank"><IconOPML /></a>
       </div>
@@ -80,8 +87,17 @@ const refreshPage = () => {
   </div>
   <div id="side-buttons-wrapper">
     <div v-if="!embedStore.showModal" id="side-buttons">
-      <a title="Scroll to top" v-if="showScrollToTop" @click="scrollToTop()"><IconTop /></a>
-      <a title="New feeds available" v-if="showRefresh" @click="refreshPage()"><IconRefresh /></a>
+      <a id="side-button-top" title="Scroll to top" v-if="showScrollToTop" @click="scrollToTop()"
+        ><IconTop
+      /></a>
+      <a
+        id="side-button-refresh"
+        title="New feeds available"
+        v-if="showRefresh"
+        @click="refreshPage()"
+        ><IconRefresh
+      /></a>
+      <a id="side-button-nav" title="Show navigation" @click="toggleNav()"><IconNav /></a>
     </div>
   </div>
 </template>
@@ -125,14 +141,6 @@ const refreshPage = () => {
   padding: 0;
   bottom: 0;
 }
-#github-link {
-  width: 28px;
-  height: 28px;
-  position: absolute;
-  right: 0px;
-  top: 36px;
-  opacity: 0.9;
-}
 
 .header-crumbs svg:hover {
   opacity: 1;
@@ -140,8 +148,8 @@ const refreshPage = () => {
 
 #side-buttons-wrapper {
   position: fixed;
-  right: 40px;
-  z-index: 997;
+  right: 60px;
+  z-index: 9;
   top: 40%;
   transform: translateY(-40%);
 }
@@ -150,12 +158,15 @@ const refreshPage = () => {
   position: sticky;
   width: 38px;
 }
+
 #side-buttons a {
   float: right;
   width: 38px;
   opacity: 0.6;
   cursor: pointer;
+  margin-bottom: 20px;
 }
+
 #side-buttons a:hover {
   opacity: 1;
   background-color: none;
@@ -169,16 +180,26 @@ const refreshPage = () => {
 #icons-aggro {
   position: absolute;
   right: 0;
-  bottom: -12px;;
-  width: 100px;
+  bottom: -12px;
+  width: 200px;
 }
 
 #icon-rss svg,
-#icon-opml svg {
+#icon-opml svg,
+#icon-github svg {
+  fill: var(--color-text);
   display: inline-block;
   float: right;
   margin-left: 10px;
 }
+
+#icon-github svg {
+  width: 22px;
+  height: 22px;
+  top: 7px;
+  right: -5px;
+}
+
 #icon-rss svg {
   width: 20px;
   height: 20px;
@@ -186,22 +207,37 @@ const refreshPage = () => {
 }
 
 @media (max-width: 640px) {
+  .header-container {
+    margin: 0;
+  }
+  .header-title h5 {
+    display: none;
+  }
+  .header-title h2 {
+    font-size: 1.4rem;
+  }
+
   .header-crumbs {
     top: 2px;
     right: 12px;
   }
+
   .header-crumbs h5 {
     display: none;
   }
-  #github-link {
-    top: 12px;
+}
+
+@media (max-width: 1640px) {
+  #side-buttons-wrapper {
+    transform: none;
+    right: 20px;
+    top: 20px;
   }
 }
 
-@media (max-width: 900px) {
-  #side-buttons-wrapper {
-    right: 20px;
-    top: 40px;
+@media (min-width: 1901px) {
+  #side-button-nav {
+    display: none;
   }
 }
 </style>
