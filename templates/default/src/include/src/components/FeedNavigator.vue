@@ -42,12 +42,12 @@ export default {
       const clientTop = docEl.clientTop || body.clientTop || 0
 
       if (scrollTop === 0) {
-        this.setActiveFeed(0, false)
+        this.setActiveFeed(0, true)
         return
       }
       if (scrollTop + window.innerHeight === body.offsetHeight) {
         const idx = this.navStore.feeds.length - 1
-        this.setActiveFeed(idx, false)
+        this.setActiveFeed(idx, true)
         return
       }
       for (const feed of this.navStore.feeds) {
@@ -66,7 +66,7 @@ export default {
           }
           const nextY = nextF.ref.getBoundingClientRect().top + scrollTop - clientTop
           if (nextY > yTarget && feed.index !== this.navStore.activeFeed) {
-            this.setActiveFeed(feed.index, true)
+            this.setActiveFeed(feed.index, false)
           }
         }
       }
@@ -79,13 +79,17 @@ export default {
       this.navListScrolledDown = navC.scrollTop > 0
       this.navListScrolledUp = Math.abs(navC.scrollHeight - navC.scrollTop - navC.clientHeight) > 1
     },
-    setActiveFeed(feedIndex, recomputeScroll) {
+    setActiveFeed(feedIndex, implicit) {
       this.navStore.setActiveFeed(feedIndex)
-      if (this.implicitFeedSelection == null && recomputeScroll) {
-        this.recomputeNavScroll(feedIndex)
+      this.recomputeNavScroll(feedIndex)
+      if (implicit) {
+        this.implicitFeedSelection = feedIndex
       }
     },
     recomputeNavScroll(fIndex) {
+      if (this.implicitFeedSelection != null) {
+        return
+      }
       const navC = this.$refs.navContainer
       let navE = this.$refs['navigatorLink-' + fIndex]
       if (!navE || navE.length === 0) {
