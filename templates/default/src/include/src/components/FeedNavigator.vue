@@ -18,11 +18,14 @@ export default {
   mounted() {
     setInterval(() => {
       this.updateHighlight()
+      this.updateScrollIcons()
     }, 300)
   },
   data() {
     return {
       implicitFeedSelection: null,
+      navListScrolledDown: null,
+      navListScrolledUp: null,
     }
   },
   computed: {
@@ -68,6 +71,14 @@ export default {
         }
       }
     },
+    updateScrollIcons() {
+      const navC = this.$refs.navContainer
+      if (navC == null) {
+        return
+      }
+      this.navListScrolledDown = navC.scrollTop > 0
+      this.navListScrolledUp = Math.abs(navC.scrollHeight - navC.scrollTop - navC.clientHeight) > 1
+    },
     setActiveFeed(feedIndex, recomputeScroll) {
       this.navStore.setActiveFeed(feedIndex)
       if (this.implicitFeedSelection == null && recomputeScroll) {
@@ -81,15 +92,16 @@ export default {
         return
       }
       navE = navE[0]
+      const offset = navC.clientHeight * 0.25
       if (navE.offsetTop > navC.scrollTop + navC.clientHeight) {
         navC.scroll({
-          top: navE.offsetTop - navC.clientHeight + 80,
+          top: navE.offsetTop - navC.clientHeight + offset,
         })
         return
       }
       if (navE.offsetTop < navC.scrollTop) {
         navC.scroll({
-          top: Math.max(navE.offsetTop - 80, 0),
+          top: Math.max(navE.offsetTop - offset, 0),
         })
         return
       }
@@ -115,7 +127,12 @@ export default {
   <div id="feed-navigator-overlay" :class="{ 'navigator-visible': show }">
     <div id="feed-navigator" v-if="navStore.feeds.length > 0">
       <h3 id="nav-header-title">Feed List</h3>
-      <div id="nav-container" ref="navContainer">
+      <div
+        id="nav-container"
+        ref="navContainer"
+        :class="{ 'scrolled-down': this.navListScrolledDown, 'scrolled-up': this.navListScrolledUp}"
+      >
+        <span class="nav-scroll-indicator" id="nav-scroll-top"><IconTop /></span>
         <ul id="navigator-links" v-for="f in navStore.feeds" :key="f.index">
           <li
             :class="{ 'navigator-link': true, 'navigator-link-active': getActiveFeed(f.index) }"
@@ -143,6 +160,24 @@ export default {
   overflow: scroll;
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+#nav-container.scrolled-down::before,
+#nav-container.scrolled-up::after {
+  position: fixed;
+  color: var(--color-highlight);
+  left: -14px;
+  font-size: 2em;
+}
+
+#nav-container.scrolled-down::before {
+  content: '\2303';
+  top: 14px;
+}
+
+#nav-container.scrolled-up::after {
+  content: '\2304';
+  bottom: 0;
 }
 
 #nav-header-title {
