@@ -117,11 +117,11 @@ export default {
       return this.navStore.activeFeed === feedIndex
     },
     goToFeed(ref, index) {
-      const y = ref.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2
-      this.implicitFeedSelection = index
+      const y = ref.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2 + 30
       window.scroll({
         top: y,
       })
+      this.setActiveFeed(index, true)
     },
   },
 }
@@ -134,7 +134,10 @@ export default {
       <div
         id="nav-container"
         ref="navContainer"
-        :class="{ 'scrolled-down': this.navListScrolledDown, 'scrolled-up': this.navListScrolledUp}"
+        :class="{
+          'scrolled-down': this.navListScrolledDown,
+          'scrolled-up': this.navListScrolledUp,
+        }"
       >
         <span class="nav-scroll-indicator" id="nav-scroll-top"><IconTop /></span>
         <ul id="navigator-links" v-for="f in navStore.feeds" :key="f.index">
