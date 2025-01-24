@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 
 import { useEmbedStore } from '../stores/embed'
+import { useFeedItemsStore } from '../stores/feedItems'
 
 import IconGithub from './icons/IconGithub.vue'
 import IconHeart from './icons/IconHeart.vue'
@@ -12,13 +13,14 @@ import IconNav from './icons/IconNav.vue'
 import IconLiveboat from './icons/IconLiveboat.vue'
 import IconRefresh from './icons/IconRefresh.vue'
 
-const buildTime = new Date(window.buildTime * 1000)
+const buildTime = ref(new Date(window.buildTime * 1000))
 const pageTitle = window.pageTitle
 const sitePath = window.sitePath
 const showScrollToTop = ref(false)
 const showRefresh = ref(false)
 
 const embedStore = useEmbedStore()
+const { resetFeedItems } = useFeedItemsStore()
 
 const setScrollToTop = () => {
   let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
@@ -40,19 +42,25 @@ const getBuildTime = async () => {
   return parseInt(await response.text())
 }
 
+const emit = defineEmits(['toggle-nav', 'reload-feeds'])
+
 setInterval(() => {
   setScrollToTop()
 }, 300)
 
 let bTimeInterval = setInterval(async () => {
   let bTime = await getBuildTime()
-  if (new Date(bTime * 1000) > buildTime) {
-    showRefresh.value = true
-    clearInterval(bTimeInterval)
+  const newBTime = new Date(bTime * 1000)
+  if (newBTime > buildTime.value) {
+    if (window.autoreload === true) {
+      resetFeedItems()
+      buildTime.value = newBTime
+    } else {
+      showRefresh.value = true
+      clearInterval(bTimeInterval)
+    }
   }
 }, 10 * 1000)
-
-const emit = defineEmits(['toggle-nav'])
 
 const toggleNav = () => {
   emit('toggle-nav')

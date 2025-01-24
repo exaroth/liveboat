@@ -41,6 +41,11 @@ export default {
       const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop
       const clientTop = docEl.clientTop || body.clientTop || 0
 
+      if (scrollTop === 0) {
+        this.setActiveFeed(this.navStore.feeds[0].index, true)
+        return
+      }
+
       if (scrollTop + window.innerHeight === body.offsetHeight) {
         this.setActiveFeed(this.navStore.feeds[this.navStore.feeds.length - 1].index, true)
         return

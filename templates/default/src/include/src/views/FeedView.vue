@@ -25,10 +25,11 @@ const handleArticleUnexpand = (articleId) => {
     return i !== articleId
   })
 }
+
 </script>
 
 <template>
-  <IndexHeader></IndexHeader>
+  <IndexHeader />
   <FeedItems
     :filtered="false"
     :archived="true"

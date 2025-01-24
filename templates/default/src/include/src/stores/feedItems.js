@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useFeedsStore } from '@/stores/feeds'
 import { storeToRefs } from 'pinia'
@@ -61,6 +62,7 @@ export const useFeedItemsStore = defineStore('feedItems', () => {
   var feedItems = {}
   const feedsStore = useFeedsStore()
   const { feeds } = storeToRefs(feedsStore)
+  const feedReloadTrigger = ref(false)
 
   async function getFeedItems(feedId, archived) {
     let feedIds = feedId != null ? [feedId] : feeds.value.map((f) => f.id)
@@ -97,5 +99,11 @@ export const useFeedItemsStore = defineStore('feedItems', () => {
     }
     return result
   }
-  return { getFeedItems }
+
+  function resetFeedItems() {
+    feedItems = {}
+    feedReloadTrigger.value = !feedReloadTrigger.value
+  }
+
+  return { getFeedItems, resetFeedItems, feedReloadTrigger }
 })

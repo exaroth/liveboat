@@ -1,5 +1,6 @@
 <script setup>
-import { ref, watchEffect, shallowRef, onMounted } from 'vue'
+import { ref, watchEffect, shallowRef, onMounted, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useEmbedStore } from '../stores/embed'
 import { useAudioStore } from '../stores/audio'
 import { useFiltersStore } from '../stores/filters'
@@ -19,6 +20,7 @@ const minimizeStore = useMinimizeStore()
 const fItemsStore = useFeedItemsStore()
 
 const { getFeedItems } = fItemsStore
+const { feedReloadTrigger } = storeToRefs(fItemsStore)
 
 const props = defineProps({
   feed: {
@@ -47,8 +49,8 @@ const props = defineProps({
   },
   feedIndex: {
     type: Number,
-    required: false
-  }
+    required: false,
+  },
 })
 
 const filteredFeedItems = shallowRef([])
@@ -179,9 +181,7 @@ const showAudioPlayer = (feedItem) => {
 const retrieveItemData = async () => {
   return await getFeedItems(props.feed.id, props.archived)
 }
-
-// ===================
-watchEffect(async () => {
+const reload = async () => {
   if (!initialized.value) {
     await retrieveItemData()
   }
@@ -191,6 +191,16 @@ watchEffect(async () => {
   } else {
     filteredFeedItems.value = aggregateItems(await retrieveItemData())
   }
+
+}
+// ===================
+watchEffect(async () => {
+  reload()
+})
+
+watch(feedReloadTrigger, () => {
+  initialized.value = false
+  reload()
 })
 
 const updateArticleHighlighting = () => {
