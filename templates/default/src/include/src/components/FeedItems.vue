@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watchEffect, shallowRef, onMounted, watch } from 'vue'
+import { ref, shallowRef, onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useEmbedStore } from '../stores/embed'
 import { useAudioStore } from '../stores/audio'
@@ -65,9 +65,6 @@ const emit = defineEmits([
 ])
 const itemDetails = ref(null)
 
-fStore.$subscribe((state) => {
-  filterFeedItems(state.payload)
-})
 
 // Utility
 // ===============
@@ -105,6 +102,7 @@ const aggregateItems = (items) => {
     }
     result[d].push(item)
   }
+  emit('feed-loaded', items.length)
   return result
 }
 
@@ -199,7 +197,6 @@ const reload = async () => {
   } else {
     filteredFeedItems.value = aggregateItems(await retrieveItemData())
   }
-  emit('feed-loaded')
 }
 // ===================
 fStore.$subscribe(async () => {
