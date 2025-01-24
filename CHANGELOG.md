@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add feed navigator
 - Add autoreload option for default template
+- Add 'No feeds found' indicator if there are no articles for given view
+- Add loading indicator
+### Fixed
+- Fix audio player not automatically playing when switching between tracks
 
 ## [1.1.0] 2025-01-20
 ### Added
