@@ -52,7 +52,7 @@ let bTimeInterval = setInterval(async () => {
   let bTime = await getBuildTime()
   const newBTime = new Date(bTime * 1000)
   if (newBTime > buildTime.value) {
-    if (window.autoreload === true) {
+    if (window.autoreload === 1) {
       resetFeedItems()
       buildTime.value = newBTime
     } else {
