@@ -26,6 +26,7 @@ const props = defineProps({
   },
 })
 
+const showLoadingSpinner = ref(true)
 const expandedFeed = ref(null)
 const expandedArticles = ref([])
 const embedStore = useEmbedStore()
@@ -74,10 +75,19 @@ const generateFirehoseFeed = () => {
     isQuery: false,
   }
 }
+
+const handleLoadingFeed = () => {
+  showLoadingSpinner.value = true
+}
+
+const handleLoadedFeed = () => {
+  showLoadingSpinner.value = false
+}
 </script>
 
 <template>
-  <FeedNavigator v-if="!props.archived" :show="showNav"/>
+  <div class="loading-spinner" v-if="showLoadingSpinner" />
+  <FeedNavigator v-if="!props.archived" :show="showNav" />
   <FilterBox />
   <div v-if="filterStore.firehose">
     <FeedItems
@@ -88,6 +98,8 @@ const generateFirehoseFeed = () => {
       :expandedArticles="expandedArticles"
       @expand-article="handleArticleExpand"
       @unexpand-article="handleArticleUnexpand"
+      @feed-loading="handleLoadingFeed"
+      @feed-loaded="handleLoadedFeed"
     />
   </div>
   <div class="feed-list-wrapper" v-else v-for="(feed, index) in feeds" :key="index">
@@ -104,6 +116,8 @@ const generateFirehoseFeed = () => {
         @unexpand-feed="handleFeedUnexpand"
         @expand-article="handleArticleExpand"
         @unexpand-article="handleArticleUnexpand"
+        @feed-loading="handleLoadingFeed"
+        @feed-loaded="handleLoadedFeed"
       />
     </Transition>
   </div>

@@ -55,7 +55,14 @@ const props = defineProps({
 
 const filteredFeedItems = shallowRef([])
 const initialized = ref(false)
-const emit = defineEmits(['expand-article', 'unexpand-article', 'expand-feed', 'unexpand-feed'])
+const emit = defineEmits([
+  'expand-article',
+  'unexpand-article',
+  'expand-feed',
+  'unexpand-feed',
+  'feed-loading',
+  'feed-loaded',
+])
 const itemDetails = ref(null)
 
 fStore.$subscribe((state) => {
@@ -182,6 +189,7 @@ const retrieveItemData = async () => {
   return await getFeedItems(props.feed.id, props.archived)
 }
 const reload = async () => {
+  emit('feed-loading')
   if (!initialized.value) {
     await retrieveItemData()
   }
@@ -191,11 +199,11 @@ const reload = async () => {
   } else {
     filteredFeedItems.value = aggregateItems(await retrieveItemData())
   }
-
+  emit('feed-loaded')
 }
 // ===================
-watchEffect(async () => {
-  reload()
+fStore.$subscribe(async () => {
+  await reload()
 })
 
 watch(feedReloadTrigger, () => {
@@ -240,7 +248,8 @@ const updateArticleHighlighting = () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await reload()
   setInterval(() => {
     updateArticleHighlighting()
   }, 400)
