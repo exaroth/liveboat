@@ -42,7 +42,6 @@ export default {
       audio: undefined,
       currentSeconds: 0,
       durationSeconds: 0,
-      buffered: 0,
       innerLoop: false,
       loaded: false,
       playing: false,
@@ -54,9 +53,6 @@ export default {
   computed: {
     muted() {
       return this.volume / 100 === 0
-    },
-    percentBuffered() {
-      return (this.buffered / this.durationSeconds) * 100
     },
     percentComplete() {
       return (this.currentSeconds / this.durationSeconds) * 100
@@ -102,7 +98,6 @@ export default {
     this.audio = this.$refs.audioFile
     this.audio.addEventListener('timeupdate', this.update)
     this.audio.addEventListener('loadeddata', this.load)
-    this.audio.addEventListener('buffered', this.update)
     this.audio.addEventListener('pause', () => {
       this.playing = false
     })
@@ -120,7 +115,11 @@ export default {
       if (this.audio.readyState >= 2) {
         this.loaded = true
         this.durationSeconds = parseInt(this.audio.duration)
-        this.playing = this.autoPlay
+        if (this.playing) {
+          this.stop()
+        }
+        this.playing = true
+        this.audio.play()
         return this.playing
       }
       throw new Error('Failed to load sound file.')
@@ -148,7 +147,6 @@ export default {
     },
     update() {
       this.currentSeconds = this.audio.currentTime
-      this.buffered = this.audio.buffered.end(0)
     },
     close() {
       this.stop()
