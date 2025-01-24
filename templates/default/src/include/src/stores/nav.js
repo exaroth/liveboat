@@ -21,6 +21,10 @@ export const useNavStore = defineStore('nav', {
     setActiveFeed(feedIndex) {
       this.activeFeed = feedIndex
     },
+    getNextFeed(feedIndex) {
+      const thisI = this.feeds.findIndex((f) => f.index == feedIndex)
+      return this.feeds[thisI + 1] || null
+    },
     deleteFeed(feedIndex) {
       this.feeds = this.feeds.filter((f) => f.index != feedIndex)
     },

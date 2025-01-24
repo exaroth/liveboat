@@ -48,6 +48,9 @@
       <script>
       window.buildTime = {{ build_time }};
       window.pageTitle = '{{ options.title }}';
+    {{#if template_settings.autoreload}}
+      window.autoreload = {{template_settings.autoreload}}
+    {{/if}}
       window.sitePath = '{{ options.site_path }}';
       window.feeds = [
     {{#each feeds}}
