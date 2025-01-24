@@ -247,6 +247,7 @@ export default {
   }
 
   #feed-navigator-overlay {
+    overscroll-behavior: contain;
     display: none;
     right: 0;
     top: 0;
@@ -260,6 +261,8 @@ export default {
 
   #nav-container {
     height: 80vh !important;
+    width: 100%;
+    max-width: 80%;
   }
   .navigator-link {
     font-size: 1.2em;
