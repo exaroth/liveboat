@@ -41,33 +41,30 @@ export default {
       const scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop
       const clientTop = docEl.clientTop || body.clientTop || 0
 
-      if (scrollTop === 0) {
-        this.setActiveFeed(0, true)
-        return
-      }
       if (scrollTop + window.innerHeight === body.offsetHeight) {
-        const idx = this.navStore.feeds.length - 1
-        this.setActiveFeed(idx, true)
+        this.setActiveFeed(this.navStore.feeds[this.navStore.feeds.length - 1].index, true)
         return
       }
+
       for (const feed of this.navStore.feeds) {
         if (feed.ref == null) {
           continue
         }
         const y = feed.ref.getBoundingClientRect().top + scrollTop - clientTop
         if (y > scrollTop + window.innerHeight) {
-          return
+          continue
         }
         const yTarget = scrollTop + window.innerHeight / 2
-        if (y <= yTarget) {
-          const nextF = this.navStore.feeds[feed.index + 1]
-          if (!nextF || !nextF.ref) {
-            continue
-          }
-          const nextY = nextF.ref.getBoundingClientRect().top + scrollTop - clientTop
-          if (nextY > yTarget && feed.index !== this.navStore.activeFeed) {
-            this.setActiveFeed(feed.index, false)
-          }
+
+        const nextF = this.navStore.getNextFeed(feed.index)
+        if (!nextF || !nextF.ref) {
+          this.setActiveFeed(feed.index, false)
+          return
+        }
+        const nextY = nextF.ref.getBoundingClientRect().top + scrollTop - clientTop
+        if (y <= yTarget && nextY > yTarget) {
+          this.setActiveFeed(feed.index, false)
+          return
         }
       }
     },
