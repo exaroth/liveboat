@@ -248,4 +248,9 @@ const refreshPage = () => {
     display: none;
   }
 }
+@media (max-width: 810px) {
+  #side-button-nav {
+    display: none;
+  }
+}
 </style>

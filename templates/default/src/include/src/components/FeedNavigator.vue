@@ -228,6 +228,7 @@ export default {
     left: 40px;
     right: auto;
   }
+
   #feed-navigator-overlay.navigator-visible {
     display: block;
   }
@@ -254,6 +255,7 @@ export default {
 @media (max-width: 810px) {
   #feed-navigator-overlay {
     width: 100vw !important;
+    border: none;
   }
 }
 </style>
