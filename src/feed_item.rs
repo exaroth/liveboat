@@ -126,9 +126,8 @@ impl FeedItem {
     }
 
     /// Native Newsboat guid (id of the article in db)
-    #[allow(dead_code)]
-    pub fn guid(&self) -> i64 {
-        return self.guid;
+    pub fn guid(&self) -> &i64 {
+        return &self.guid;
     }
 
     /// Optional link to comment site for given article.
