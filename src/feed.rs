@@ -7,28 +7,50 @@ use serde::ser::{Serialize, SerializeStruct, Serializer};
 
 use crate::feed_item::FeedItem;
 
+/// Maximum number of items to be included with truncated
+/// feed, unless number of items for time threshold defined
+/// in TRUNCATED_FEED_ITEM_TIME_CUTOFF is smaller.
 const MAX_TRUNCATED_FEED_ITEMS: usize = 50;
+
+/// Number of days in the back to use when fetching items for truncated
+/// feed, only applies if number is larger than that defined in 
+/// MAX_TRUNCATED_FEED_ITEMS const.
 const TRUNCATED_FEED_ITEM_TIME_CUTOFF: i64 = 2;
 
 /// Representation for single feed as retrieved from database.
 /// Used for storing both url and query based feeds.
 #[derive(Clone)]
 pub struct Feed {
+    /// Custom unique id associated with the feed
     id: String,
-    pub title: String,
+    /// Default title as retrievied from RSS feed.
+    title: String,
+    /// User defined title (via urls file).
     display_title: String,
+    /// RSS url used for retrieving feed articles.
     url: String,
+    /// Site link associated with given RSS channel.
     feedlink: String,
-    pub items: Vec<FeedItem>,
+    /// Whether or not feed is defined as hidden (via urls file)
     hidden: bool,
+    /// Article items associated with given feed.
+    pub items: Vec<FeedItem>,
+    /// Tags associated with given feed.
     pub tags: Vec<String>,
 
+    /// Returns whether feed is a query feed.
     _is_query: bool,
+    /// Order of the feed in the feed list, based on the order
+    /// defined in urls file.
     _order_idx: usize,
+    /// Whether or not feed articles have been sorted.
+    /// By default articles are sorted from latest to oldest.
     _sorted: bool,
 }
 
 impl Feed {
+
+    /// Initialize new Feed using default values.
     pub fn init(url: String, title: String, feedlink: String) -> Feed {
         return Feed {
             id: bs58_encode(&url).into_string(),
@@ -132,46 +154,63 @@ impl Feed {
         }
     }
 
-    pub fn url(&self) -> &String {
-        return &self.url;
-    }
-
-    pub fn title(&self) -> &String {
-        return &self.title;
-    }
-
-    pub fn feedlink(&self) -> &String {
-        return &self.feedlink;
-    }
-
-    pub fn display_title(&self) -> &String {
-        return &self.display_title;
-    }
-
-    pub fn is_sorted(&self) -> bool {
-        return self._sorted;
-    }
-
-    pub fn is_hidden(&self) -> bool {
-        return self.hidden;
-    }
-
-    pub fn is_query_feed(&self) -> bool {
-        return self._is_query;
-    }
-
-    pub fn is_empty(&self) -> bool {
-        return self.items.len() == 0;
-    }
+    /// Custom unique id associated with the feed
     pub fn id(&self) -> &String {
         return &self.id;
     }
+    
+    /// RSS url used for retrieving feed articles.
+    pub fn url(&self) -> &String {
+        return &self.url;
+    }
+    
+    /// Default title as retrievied from RSS feed.
+    pub fn title(&self) -> &String {
+        return &self.title;
+    }
+    
+    /// User defined title (via urls file).
+    pub fn display_title(&self) -> &String {
+        return &self.display_title;
+    }
+    
+    /// Site link associated with given RSS channel.
+    pub fn feedlink(&self) -> &String {
+        return &self.feedlink;
+    }
+    
+    /// Whether or not feed articles have been sorted.
+    /// By default articles are sorted from latest to oldest.
+    pub fn is_sorted(&self) -> bool {
+        return self._sorted;
+    }
+    
+    /// Whether or not feed is defined as hidden (via urls file)
+    pub fn is_hidden(&self) -> bool {
+        return self.hidden;
+    }
+    
+    /// Returns whether feed is a query feed.
+    pub fn is_query_feed(&self) -> bool {
+        return self._is_query;
+    }
+    
+    /// Whether or not feed has any articles.
+    pub fn is_empty(&self) -> bool {
+        return self.items.len() == 0;
+    }
+    
+    /// Order of the feed in the feed list, based on the order
+    /// defined in urls file.
     pub fn order_idx(&self) -> &usize {
         return &self._order_idx;
     }
 }
 
 impl Matchable for Feed {
+
+    /// Defines feed attribute variables that can be matched 
+    /// during feed aggregation process (Newsboat compliant).
     fn attribute_value(&self, attr: &str) -> Option<String> {
         match attr {
             "feedtitle" => Some(self.title.clone()),
@@ -205,6 +244,8 @@ impl Matchable for Feed {
     }
 }
 
+
+/// Default implementation of feed serialization.
 impl Serialize for Feed {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -256,7 +297,10 @@ pub struct FeedCompact {
     num_items: usize,
 }
 
+
 impl FeedCompact {
+
+    /// Instantiate new compact feed from full feed representation.
     fn from_feed(f: &Feed) -> FeedCompact {
         return FeedCompact {
             id: f.id.clone(),
@@ -272,13 +316,15 @@ impl FeedCompact {
     }
 }
 
-/// Representation of feed list.
+/// Representation of list of feeds. 
 #[derive(serde::Serialize)]
 pub struct FeedList {
     feeds: Vec<FeedCompact>,
 }
 
 impl FeedList {
+
+    /// Instantates new empty FeedList.
     pub fn new() -> FeedList {
         let f = FeedList { feeds: Vec::new() };
         return f;
@@ -292,7 +338,8 @@ impl FeedList {
         }
         return f;
     }
-
+    
+    /// Add new feed to a FeedList.
     pub fn add_feed(&mut self, f: &Feed) {
         self.feeds.push(FeedCompact::from_feed(f))
     }
