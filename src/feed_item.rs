@@ -14,25 +14,48 @@ use chrono::DateTime;
 use crate::feed::Feed;
 use crate::utils::now;
 
-
 /// Container for storing and operating
 /// on the newsboat article items.
 #[derive(Debug, Clone)]
 pub struct FeedItem {
+    /// Direct url of the feed associated with given article
+    /// NOTE: for query urls, this will point to source URL feed
+    /// not query one (which do not have url associated with them)
     feed_url: String,
+    /// Title of the feed as retrieved from RSS feed.
     title: String,
+    /// URL for the article.
     url: String,
+    /// Author of the article.
     author: String,
+    /// Timestamp of the article.
     date: i64,
+    /// Whether or not article has been
+    /// marked as read (or not) by Newsboat.
     unread: bool,
+    /// Content of the article, will include
+    /// html tags if these were provided by source
+    /// feed.
     content: String,
+    /// Raw content text of the article, will exclude
+    /// any associated HTML tags.
     text: Option<String>,
+    /// Native Newsboat guid (id of the article in db)
     guid: i64,
-    enc_url: Option<String>,
-    enc_mime: Option<String>,
-    flags: Option<String>,
+    /// Length of the content (includes raw text of the article
+    /// excluding tags)
     content_length: usize,
+    /// Optional link to comment site for given article.
     comments_url: Option<String>,
+    /// Url to media associated with the article, eg. mp3 file,
+    /// youtube link etc.
+    enc_url: Option<String>,
+    /// Mimetype of enclosure url associated with the article.
+    enc_mime: Option<String>,
+    /// unused at the moment
+    flags: Option<String>,
+    /// Pointer of feed associated with given article,
+    /// for query feeds will point to source url feed.
     pub feed_ptr: Option<Arc<RefCell<Feed>>>,
 }
 
@@ -59,40 +82,106 @@ impl FeedItem {
         Ok(feed_item)
     }
 
+    /// Direct url of the feed associated with given article
+    /// NOTE: for query urls, this will point to source URL feed
+    /// not query one (which do not have url associated with them)
     pub fn feed_url(&self) -> &String {
         return &self.feed_url;
     }
 
+    /// Title of the article as retrieved from RSS feed.
     #[allow(dead_code)]
     pub fn title(&self) -> &String {
         return &self.title;
     }
 
+    /// URL for the article.
     pub fn url(&self) -> &String {
-        return &self.url
+        return &self.url;
     }
 
+    /// Author of the article.
+    #[allow(dead_code)]
+    pub fn author(&self) -> &String {
+        return &self.author;
+    }
+
+    /// Timestamp of the article.
+    pub fn date(&self) -> i64 {
+        return self.date;
+    }
+
+    /// Whether or not article has been
+    /// marked as read (or not) by Newsboat.
+    #[allow(dead_code)]
+    pub fn unread(&self) -> bool {
+        return self.unread;
+    }
+
+    /// Content of the article, will include
+    /// html tags if these were provided by source
+    /// feed.
+    pub fn content(&self) -> &String {
+        return &self.content;
+    }
+
+    /// Native Newsboat guid (id of the article in db)
     #[allow(dead_code)]
     pub fn guid(&self) -> i64 {
         return self.guid;
     }
 
-    pub fn date(&self) -> i64 {
-        return self.date;
-    }
-
-    pub fn content(&self) -> &String {
-        return &self.content;
-    }
-
+    /// Optional link to comment site for given article.
     #[allow(dead_code)]
     pub fn comments_url(&self) -> &Option<String> {
         return &self.comments_url;
     }
 
+    /// Raw content text of the article, will exclude
+    /// any associated HTML tags.
     #[allow(dead_code)]
     pub fn text(&self) -> &Option<String> {
         return &self.text;
+    }
+
+    /// Length of the content (includes raw text of the article
+    /// excluding tags)
+    #[allow(dead_code)]
+    pub fn content_length(&self) -> usize {
+        return self.content_length;
+    }
+
+    /// Return age of the article (in days).
+    pub fn age(&self) -> i64 {
+        let tnow = now();
+        if let Some(d) = DateTime::from_timestamp(self.date, 0) {
+            let delta = tnow.signed_duration_since(d).num_days();
+            // This will happen if rss channel exposes wrong date (in the future)
+            if delta < 0 {
+                return 0;
+            }
+            return delta;
+        };
+        return 0;
+    }
+
+    /// Whether or not article has been
+    /// marked as read (or not) by Newsboat.
+    pub fn is_unread(&self) -> bool {
+        return self.unread;
+    }
+
+    /// Url to media associated with the article, eg. mp3 file,
+    /// youtube link etc.
+    #[allow(dead_code)]
+    pub fn enc_url(&self) -> &Option<String> {
+        return &self.enc_url;
+    }
+
+    /// Mimetype of enclosure url associated with the article.
+    #[allow(dead_code)]
+    pub fn enc_mime(&self) -> &Option<String> {
+        return &self.enc_mime;
     }
 
     /// Set a pointer to feed associated with the article.
@@ -118,23 +207,6 @@ impl FeedItem {
 
     pub fn set_url(&mut self, url: String) {
         self.url = url
-    }
-
-    /// Return age of the article (in days).
-    pub fn age(&self) -> i64 {
-        let tnow = now();
-        if let Some(d) = DateTime::from_timestamp(self.date, 0) {
-            let delta = tnow.signed_duration_since(d).num_days();
-            // This will happen if rss channel exposes wrong date (in the future)
-            if delta < 0 {
-                return 0;
-            }
-            return delta;
-        };
-        return 0;
-    }
-    pub fn is_unread(&self) -> bool {
-        return self.unread;
     }
 
     /// Convert date ts assigned to feed item to datetime string
