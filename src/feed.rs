@@ -158,48 +158,48 @@ impl Feed {
     pub fn id(&self) -> &String {
         return &self.id;
     }
-    
+
     /// RSS url used for retrieving feed articles.
     pub fn url(&self) -> &String {
         return &self.url;
     }
-    
+
     /// Default title as retrievied from RSS feed.
     pub fn title(&self) -> &String {
         return &self.title;
     }
-    
+
     /// User defined title (via urls file).
     pub fn display_title(&self) -> &String {
         return &self.display_title;
     }
-    
+
     /// Site link associated with given RSS channel.
     pub fn feedlink(&self) -> &String {
         return &self.feedlink;
     }
-    
+
     /// Whether or not feed articles have been sorted.
     /// By default articles are sorted from latest to oldest.
     pub fn is_sorted(&self) -> bool {
         return self._sorted;
     }
-    
+
     /// Whether or not feed is defined as hidden (via urls file)
     pub fn is_hidden(&self) -> bool {
         return self.hidden;
     }
-    
+
     /// Returns whether feed is a query feed.
     pub fn is_query_feed(&self) -> bool {
         return self._is_query;
     }
-    
+
     /// Whether or not feed has any articles.
     pub fn is_empty(&self) -> bool {
         return self.items.len() == 0;
     }
-    
+
     /// Order of the feed in the feed list, based on the order
     /// defined in urls file.
     pub fn order_idx(&self) -> &usize {
@@ -209,7 +209,7 @@ impl Feed {
 
 impl Matchable for Feed {
 
-    /// Defines feed attribute variables that can be matched 
+    /// Defines feed attribute variables that can be matched
     /// during feed aggregation process (Newsboat compliant).
     fn attribute_value(&self, attr: &str) -> Option<String> {
         match attr {
@@ -338,7 +338,7 @@ impl FeedList {
         }
         return f;
     }
-    
+
     /// Add new feed to a FeedList.
     pub fn add_feed(&mut self, f: &Feed) {
         self.feeds.push(FeedCompact::from_feed(f))
