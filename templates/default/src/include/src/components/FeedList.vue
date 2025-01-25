@@ -5,6 +5,7 @@ import AudioPlayer from './AudioPlayer.vue'
 import FilterBox from './FilterBox.vue'
 import FeedNavigator from './FeedNavigator.vue'
 import EmbedModal from './EmbedModal.vue'
+import IconNotFound from '@/components/icons/IconNotFound.vue'
 import { useFeedsStore } from '@/stores/feeds'
 import { useEmbedStore } from '@/stores/embed'
 import { useAudioStore } from '@/stores/audio'
@@ -26,6 +27,8 @@ const props = defineProps({
   },
 })
 
+const showLoadingSpinner = ref(true)
+const totalItemCount = ref(0)
 const expandedFeed = ref(null)
 const expandedArticles = ref([])
 const embedStore = useEmbedStore()
@@ -74,10 +77,24 @@ const generateFirehoseFeed = () => {
     isQuery: false,
   }
 }
+
+const handleLoadingFeed = () => {
+  totalItemCount.value = 0
+  showLoadingSpinner.value = true
+}
+const handleLoadedFeed = (numItems) => {
+  totalItemCount.value += numItems
+  showLoadingSpinner.value = false
+}
 </script>
 
 <template>
-  <FeedNavigator v-if="!props.archived" :show="showNav"/>
+  <div class="loading-spinner" v-if="showLoadingSpinner" />
+  <div id="no-feeds-found-indicator" v-if="totalItemCount === 0 && !showLoadingSpinner">
+    <IconNotFound/>
+    <h2>No feeds found</h2>
+  </div>
+  <FeedNavigator v-if="!props.archived" :show="showNav" />
   <FilterBox />
   <div v-if="filterStore.firehose">
     <FeedItems
@@ -88,6 +105,8 @@ const generateFirehoseFeed = () => {
       :expandedArticles="expandedArticles"
       @expand-article="handleArticleExpand"
       @unexpand-article="handleArticleUnexpand"
+      @feed-loading="handleLoadingFeed"
+      @feed-loaded="handleLoadedFeed"
     />
   </div>
   <div class="feed-list-wrapper" v-else v-for="(feed, index) in feeds" :key="index">
@@ -104,6 +123,8 @@ const generateFirehoseFeed = () => {
         @unexpand-feed="handleFeedUnexpand"
         @expand-article="handleArticleExpand"
         @unexpand-article="handleArticleUnexpand"
+        @feed-loading="handleLoadingFeed"
+        @feed-loaded="handleLoadedFeed"
       />
     </Transition>
   </div>
@@ -132,5 +153,21 @@ const generateFirehoseFeed = () => {
 .v-leave-to {
   opacity: 0;
   transform: translateY(30px);
+}
+
+#no-feeds-found-indicator {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translateX(-50%);
+  transform: translateY(-30%);
+}
+
+#no-feeds-found-indicator svg {
+  width: 60px;
+  height: 60px;
+  display: block;
+  margin: auto;
+  stroke: #c7cfcc;
 }
 </style>

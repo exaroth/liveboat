@@ -156,7 +156,7 @@ const refreshPage = () => {
 
 #side-buttons-wrapper {
   position: fixed;
-  right: 60px;
+  right: 45px;
   z-index: 9;
   top: 40%;
   transform: translateY(-40%);

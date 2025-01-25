@@ -13,6 +13,7 @@ export default {
   created() {
     window.addEventListener('scroll', () => {
       this.implicitFeedSelection = null
+      this.navAutoScrollDisabled = false
     })
   },
   mounted() {
@@ -20,9 +21,19 @@ export default {
       this.updateHighlight()
       this.updateScrollIcons()
     }, 300)
+    let navCInterval = setInterval(() => {
+      const navC = this.$refs.navContainer
+      if (navC != null) {
+        navC.addEventListener('scroll', () => {
+          this.navAutoScrollDisabled = true
+        })
+        clearInterval(navCInterval)
+      }
+    }, 100)
   },
   data() {
     return {
+      navAutoScrollDisabled: false,
       implicitFeedSelection: null,
       navListScrolledDown: null,
       navListScrolledUp: null,
@@ -90,6 +101,9 @@ export default {
     },
     recomputeNavScroll(fIndex) {
       if (this.implicitFeedSelection != null) {
+        return
+      }
+      if (this.navAutoScrollDisabled) {
         return
       }
       const navC = this.$refs.navContainer
@@ -234,6 +248,7 @@ export default {
   }
 
   #feed-navigator-overlay {
+    overscroll-behavior: contain;
     display: none;
     right: 0;
     top: 0;
@@ -247,6 +262,8 @@ export default {
 
   #nav-container {
     height: 80vh !important;
+    width: 100%;
+    max-width: 80%;
   }
   .navigator-link {
     font-size: 1.2em;
