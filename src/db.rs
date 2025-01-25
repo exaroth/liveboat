@@ -11,6 +11,7 @@ use std::path::Path;
 use rusqlite::Error as SQLiteError;
 use rusqlite::{params_from_iter, Connection, Rows};
 
+/// SQL used for retrieving article items from db.
 const FEED_ITEMS_SQL: &str = "SELECT 
     feed.rssurl AS feed_url,
     feed.title AS feed_title,
@@ -30,23 +31,28 @@ WHERE datetime(items.pubDate, 'unixepoch') >= datetime('now', $days )
 AND items.deleted=0
 ";
 
+/// Trait for DBConnector (used for testing).
 #[cfg_attr(test, automock)]
 pub trait Connector {
     fn get_feed_items(&self, days_back: u64) -> Result<Vec<FeedItem>>;
     fn get_feeds(&self, urls: Vec<String>) -> Result<Vec<Feed>>;
 }
 
+/// Database connector module.
 pub struct DBConnector {
     conn: Connection,
 }
 
 impl DBConnector {
+
+    /// Initialize new DB connector.
     pub fn init(db_path: &Path) -> Result<DBConnector> {
         let connector = DBConnector {
             conn: Connection::open(db_path)?,
         };
         Ok(connector)
     }
+
     /// Instantiate feed objects based on the rows retrieved from db.
     fn load_feed_items(&self, rows: &mut Rows<'_>) -> Result<Vec<FeedItem>, SQLiteError> {
         let mut results: Vec<FeedItem> = Vec::new();

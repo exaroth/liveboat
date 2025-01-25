@@ -18,8 +18,8 @@ use crate::handlers::aux;
 use crate::utils;
 
 
-// Static map of target->release bin name.
 lazy_static::lazy_static! {
+    /// Static map of target->release bin name.
     static ref SUPPORTED_TARGETS: HashMap<&'static str, &'static str> = [
         ("x86_64-unknown-linux-musl", "liveboat-linux-musl"),
         ("x86_64-unknown-linux-gnu", "liveboat-linux-gnu"),

@@ -17,14 +17,16 @@ pub fn generate_rss_channel(opts: &Options, feeds: &Vec<Feed>) -> String {
         .description(format!("Aggregated Liveboat rss feed for {}", opts.title))
         .build();
     let mut items = Vec::new();
+    let mut article_guids: Vec<i64> = Vec::new();
     for feed in feeds {
-        if feed.is_query_feed() || feed.is_empty() {
-            continue;
-        }
         let mut fc = feed.clone();
         fc.truncate_items();
 
         for feed_item in fc.items {
+            if article_guids.iter().any(|i| i == feed_item.guid()) {
+                continue;
+            };
+            article_guids.push(feed_item.guid().clone());
             items.push(feed_item)
         }
     }

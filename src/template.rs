@@ -12,12 +12,16 @@ use crate::errors::FilesystemError;
 use crate::feed::Feed;
 use crate::opts::Options;
 
+/// Default filename for template config.
 pub const TEMPLATE_CONFIG_FNAME: &str = "config.toml";
 
+/// Default template settings.
 fn default_template_settings() -> HashMap<String, String> {
     return HashMap::new();
 }
 
+/// Default builder to be used if not set explicitely in
+/// template config.
 fn default_builder() -> String {
     String::from("spa")
 }
@@ -33,6 +37,7 @@ pub struct TemplateConfig {
     #[serde(default = "default_template_settings")]
     pub template_settings: HashMap<String, String>,
 }
+
 impl TemplateConfig {
     /// Instantiate template settings from TOML file.
     pub fn get_config_for_template(tpl_path: &Path) -> Result<TemplateConfig> {
@@ -57,10 +62,15 @@ pub trait Context {
 /// when rendering index template.
 #[derive(serde::Serialize)]
 pub struct SimpleContext<'a> {
+    /// List of all feeds to be rendered.
     feeds: Vec<Feed>,
+    /// Liveboat options.
     options: &'a Options,
+    /// Timestamp of the build time.
     build_time: u64,
+    /// Custom template settings.
     template_settings: &'a HashMap<String, String>,
+    /// Version of template as defined in template config.
     template_version: String,
 }
 
@@ -77,6 +87,8 @@ impl<'a> Context for SimpleContext<'a> {
 }
 
 impl<'a> SimpleContext<'a> {
+
+    /// Initialize new context given processing and context opts.
     pub fn init(
         url_feeds: &'a Vec<Arc<RefCell<Feed>>>,
         query_feeds: &'a Vec<Feed>,
