@@ -131,38 +131,51 @@ impl Paths {
         }
         Ok(())
     }
-
+    
+    /// Mark paths as initialized, meaning minimal
+    /// requirements for processing have been met.
     pub fn initialized(&self) -> bool {
         return self.config_file.is_file();
     }
-
+    
+    /// Path to urls file to be used.
     pub fn url_file(&self) -> &Path {
         return &self.url_file;
     }
-
+    
+    /// Path to main Liveboat config.
     pub fn config_file(&self) -> &Path {
         return &self.config_file;
     }
-
+    
+    /// Path to directory to be used as output dir
+    /// during processing.
     pub fn build_dir(&self) -> &Path {
         return &self.build_dir;
     }
-
+    
+    /// Path to Newsboat cache file.
     pub fn cache_file(&self) -> &Path {
         return &self.cache_file;
     }
-
+    
+    /// Path to temporary dir used during processing
+    /// of output files.
     pub fn tmp_dir(&self) -> &Path {
         return &self.tmp_dir;
     }
-
+    
+    /// Path to Liveboat template dir.
     pub fn template_dir(&self) -> &Path {
         return &self.template_dir;
     }
+
+    /// Path to template to be used for generating output.
     pub fn template_path(&self) -> &Path {
         return &self.template_path;
     }
-
+    
+    /// Home directory of the user.
     fn home(&self) -> PathBuf {
         #[allow(deprecated)]
         if let Some(home) = std::env::home_dir() {

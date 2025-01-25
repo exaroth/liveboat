@@ -37,7 +37,7 @@ impl ContentProcessingResult {
     pub fn content_length(&self) -> usize {
         return self.text.len();
     }
-    
+
     /// Return default instance of processing result.
     fn default(url: String) -> ContentProcessingResult {
         return ContentProcessingResult {
