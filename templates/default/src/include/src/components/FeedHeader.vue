@@ -1,14 +1,19 @@
 <script setup>
+import { shallowRef, onMounted, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useMinimizeStore } from '../stores/minimize'
 import { useFeedItemsStore } from '../stores/feedItems'
+import { useNavStore } from '../stores/nav'
 import IconMinimize from './icons/IconMinimize.vue'
 import IconMaximize from './icons/IconMaximize.vue'
 import IconTop from './icons/IconTop.vue'
 
 const fItemsStore = useFeedItemsStore()
+const navStore = useNavStore()
 const minimizeStore = useMinimizeStore()
 const { getFeedItems } = fItemsStore
+
+const feedHeaderRef = shallowRef(null)
 
 const props = defineProps({
   feed: {
@@ -27,6 +32,10 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  feedIndex: {
+    type: Number,
+    required: false,
+  },
 })
 
 const retrieveItemData = async () => {
@@ -39,14 +48,32 @@ const dispatchExpandItems = async () => {
     feedId: props.feed.id,
     articleIds: items.map((i) => i.guid),
   }
-
 }
+
+const getNavData = () => {
+  return {
+    ref: feedHeaderRef,
+    title: props.feed.displayTitle,
+    index: props.feedIndex,
+    minimized: minimizeStore.showFeedMinimized(props.feed.id),
+  }
+}
+
+onMounted(() => {
+  if (!props.firehose && !props.archived) {
+    navStore.addFeed(getNavData())
+  }
+})
+
+onUnmounted(() => {
+  navStore.deleteFeed(props.feedIndex)
+})
 </script>
 
 <template>
-  <div class="feed-title">
+  <div class="feed-title" ref="feedHeaderRef">
     <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="!props.firehose"
-      >{{ feed.displayTitle || feed.title }}
+      ><span v-html="feed.displayTitle || feed.title" />
       <span v-if="feed.isQuery" class="feed-query-indicator"></span>
       <span class="item-count">({{ feed.itemCount }})</span></router-link
     >
@@ -95,10 +122,11 @@ const dispatchExpandItems = async () => {
 
 <style scoped>
 .feed-title {
-  padding: 0px 0px 0px 50px;
+  padding: 0 0 0 4%;
   margin: 0px 0px 14px 0px;
   width: 100%;
   border-bottom: 2px solid var(--color-accent);
+  position: relative;
 }
 
 .feed-title a {
@@ -106,6 +134,12 @@ const dispatchExpandItems = async () => {
   background-color: var(--color-accent);
   padding: 2px 20px 0px 20px;
   border-radius: 3px 3px 0px 0px;
+  max-width: 60%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  position:relative;
+  top: 7px;
 }
 
 .expand-button,

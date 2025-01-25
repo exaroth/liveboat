@@ -15,11 +15,17 @@ use crate::feed::{Feed, FeedList};
 use crate::template::Context;
 use crate::utils::copy_all;
 
+/// Dirname of the directory to be used for storing feed data.
 const FEEDS_DIRNAME: &str = "feeds";
+/// Dirname of include directory.
 const INCLUDE_DIRNAME: &str = "include";
+/// Base name of the index template and output html page.
 const INDEX_FILENAME: &str = "index";
+/// Filename for the file containing build timestamp.
 const BUILD_TIME_FILENAME: &str = "build_time.txt";
+/// Filename of the rss file.
 const RSS_FILE_FILENAME: &str = "rss.xml";
+/// Filename of the ompl file.
 const OPML_FILENAME: &str = "opml.xml";
 
 /// This represents default builder module

@@ -23,11 +23,10 @@ ul {
 #app {
   width: 100vw;
   margin: 0 auto;
-  padding: .8rem;
+  padding: 0.8rem;
   font-weight: normal;
   min-height: 100vh;
 }
-
 
 @media (hover: hover) {
   a:hover {
@@ -45,5 +44,29 @@ ul {
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
     width: 1024px;
+  }
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid var(--color-accent);
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: spinner-anim 1s linear infinite;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%);
+}
+
+@keyframes spinner-anim {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }

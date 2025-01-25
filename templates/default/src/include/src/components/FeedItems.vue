@@ -1,5 +1,6 @@
 <script setup>
-import { ref, watchEffect, shallowRef, onMounted } from 'vue'
+import { ref, shallowRef, onMounted, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useEmbedStore } from '../stores/embed'
 import { useAudioStore } from '../stores/audio'
 import { useFiltersStore } from '../stores/filters'
@@ -19,6 +20,7 @@ const minimizeStore = useMinimizeStore()
 const fItemsStore = useFeedItemsStore()
 
 const { getFeedItems } = fItemsStore
+const { feedReloadTrigger } = storeToRefs(fItemsStore)
 
 const props = defineProps({
   feed: {
@@ -45,16 +47,24 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  feedIndex: {
+    type: Number,
+    required: false,
+  },
 })
 
 const filteredFeedItems = shallowRef([])
 const initialized = ref(false)
-const emit = defineEmits(['expand-article', 'unexpand-article', 'expand-feed', 'unexpand-feed'])
+const emit = defineEmits([
+  'expand-article',
+  'unexpand-article',
+  'expand-feed',
+  'unexpand-feed',
+  'feed-loading',
+  'feed-loaded',
+])
 const itemDetails = ref(null)
 
-fStore.$subscribe((state) => {
-  filterFeedItems(state.payload)
-})
 
 // Utility
 // ===============
@@ -92,6 +102,7 @@ const aggregateItems = (items) => {
     }
     result[d].push(item)
   }
+  emit('feed-loaded', items.length)
   return result
 }
 
@@ -175,9 +186,8 @@ const showAudioPlayer = (feedItem) => {
 const retrieveItemData = async () => {
   return await getFeedItems(props.feed.id, props.archived)
 }
-
-// ===================
-watchEffect(async () => {
+const reload = async () => {
+  emit('feed-loading')
   if (!initialized.value) {
     await retrieveItemData()
   }
@@ -187,6 +197,15 @@ watchEffect(async () => {
   } else {
     filteredFeedItems.value = aggregateItems(await retrieveItemData())
   }
+}
+// ===================
+fStore.$subscribe(async () => {
+  await reload()
+})
+
+watch(feedReloadTrigger, () => {
+  initialized.value = false
+  reload()
 })
 
 const updateArticleHighlighting = () => {
@@ -226,7 +245,8 @@ const updateArticleHighlighting = () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await reload()
   setInterval(() => {
     updateArticleHighlighting()
   }, 400)
@@ -240,6 +260,7 @@ onMounted(() => {
       :archived="props.archived"
       :expand="props.expand"
       :firehose="props.firehose"
+      :feedIndex="props.feedIndex"
       @expand-feed="handleFeedExpand"
       @unexpand-feed="handleFeedUnexpand"
     />
@@ -310,24 +331,21 @@ onMounted(() => {
   line-height: 34px;
   width: 100%;
 }
+
 .feed-wrapper {
   padding: 0px 0px 12px 0px;
 }
 
 .feed-item-group {
   position: relative;
-  transition: visibility 2s;
 }
+
 .feed-group-date {
   width: 94px;
   color: var(--color-highlight);
   position: relative;
 }
 
-.article-expand {
-  opacity: 0.7;
-  top: 4px;
-}
 .feed-item-details {
   opacity: 0.8;
   padding: 10px 60px;
@@ -390,21 +408,31 @@ onMounted(() => {
 .article-button:hover {
   opacity: 1;
 }
+
 .article-expand {
   top: 1px;
 }
+
 .article-button svg {
   width: 18px;
   height: 18px;
   position: relative;
-  top: 4px;
+  top: 1px;
   color: var(--color-text);
   opacity: 0.8;
 }
+
 .article-unexpand svg {
   transform: rotate(90deg);
 }
+
 .comments-button {
+  top: 4px;
+}
+
+.article-expand {
+  opacity: 0.7;
+  top: 4px;
 }
 
 @media (min-width: 1150px) {
