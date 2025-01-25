@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add feed navigator
 - Add autoreload option for default template
+### Changed
+- Include query feed articles in RSS feeds
 - Add 'No feeds found' indicator if there are no articles for given view
 - Add loading indicator
 ### Fixed

@@ -7,6 +7,8 @@ use url::Url;
 
 use crate::opts::Options;
 
+/// List of domains associated with Reddit which will
+/// be marked as self referential (and excluded from scraping).
 const REDDIT_SELF_REFERENTIAL_DOMAINS: &[&str] = &[
     "www.reddit.com",
     "i.redd.it",
@@ -14,9 +16,12 @@ const REDDIT_SELF_REFERENTIAL_DOMAINS: &[&str] = &[
     "new.reddit.com",
 ];
 
+/// Array of domains that are excluded from scraping, since these will
+/// never return useable results.
 const SCRAPE_EXCLUDED_DOMAINS: &[&str] =
     &["github.com", "github.io", "bloomberg.com", "youtube.com"];
 
+/// Representation of content processing result.
 #[derive(Debug)]
 pub struct ContentProcessingResult {
     pub content: String,
@@ -33,6 +38,7 @@ impl ContentProcessingResult {
         return self.text.len();
     }
 
+    /// Return default instance of processing result.
     fn default(url: String) -> ContentProcessingResult {
         return ContentProcessingResult {
             content: String::new(),

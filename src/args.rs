@@ -24,6 +24,8 @@ impl std::fmt::Display for Command {
 impl std::str::FromStr for Command {
 
     type Err = String;
+
+    /// Initialize new command from string.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "init" => Ok(Self::Init),
