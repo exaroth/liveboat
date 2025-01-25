@@ -1,6 +1,6 @@
 [package]
 name = "liveboat"
-version = "1.1.0"
+version = "1.1.1"
 edition = "2021"
 description = "Static page generator for Newsboat feeds"
 homepage = "https://github.com/exaroth/liveboat"
