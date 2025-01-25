@@ -215,8 +215,9 @@ export default {
 .navigator-link {
   opacity: 0.7;
   cursor: pointer;
-  width: 100%;
+  white-space: nowrap;
   text-overflow: ellipsis;
+  overflow: hidden;
   padding-left: 10px;
   position: relative;
   border-left: 1px solid rgb(from var(--color-accent) r g b / 60%);

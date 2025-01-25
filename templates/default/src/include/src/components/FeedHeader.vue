@@ -122,10 +122,11 @@ onUnmounted(() => {
 
 <style scoped>
 .feed-title {
-  padding: 0px 0px 0px 50px;
+  padding: 0 0 0 4%;
   margin: 0px 0px 14px 0px;
   width: 100%;
   border-bottom: 2px solid var(--color-accent);
+  position: relative;
 }
 
 .feed-title a {
@@ -133,6 +134,12 @@ onUnmounted(() => {
   background-color: var(--color-accent);
   padding: 2px 20px 0px 20px;
   border-radius: 3px 3px 0px 0px;
+  max-width: 60%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  position:relative;
+  top: 7px;
 }
 
 .expand-button,

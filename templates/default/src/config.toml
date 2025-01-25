@@ -1,6 +1,6 @@
 name = "Default Template"
 builder = "spa"
-version = "1.1.6"
+version = "1.1.7"
 author = "Konrad Wasowicz (exaroth@gmail.com)"
 
 [template_settings]
@@ -9,4 +9,4 @@ highlight-color = "#73bed3"
 accent-color = "#2D4566"
 background-color = "#121414"
 custom-color = "#f3a833"
-autoreload = true
+autoreload = "1"
