@@ -22,6 +22,13 @@ const showRefresh = ref(false)
 const embedStore = useEmbedStore()
 const { resetFeedItems } = useFeedItemsStore()
 
+const props = defineProps({
+  feedList: {
+    type: Boolean,
+    required: true,
+  },
+})
+
 const setScrollToTop = () => {
   let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
   let offset = window.pageYOffset
@@ -105,7 +112,7 @@ const refreshPage = () => {
         @click="refreshPage()"
         ><IconRefresh
       /></a>
-      <a id="side-button-nav" title="Show navigation" @click="toggleNav()"><IconNav /></a>
+      <a id="side-button-nav" v-if="props.feedList" title="Show navigation" @click="toggleNav()"><IconNav /></a>
     </div>
   </div>
 </template>
