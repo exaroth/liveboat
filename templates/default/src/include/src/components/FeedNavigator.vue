@@ -174,7 +174,7 @@ export default {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  right: 140px;
+  right: 7%;
 }
 #nav-container {
   height: 60vh;
