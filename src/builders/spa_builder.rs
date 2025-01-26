@@ -25,6 +25,9 @@ const INDEX_FILENAME: &str = "index";
 const BUILD_TIME_FILENAME: &str = "build_time.txt";
 /// Filename of the rss file.
 const RSS_FILE_FILENAME: &str = "rss.xml";
+/// Directory name used for storing self referential rss documents
+/// used for storing query feed rss data.
+const SELF_REFERENTIAL_RSS_DIRNAME: &str = "channels";
 /// Filename of the ompl file.
 const OPML_FILENAME: &str = "opml.xml";
 
@@ -51,6 +54,7 @@ where
         _ = fs::create_dir(self.tmp_dir)?;
         info!("Creating tmp feeds dir");
         _ = fs::create_dir(self.tmp_dir.join(FEEDS_DIRNAME))?;
+        _ = fs::create_dir(self.tmp_dir.join(SELF_REFERENTIAL_RSS_DIRNAME))?;
         Ok(())
     }
 
@@ -60,6 +64,7 @@ where
         self.save_json_feeds()?;
         self.save_build_time()?;
         self.save_rss_channel()?;
+        self.save_query_feed_channels()?;
         self.save_opml()?;
         Ok(())
     }
@@ -82,6 +87,10 @@ where
             _ = fs::remove_dir_all(&feeds_dir);
         }
         copy_all(feeds_dir_tmp, &feeds_dir)?;
+
+        let channel_dir_tmp = self.tmp_dir.join(SELF_REFERENTIAL_RSS_DIRNAME);
+        let channel_dir = self.build_dir.join(SELF_REFERENTIAL_RSS_DIRNAME);
+        copy_all(channel_dir_tmp, &channel_dir)?;
 
         let tpl_index_path = self.tmp_dir.join(format!("{}.html", INDEX_FILENAME));
         let index_path = self.build_dir.join(format!("{}.html", INDEX_FILENAME));
@@ -195,9 +204,7 @@ where
     fn save_opml(&self) -> Result<()> {
         let path = self.tmp_dir.join(OPML_FILENAME);
         let mut file = File::create(path)?;
-        file.write_all(
-            generate_opml(self.context.options(), self.context.feeds()).as_bytes(),
-        )?;
+        file.write_all(generate_opml(self.context.options(), self.context.feeds()).as_bytes())?;
         Ok(())
     }
 
@@ -208,6 +215,27 @@ where
         info!("Saving feed at path {}", path.display());
         let mut file = File::create(path)?;
         file.write_all(data)?;
+        Ok(())
+    }
+
+    /// Save rss feeds containing query feed data used in the
+    /// self referential data used in OPML channel.
+    fn save_query_feed_channels(&self) -> Result<()> {
+        let base_path = self.tmp_dir.join(SELF_REFERENTIAL_RSS_DIRNAME);
+        let q_feeds: Vec<&Feed> = self
+            .context
+            .feeds()
+            .into_iter()
+            .filter(|f| f.is_query_feed() == true)
+            .collect();
+        for f in q_feeds {
+            let path = base_path.join(format!("{}.xml", f.id()));
+            info!("Saving channel data for query feed: {}", path.display());
+            let mut file = File::create(path)?;
+            file.write_all(
+                generate_rss_channel(self.context.options(), &Vec::from([f.clone()])).as_bytes(),
+            )?;
+        }
         Ok(())
     }
 
