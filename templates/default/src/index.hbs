@@ -63,7 +63,10 @@
                 displayTitle: "{{this.displayTitle}}",
                 feedLink: "{{this.feedLink}}",
                 itemCount: "{{this.itemCount}}",
-                isQuery: {{this.isQuery}}
+                isQuery: {{this.isQuery}},
+                tags: [{{#each this.tags}}
+                    "{{this}}",
+                    {{/each}}]
             },
             {{/unless}}
         {{/unless}}
