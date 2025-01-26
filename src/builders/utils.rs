@@ -267,12 +267,12 @@ mod tests {
     #[test]
     fn test_generating_opml_from_feeds() {
         let f1 = Feed::init(
-            "www.example.com/rss".to_string(),
+            "www.test1.com/rss".to_string(),
             "Test feed 1".to_string(),
             "www.example.com".to_string(),
         );
         let mut f2 = Feed::init(
-            "www.example2.com/rss".to_string(),
+            "www.test2.com/rss".to_string(),
             "Test feed 2".to_string(),
             "www.example2.com".to_string(),
         );
@@ -284,6 +284,6 @@ mod tests {
             &Vec::from([f1, f2, f3]),
             &Url::parse("http://www.example.com").unwrap(),
         );
-        assert_eq!("<opml version=\"2.0\"><head><title>Liveboat feed page</title><dateCreated>Thu, 12 Dec 2024 03:42:54 +0000</dateCreated><dateModified>Thu, 12 Dec 2024 03:42:54 +0000</dateModified></head><body><outline text=\"test\" title=\"test\"><outline text=\"Test feed 2\" type=\"rss\" category=\"test\" xmlUrl=\"www.example2.com/rss\" htmlUrl=\"www.example2.com\" title=\"Test feed 2\"/></outline><outline text=\"Test feed 1\" type=\"rss\" xmlUrl=\"www.example.com/rss\" htmlUrl=\"www.example.com\" title=\"Test feed 1\"/><outline text=\"Query feed\" type=\"rss\" xmlUrl=\"http://www.example.com/channel/5aSKHsoqmmoCnw.xml\" htmlUrl=\"http://www.example.com/\" title=\"Query feed\"/></body></opml>", result)
+        assert_eq!("<opml version=\"2.0\"><head><title>Liveboat feed page</title><dateCreated>Thu, 12 Dec 2024 03:42:54 +0000</dateCreated><dateModified>Thu, 12 Dec 2024 03:42:54 +0000</dateModified></head><body><outline text=\"test\" title=\"test\"><outline text=\"Test feed 2\" type=\"rss\" category=\"test\" xmlUrl=\"www.test2.com/rss\" htmlUrl=\"www.example2.com\" title=\"Test feed 2\"/></outline><outline text=\"Test feed 1\" type=\"rss\" xmlUrl=\"www.test1.com/rss\" htmlUrl=\"www.example.com\" title=\"Test feed 1\"/><outline text=\"Query feed\" type=\"rss\" xmlUrl=\"http://www.example.com/channel/5aSKHsoqmmoCnw.xml\" htmlUrl=\"http://www.example.com/\" title=\"Query feed\"/></body></opml>", result)
     }
 }
