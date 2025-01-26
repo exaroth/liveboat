@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use libnewsboat::matchable::Matchable;
 use rss::Item as RSSItem;
-use rss::{Category, ItemBuilder, Source};
+use rss::{Category, ItemBuilder, Source, Enclosure};
 use rusqlite::Error as SQLiteError;
 use rusqlite::Row;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
@@ -244,6 +244,14 @@ impl FeedItem {
                 })
             }
             item.set_categories(categories)
+        }
+        if self.enc_url.is_some() {
+            let mut enclosure = Enclosure::default();
+            enclosure.set_url(self.enc_url.unwrap());
+            if self.enc_mime.is_some() {
+                enclosure.set_mime_type(self.enc_mime.unwrap());
+            }
+            item.set_enclosure(enclosure);
         }
         return item;
     }
