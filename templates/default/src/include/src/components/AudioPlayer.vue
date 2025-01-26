@@ -189,6 +189,7 @@ export default {
           <a
             tabindex="0"
             class="player-icon"
+            id="audio-player-mute-button"
             :aria-label="muted ? 'unmute' : 'mute'"
             @click="mute"
             @keypress.space.enter="mute"
@@ -196,7 +197,7 @@ export default {
             <IconVolume v-if="!muted" />
             <IconMute v-if="muted" />
           </a>
-          <a tabindex="1" class="player-icon" @click="close">
+          <a tabindex="1" class="player-icon" @click="close" id="audio-player-close-button">
             <IconClose />
           </a>
         </div>
@@ -290,7 +291,7 @@ export default {
   margin-left: 0.25rem;
 }
 
-#player-additional-controls {
+#audio-player-mute-button {
   display: none;
 }
 
@@ -304,6 +305,9 @@ export default {
   }
   #player-track-time {
     justify-content: flex-end;
+  }
+  #audio-player-mute-button {
+    display: block;
   }
   #player-track-progress {
     top: -5px;
