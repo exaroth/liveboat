@@ -8,9 +8,11 @@ use std::{fs, io};
 
 use anyhow::Result;
 use handlebars::Handlebars;
+use url::Url;
 
 use crate::builders::aux::Builder;
 use crate::builders::utils::{generate_opml, generate_rss_channel};
+use crate::errors::ConfigurationError;
 use crate::feed::{Feed, FeedList};
 use crate::template::Context;
 use crate::utils::copy_all;
@@ -202,9 +204,15 @@ where
 
     /// Save atom feed for all the feeds
     fn save_opml(&self) -> Result<()> {
+        let url = Url::parse(self.context.options().site_url.as_str());
+        if url.is_err() {
+            return Err(ConfigurationError::InvalidSiteUrl.into());
+        }
         let path = self.tmp_dir.join(OPML_FILENAME);
         let mut file = File::create(path)?;
-        file.write_all(generate_opml(self.context.options(), self.context.feeds()).as_bytes())?;
+        file.write_all(
+            generate_opml(self.context.options(), self.context.feeds(), &url.unwrap()).as_bytes(),
+        )?;
         Ok(())
     }
 

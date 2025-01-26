@@ -4,6 +4,7 @@ use std::collections::HashMap;
 
 use opml::{Body, Head, Outline, OPML};
 use rss::ChannelBuilder;
+use url::Url;
 
 use crate::feed::Feed;
 use crate::opts::Options;
@@ -40,11 +41,15 @@ pub fn generate_rss_channel(opts: &Options, feeds: &Vec<Feed>) -> String {
 }
 
 /// Generate OPML file.
-pub fn generate_opml(opts: &Options, feeds: &Vec<Feed>) -> String {
+pub fn generate_opml(
+    opts: &Options,
+    feeds: &Vec<Feed>,
+    site_url: &Url,
+) -> String {
     let mut tagged_feeds: HashMap<String, Vec<&Feed>> = HashMap::new();
     let mut bare_feeds: Vec<&Feed> = Vec::new();
     for f in feeds {
-        if f.is_query_feed() {
+        if f.is_hidden() {
             continue;
         }
         if f.tags.len() > 0 {
@@ -73,27 +78,34 @@ pub fn generate_opml(opts: &Options, feeds: &Vec<Feed>) -> String {
         o.title = Some(tag.clone());
         o.text = tag.clone();
         for f in tagged_feeds.get(tag).unwrap() {
-            let mut feed_outline = generate_feed_outline(f);
+            let mut feed_outline = generate_feed_outline(f, site_url);
             feed_outline.category = Some(tag.clone());
-            o.outlines.push(generate_feed_outline(f))
+            o.outlines.push(feed_outline)
         }
         body.outlines.push(o);
     }
     for f in bare_feeds {
-        body.outlines.push(generate_feed_outline(f))
+        body.outlines.push(generate_feed_outline(f, site_url))
     }
     op.body = body.clone();
     return op.to_string().unwrap();
 }
 
 /// Generate outline instance from feed.
-fn generate_feed_outline(f: &Feed) -> Outline {
+fn generate_feed_outline(f: &Feed, site_url: &Url) -> Outline {
     let mut feed_outline = Outline::default();
     feed_outline.title = Some(f.display_title().clone());
     feed_outline.text = f.display_title().clone();
-    feed_outline.xml_url = Some(f.url().clone());
-    feed_outline.html_url = Some(f.feedlink().clone());
     feed_outline.r#type = Some("rss".to_string());
+    if f.is_query_feed() {
+        let channel_url =
+            site_url.join(format!("channel/{}.xml", f.id()).as_str()).unwrap();
+        feed_outline.xml_url = Some(channel_url.to_string());
+        feed_outline.html_url = Some(site_url.to_string());
+    } else {
+        feed_outline.xml_url = Some(f.url().clone());
+        feed_outline.html_url = Some(f.feedlink().clone());
+    }
     return feed_outline;
 }
 
@@ -174,7 +186,8 @@ mod tests {
         ));
         f3.update_with_url_data(Vec::new(), true, None, 1);
 
-        let result = generate_rss_channel(&Options::default(), &Vec::from([f1, f2, f3]));
+        let result =
+            generate_rss_channel(&Options::default(), &Vec::from([f1, f2, f3]));
         assert_eq!(result,  "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\"><channel><title>Liveboat feed page</title><link></link><description>Aggregated Liveboat rss feed for Liveboat feed page</description><item><title>item3</title><link>http://test3.com</link><author>exaroth</author><pubDate>Tue, 3 Dec 2024 04:26:40 +0000</pubDate></item><item><title>item2</title><link>http://test2.com</link><author>exaroth</author><pubDate>Mon, 2 Dec 2024 00:40:00 +0000</pubDate></item><item><title>item1</title><link>http://test1.com</link><author>exaroth</author><pubDate>Sat, 30 Nov 2024 20:53:20 +0000</pubDate></item><item><title>item4</title><link>http://test4.com</link><author>exaroth</author><pubDate>Sat, 30 Nov 2024 20:53:20 +0000</pubDate></item><item><title>item5</title><link>http://test5.com</link><author>exaroth</author><pubDate>Sat, 30 Nov 2024 20:53:20 +0000</pubDate></item></channel></rss>")
     }
 
@@ -198,7 +211,8 @@ mod tests {
         item.set_enc_url(String::from("http://www.example.com/test.mp3"));
         item.set_enc_mime(String::from("audio/mp3"));
         f1.items.push(item);
-        let result = generate_rss_channel(&Options::default(), &Vec::from([f1]));
+        let result =
+            generate_rss_channel(&Options::default(), &Vec::from([f1]));
         assert_eq!(result,  "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\"><channel><title>Liveboat feed page</title><link></link><description>Aggregated Liveboat rss feed for Liveboat feed page</description><item><title>item1</title><link>http://test1.com</link><author>exaroth</author><enclosure url=\"http://www.example.com/test.mp3\" length=\"\" type=\"audio/mp3\"/><pubDate>Sat, 30 Nov 2024 20:53:20 +0000</pubDate></item></channel></rss>")
     }
 
@@ -222,7 +236,8 @@ mod tests {
         f.items.push(i1.clone());
         let mut qf = Feed::init_query_feed(String::from("Test query feed"), 1);
         qf.items.push(i1.clone());
-        let result = generate_rss_channel(&Options::default(), &Vec::from([f, qf]));
+        let result =
+            generate_rss_channel(&Options::default(), &Vec::from([f, qf]));
         assert_eq!(result,  "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\"><channel><title>Liveboat feed page</title><link></link><description>Aggregated Liveboat rss feed for Liveboat feed page</description><item><title>item1</title><link>http://test1.com</link><author>exaroth</author><pubDate>Sat, 30 Nov 2024 20:53:20 +0000</pubDate></item></channel></rss>")
     }
     #[test]
@@ -232,12 +247,7 @@ mod tests {
             "Test feed".to_string(),
             "www.example.com".to_string(),
         );
-        f.update_with_url_data(
-            Vec::new(),
-            true,
-            None,
-            1,
-        );
+        f.update_with_url_data(Vec::new(), true, None, 1);
         let i1 = FeedItem::new(
             "item1",
             "http://test1.com",

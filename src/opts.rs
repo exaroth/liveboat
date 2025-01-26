@@ -35,6 +35,10 @@ fn default_build_dir() -> String {
     String::from("")
 }
 
+fn default_site_url() -> String {
+    String::from("http://site-url-not-set.io/you-can-set-it-in-liveboat-config")
+}
+
 fn default_template_name() -> String {
     String::from("default")
 }
@@ -49,6 +53,10 @@ pub struct Options {
     /// Root path for the feed site
     #[serde(default = "default_site_path")]
     pub site_path: String,
+    /// Base site url for the website, required when using self
+    /// referential links to Query urls for OPML.
+    #[serde(default = "default_site_url")]
+    pub site_url: String,
     /// Whether or not to show articles marked as read by Newsboat
     #[serde(default = "default_bool::<true>")]
     pub show_read_articles: bool,
@@ -95,6 +103,7 @@ impl Options {
         return Options {
             title: default_title(),
             site_path: default_site_path(),
+            site_url: default_site_url(),
             show_read_articles: true,
             template_name: default_template_name(),
             include_article_content_in_rss_feeds: true,
@@ -135,6 +144,7 @@ impl fmt::Display for Options {
             "Opts::
             title {}:
             site_path {}:
+            site_url {}:
             show_read: {}
             template_name: {}
             urls_file: {}
@@ -144,6 +154,7 @@ impl fmt::Display for Options {
             build_dir: {}",
             self.title,
             self.site_path,
+            self.site_url,
             self.show_read_articles,
             self.template_name,
             self.newsboat_urls_file,
