@@ -1,5 +1,5 @@
 <h1 align="center">
-<img align="center" width="100" height="100" src="logo.png" alt="Liveboat"><br/>
+<img align="center" width="100" height="100" src="logo.png"><br/>
 Liveboat
 </h1>
 
