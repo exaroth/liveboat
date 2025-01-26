@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Add enclosure url to generated RSS articles
+- Add `tags` attribute to serialized feeds in templates
+- Add `site_url` option to Liveboat config.
+### Changed
+- Include self referential RSS channels for query feeds in OPML file.
+### Fixed
+- Properly pass `tags` attribute for query feeds.
 
 ## [1.1.1] 2025-01-25
 ### Added
