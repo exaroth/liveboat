@@ -233,6 +233,7 @@ impl BuildController {
                 }
             }
             q.sort_items();
+            q.tags = query_f.get_tags()?;
             result.push(q)
         }
         Ok(result)
@@ -317,6 +318,124 @@ mod tests {
         assert_eq!(1, qfeeds.len());
         assert_eq!("News", qfeeds[0].title());
         assert_eq!(1, qfeeds[0].items.len());
+    }
+
+    #[test]
+    fn test_processing_query_feeds_for_tags() {
+        let f1 = Arc::new(RefCell::new(Feed::init(
+            "".to_string(),
+            "Feed1".to_string(),
+            "".to_string(),
+        )));
+
+        f1.borrow_mut()
+            .update_with_url_data(Vec::from(["news".to_string()]), false, None, 0);
+
+        let mut item1 = FeedItem::new(
+            "Feed1 Item",
+            "http://feed1.com",
+            "",
+            "",
+            1733974974,
+            true,
+            "",
+            1,
+        );
+        item1.set_ptr(Arc::clone(&f1));
+        f1.borrow_mut().add_item(item1);
+
+        let f2 = Arc::new(RefCell::new(Feed::init(
+            "".to_string(),
+            "Feed2".to_string(),
+            "".to_string(),
+        )));
+
+        f2.borrow_mut()
+            .update_with_url_data(Vec::from(["podcast".to_string()]), false, None, 1);
+
+        let mut item2 = FeedItem::new(
+            "Feed2 Item",
+            "http://feed2.com",
+            "",
+            "",
+            1733974974,
+            true,
+            "",
+            2,
+        );
+
+        item2.set_ptr(Arc::clone(&f2));
+        f2.borrow_mut().add_item(item2);
+
+        let f3 = Arc::new(RefCell::new(Feed::init(
+            "".to_string(),
+            "Feed3".to_string(),
+            "".to_string(),
+        )));
+
+        f3.borrow_mut().update_with_url_data(
+            Vec::from(["news".to_string(), "podcast".to_string()]),
+            false,
+            None,
+            1,
+        );
+
+        let mut item3 = FeedItem::new(
+            "Feed3 Item",
+            "http://feed3.com",
+            "",
+            "",
+            1733974974,
+            true,
+            "",
+            3,
+        );
+
+        item3.set_ptr(Arc::clone(&f3));
+        f3.borrow_mut().add_item(item3);
+
+        let f4 = Arc::new(RefCell::new(Feed::init(
+            "".to_string(),
+            "Feed4".to_string(),
+            "".to_string(),
+        )));
+        let mut item4 = FeedItem::new(
+            "Feed4 Item",
+            "http://feed4.com",
+            "",
+            "",
+            1733974974,
+            true,
+            "",
+            4,
+        );
+
+        item4.set_ptr(Arc::clone(&f4));
+        f4.borrow_mut().add_item(item4);
+
+        let feeds = Vec::from([f1, f2, f3, f4]);
+
+        let contents = "
+\"query:PodcastAndNews:tags # \\\"news\\\" and tags # \\\"podcast\\\"\"
+\"query:PodcastOrNews:tags # \\\"news\\\" or tags # \\\"podcast\\\"\"
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        let ctrl = BuildController {
+            url_reader: reader,
+            paths: Paths::default(),
+            options: Options::default(),
+            debug: false,
+        };
+
+        let result = ctrl.get_query_feeds(&feeds).unwrap();
+        assert_eq!(result.len(), 2);
+        let q_and = result[0].clone();
+        assert_eq!(Vec::from(["news", "podcast"]), q_and.tags);
+        assert_eq!(q_and.items.len(), 1);
+        assert_eq!(q_and.items[0].title(), "Feed3 Item");
+        let q_or = result[1].clone();
+        assert_eq!(Vec::from(["news", "podcast"]), q_or.tags);
+        assert_eq!(q_or.items.len(), 3);
     }
 
     #[test]

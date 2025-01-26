@@ -4,6 +4,7 @@ use std::fmt;
 
 use anyhow::Result;
 
+use libnewsboat::filterparser;
 use libnewsboat::matcher::Matcher;
 use libnewsboat::utils as libutils;
 
@@ -25,6 +26,65 @@ pub struct QueryFeed {
     pub title: String,
     pub line_no: usize,
     pub matcher: Matcher,
+}
+
+impl QueryFeed {
+    /// Retrieve list of tags associated with given query feed
+    pub fn get_tags(&self) -> Result<Vec<String>, UrlReaderError> {
+        let mut tags = Vec::new();
+        let expr_result = filterparser::parse(&self.matcher.get_expression());
+		if expr_result.is_err() {
+			return Err(UrlReaderError::MatcherError(expr_result.unwrap_err()))
+		}
+        retrieve_tags_for_expression(expr_result.unwrap(), &mut tags);
+        return Ok(tags);
+    }
+}
+
+#[allow(unused)]
+/// Retrieve list of tags for given query feed expression.
+fn retrieve_tags_for_expression(expr: filterparser::Expression, tags: &mut Vec<String>) {
+    match expr {
+        filterparser::Expression::Comparison {
+            attribute,
+            op,
+            value,
+        } => {
+            if attribute == "tags" {
+                tags.push(value.literal().to_string())
+            }
+        }
+        filterparser::Expression::And(left, right) => {
+            match *left {
+                filterparser::Expression::Comparison {
+                    attribute,
+                    op,
+                    value,
+                } => {
+                    if attribute == "tags" {
+                        tags.push(value.literal().to_string())
+                    }
+                }
+                _ => (),
+            }
+            retrieve_tags_for_expression(*right, tags);
+        }
+        filterparser::Expression::Or(left, right) => {
+            match *left {
+                filterparser::Expression::Comparison {
+                    attribute,
+                    op,
+                    value,
+                } => {
+                    if attribute == "tags" {
+                        tags.push(value.literal().to_string())
+                    }
+                }
+                _ => (),
+            }
+            retrieve_tags_for_expression(*right, tags);
+        }
+    }
 }
 
 impl fmt::Display for QueryFeed {
@@ -332,5 +392,35 @@ exec:~/.scripts/pocket_atom
             ";
         let result = UrlReader::init(contents.to_string()).get_query_urls();
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_retrieving_tags_from_filter_expression() {
+        let mut expr = filterparser::parse("tags # \"foo\"").unwrap();
+        let mut tags: Vec<String> = Vec::new();
+        retrieve_tags_for_expression(expr, &mut tags);
+        assert_eq!(Vec::from(["foo"]), tags);
+
+        expr = filterparser::parse("tags # \"podcast\" and unread = \"yes\" or age < 10").unwrap();
+        tags = Vec::new();
+        retrieve_tags_for_expression(expr, &mut tags);
+        assert_eq!(Vec::from(["podcast"]), tags);
+
+        expr = filterparser::parse("tags # \"foo\" and tags # \"bar\" or tags # \"baz\"").unwrap();
+        tags = Vec::new();
+        retrieve_tags_for_expression(expr, &mut tags);
+        assert_eq!(Vec::from(["foo", "bar", "baz"]), tags);
+    }
+
+    #[test]
+    fn test_retrieving_tags_for_query_feed_expressions() {
+        let contents = "
+\"query:News:tags # \\\"foo\\\" or tags # \\\"bar\\\" and age < 1 and unread = \\\"yes\\\"\"
+            ";
+        let reader = UrlReader::init(contents.to_string());
+        let result = reader.get_query_urls().unwrap();
+        assert_eq!(1, result.len());
+        let tags = result[0].get_tags().unwrap();
+        assert_eq!(Vec::from(["foo", "bar"]), tags);
     }
 }
