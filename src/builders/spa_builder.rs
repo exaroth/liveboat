@@ -200,8 +200,12 @@ where
         let path = self.tmp_dir.join(RSS_FILE_FILENAME);
         let mut file = File::create(path)?;
         file.write_all(
-            generate_rss_channel(self.context.options(), self.context.feeds())
-                .as_bytes(),
+            generate_rss_channel(
+                self.context.options(),
+                self.context.feeds(),
+                true,
+            )
+            .as_bytes(),
         )?;
         Ok(())
     }
@@ -253,6 +257,7 @@ where
                 generate_rss_channel(
                     self.context.options(),
                     &Vec::from([f.clone()]),
+                    false,
                 )
                 .as_bytes(),
             )?;
