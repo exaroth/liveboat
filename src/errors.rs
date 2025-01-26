@@ -1,5 +1,5 @@
-use thiserror::Error;
 use std::path::PathBuf;
+use thiserror::Error;
 
 /// Error used for handling common issues related
 /// to filesystem such as missing files.
@@ -32,5 +32,4 @@ pub enum UrlReaderError {
 pub enum ConfigurationError {
     #[error("Invalid site URL defined in Liveboat options")]
     InvalidSiteUrl,
-
 }

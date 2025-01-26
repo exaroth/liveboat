@@ -85,12 +85,15 @@ impl BuildController {
     pub fn build(&self) -> Result<()> {
         info!("Processing feeds");
         let db_connector = DBConnector::init(self.paths.cache_file())?;
-        let feed_items = self.get_feed_items(&db_connector, self.options.time_threshold)?;
+        let feed_items =
+            self.get_feed_items(&db_connector, self.options.time_threshold)?;
         let feeds = self.get_url_feeds(&db_connector)?;
         self.populate_url_feeds(&feeds, &feed_items);
         self.process_article_content(&feeds);
         let q_feeds = self.get_query_feeds(&feeds)?;
-        let tpl_config = TemplateConfig::get_config_for_template(self.paths.template_path())?;
+        let tpl_config = TemplateConfig::get_config_for_template(
+            self.paths.template_path(),
+        )?;
         let ctx = SimpleContext::init(
             &feeds,
             &q_feeds,
@@ -113,7 +116,10 @@ impl BuildController {
 
     /// Retrieve builder instance to be used for generating static content.
     /// At the moment there is only SPA builder implemented.
-    fn get_builder<'a>(&'a self, context: &'a SimpleContext) -> Result<Box<dyn Builder + 'a>> {
+    fn get_builder<'a>(
+        &'a self,
+        context: &'a SimpleContext,
+    ) -> Result<Box<dyn Builder + 'a>> {
         let simple_builder = SinglePageBuilder::init(
             self.paths.tmp_dir(),
             self.paths.build_dir(),
@@ -125,11 +131,19 @@ impl BuildController {
     }
 
     /// Populate feeds with article items, filter out read articles based on the opt value.
-    fn populate_url_feeds(&self, feeds: &Vec<Arc<RefCell<Feed>>>, feed_items: &Vec<FeedItem>) {
+    fn populate_url_feeds(
+        &self,
+        feeds: &Vec<Arc<RefCell<Feed>>>,
+        feed_items: &Vec<FeedItem>,
+    ) {
         info!("Populating feeds with feed items");
         for item in feed_items {
-            if let Some(f) = feeds.iter().find(|f| f.borrow().url() == item.feed_url()) {
-                if self.options.show_read_articles == false && item.is_unread() == false {
+            if let Some(f) =
+                feeds.iter().find(|f| f.borrow().url() == item.feed_url())
+            {
+                if self.options.show_read_articles == false
+                    && item.is_unread() == false
+                {
                     info!("Skipping item: {}", item);
                     continue;
                 }
@@ -175,12 +189,16 @@ impl BuildController {
                     continue;
                 }
                 let content_processing_result = res.unwrap();
-                item.set_content_length(content_processing_result.content_length());
+                item.set_content_length(
+                    content_processing_result.content_length(),
+                );
                 item.set_content(content_processing_result.content);
                 item.set_url(content_processing_result.url);
                 item.set_text(content_processing_result.text);
                 if content_processing_result.comments_url.is_some() {
-                    item.set_comments_url(content_processing_result.comments_url.unwrap())
+                    item.set_comments_url(
+                        content_processing_result.comments_url.unwrap(),
+                    )
                 }
                 count += 1
             }
@@ -188,14 +206,18 @@ impl BuildController {
     }
 
     /// Retrieve article data from db and populate it with data from urls.
-    fn get_url_feeds(&self, db_connector: &impl Connector) -> Result<Vec<Arc<RefCell<Feed>>>> {
+    fn get_url_feeds(
+        &self,
+        db_connector: &impl Connector,
+    ) -> Result<Vec<Arc<RefCell<Feed>>>> {
         let url_feeds = self.url_reader.get_url_feeds();
         let urls = url_feeds.iter().map(|u| u.url.clone()).collect();
         trace!("List of urls to retrieve: {}", format!("{:?}", urls));
         let mut result = Vec::new();
         let feed_data = db_connector.get_feeds(urls)?;
         for mut f in feed_data {
-            if let Some(url_feed) = url_feeds.iter().find(|u| &u.url == f.url()) {
+            if let Some(url_feed) = url_feeds.iter().find(|u| &u.url == f.url())
+            {
                 f.update_with_url_data(
                     url_feed.tags.clone(),
                     url_feed.hidden,
@@ -211,11 +233,15 @@ impl BuildController {
     /// Process query feed objects as defined in urls file - this is done by matching
     /// rules for each article against those defined by the user, we generate feed object
     /// for each query feed marking it appropriately.
-    fn get_query_feeds(&self, feeds: &Vec<Arc<RefCell<Feed>>>) -> Result<Vec<Feed>> {
+    fn get_query_feeds(
+        &self,
+        feeds: &Vec<Arc<RefCell<Feed>>>,
+    ) -> Result<Vec<Feed>> {
         let mut result = Vec::new();
         let query_feeds = &self.url_reader.get_query_urls()?;
         for query_f in query_feeds {
-            let mut q = Feed::init_query_feed(query_f.title.clone(), query_f.line_no);
+            let mut q =
+                Feed::init_query_feed(query_f.title.clone(), query_f.line_no);
             for f in feeds {
                 for i in &f.borrow().items {
                     match query_f.matcher.matches(i) {
@@ -225,7 +251,11 @@ impl BuildController {
                         }
                         Ok(matches) => {
                             if matches {
-                                trace!("Query {} matched against item {}]", query_f.title, i);
+                                trace!(
+                                    "Query {} matched against item {}]",
+                                    query_f.title,
+                                    i
+                                );
                                 q.add_item(i.clone())
                             }
                         }
@@ -274,8 +304,12 @@ mod tests {
             "".to_string(),
         )));
 
-        f1.borrow_mut()
-            .update_with_url_data(Vec::from(["news".to_string()]), false, None, 0);
+        f1.borrow_mut().update_with_url_data(
+            Vec::from(["news".to_string()]),
+            false,
+            None,
+            0,
+        );
         let mut item1 = FeedItem::new(
             "Feed1 Item1",
             "http://feed1.com",
@@ -295,8 +329,12 @@ mod tests {
             "".to_string(),
         )));
 
-        f2.borrow_mut()
-            .update_with_url_data(Vec::from(["other".to_string()]), false, None, 0);
+        f2.borrow_mut().update_with_url_data(
+            Vec::from(["other".to_string()]),
+            false,
+            None,
+            0,
+        );
         let mut item2 = FeedItem::new(
             "Feed2 Item1",
             "http://feed1.com",
@@ -328,8 +366,12 @@ mod tests {
             "".to_string(),
         )));
 
-        f1.borrow_mut()
-            .update_with_url_data(Vec::from(["news".to_string()]), false, None, 0);
+        f1.borrow_mut().update_with_url_data(
+            Vec::from(["news".to_string()]),
+            false,
+            None,
+            0,
+        );
 
         let mut item1 = FeedItem::new(
             "Feed1 Item",
@@ -350,8 +392,12 @@ mod tests {
             "".to_string(),
         )));
 
-        f2.borrow_mut()
-            .update_with_url_data(Vec::from(["podcast".to_string()]), false, None, 1);
+        f2.borrow_mut().update_with_url_data(
+            Vec::from(["podcast".to_string()]),
+            false,
+            None,
+            1,
+        );
 
         let mut item2 = FeedItem::new(
             "Feed2 Item",
@@ -457,8 +503,12 @@ mod tests {
             "".to_string(),
         )));
 
-        f1.borrow_mut()
-            .update_with_url_data(Vec::from(["news".to_string()]), false, None, 0);
+        f1.borrow_mut().update_with_url_data(
+            Vec::from(["news".to_string()]),
+            false,
+            None,
+            0,
+        );
 
         let mut item1 = FeedItem::new(
             "Feed1 Item1",
@@ -662,9 +712,9 @@ http://feed3.com
             "Feed3".to_string(),
             "".to_string(),
         );
-        db_mock
-            .expect_get_feeds()
-            .return_once_st(move |_| Ok(Vec::from([f1.clone(), f2.clone(), f3.clone()].clone())));
+        db_mock.expect_get_feeds().return_once_st(move |_| {
+            Ok(Vec::from([f1.clone(), f2.clone(), f3.clone()].clone()))
+        });
         let results = ctrl.get_url_feeds(&db_mock);
         assert!(results.is_ok());
         let feeds = results.unwrap();

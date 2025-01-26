@@ -38,7 +38,9 @@ pub struct Paths {
 
 impl Paths {
     /// Initialize default paths.
-    pub fn new(config_file_path: &Option<String>) -> Result<Paths, FilesystemError> {
+    pub fn new(
+        config_file_path: &Option<String>,
+    ) -> Result<Paths, FilesystemError> {
         let mut paths = Paths {
             cache_file: PathBuf::new(),
             url_file: PathBuf::new(),
@@ -52,20 +54,24 @@ impl Paths {
 
         let config_dir_override = env::var("LIVEBOAT_CONFIG_DIR");
         if config_dir_override.is_err() {
-            paths.config_dir = paths.home().join(LIVEBOAT_DEFAULT_CONFIG_DIRNAME);
+            paths.config_dir =
+                paths.home().join(LIVEBOAT_DEFAULT_CONFIG_DIRNAME);
         } else {
-            paths.config_dir = config_dir_override.unwrap().resolve().to_path_buf();
+            paths.config_dir =
+                config_dir_override.unwrap().resolve().to_path_buf();
         }
 
         let tpl_dir_override = env::var("LIVEBOAT_TEMPLATE_DIR");
         if tpl_dir_override.is_err() {
-            paths.template_dir = paths.config_dir.join(LIVEBOAT_DEFAULT_TEMPLATES_DIRNAME);
+            paths.template_dir =
+                paths.config_dir.join(LIVEBOAT_DEFAULT_TEMPLATES_DIRNAME);
         } else {
-            paths.template_dir = tpl_dir_override.unwrap().resolve().to_path_buf();
+            paths.template_dir =
+                tpl_dir_override.unwrap().resolve().to_path_buf();
         }
 
-        paths.tmp_dir =
-            std::env::temp_dir().join(format!("liveboat-{}", generate_random_string(5)));
+        paths.tmp_dir = std::env::temp_dir()
+            .join(format!("liveboat-{}", generate_random_string(5)));
 
         paths.config_file = path_with_argval(
             config_file_path,
@@ -77,7 +83,9 @@ impl Paths {
         let n_config = NConfig::new();
 
         if !n_config.initialized() {
-            return Err(FilesystemError::Unknown(n_config.error_message().into()));
+            return Err(FilesystemError::Unknown(
+                n_config.error_message().into(),
+            ));
         };
         paths.url_file = n_config.url_file().to_path_buf();
         paths.cache_file = n_config.cache_file().to_path_buf();
@@ -86,16 +94,23 @@ impl Paths {
     }
 
     /// Update paths with those passed by the used when invoking via cli.
-    pub fn update_with_args(&mut self, args: &Args) -> Result<(), FilesystemError> {
-        self.url_file = path_with_argval(&args.url_file, true, self.url_file.clone());
-        self.cache_file = path_with_argval(&args.cache_file, true, self.cache_file.clone());
-        self.build_dir = path_with_argval(&args.build_dir, false, self.build_dir.clone());
+    pub fn update_with_args(
+        &mut self,
+        args: &Args,
+    ) -> Result<(), FilesystemError> {
+        self.url_file =
+            path_with_argval(&args.url_file, true, self.url_file.clone());
+        self.cache_file =
+            path_with_argval(&args.cache_file, true, self.cache_file.clone());
+        self.build_dir =
+            path_with_argval(&args.build_dir, false, self.build_dir.clone());
         self.template_path = path_with_argval(
             &args.template_path,
             true,
             self.template_dir().join(self.template_path()),
         );
-        self.build_dir = path_with_argval(&args.build_target, false, self.build_dir.clone());
+        self.build_dir =
+            path_with_argval(&args.build_target, false, self.build_dir.clone());
         Ok(())
     }
 
@@ -116,13 +131,19 @@ impl Paths {
     /// Check if all the paths required for app operation are correct.
     pub fn check_all(&self) -> Result<(), FilesystemError> {
         if !self.url_file.is_file() {
-            return Err(FilesystemError::PathDoesNotExist(self.url_file.clone()));
+            return Err(FilesystemError::PathDoesNotExist(
+                self.url_file.clone(),
+            ));
         }
         if !self.cache_file.is_file() {
-            return Err(FilesystemError::PathDoesNotExist(self.cache_file.clone()));
+            return Err(FilesystemError::PathDoesNotExist(
+                self.cache_file.clone(),
+            ));
         }
         if !self.config_file.is_file() {
-            return Err(FilesystemError::PathDoesNotExist(self.config_file.clone()));
+            return Err(FilesystemError::PathDoesNotExist(
+                self.config_file.clone(),
+            ));
         }
         if !self.template_path.is_dir() {
             return Err(FilesystemError::PathDoesNotExist(
@@ -214,13 +235,20 @@ impl fmt::Display for Paths {
 
 /// Set path based on the argument passed by the user
 /// (if available), also resolves it to absolute path.
-fn path_with_argval(arg: &Option<String>, check_exists: bool, default: PathBuf) -> PathBuf {
+fn path_with_argval(
+    arg: &Option<String>,
+    check_exists: bool,
+    default: PathBuf,
+) -> PathBuf {
     if let Some(argval) = arg {
         let p = &argval.resolve();
         if check_exists {
             match fs::canonicalize(p) {
                 Err(_) => {
-                    println!("Path does not exist, defaulting to : {}", default.display());
+                    println!(
+                        "Path does not exist, defaulting to : {}",
+                        default.display()
+                    );
                     return default;
                 }
                 Ok(p) => return p,
@@ -270,11 +298,19 @@ mod tests {
         );
 
         // Path doesnt exist, check exists
-        result = path_with_argval(&Some("/fake".to_string()), true, PathBuf::from("/backup"));
+        result = path_with_argval(
+            &Some("/fake".to_string()),
+            true,
+            PathBuf::from("/backup"),
+        );
         assert_eq!("/backup".to_string(), format!("{}", result.display()));
 
         // Path doesnt exist, no check
-        result = path_with_argval(&Some("/fake".to_string()), false, PathBuf::from("/backup"));
+        result = path_with_argval(
+            &Some("/fake".to_string()),
+            false,
+            PathBuf::from("/backup"),
+        );
         assert_eq!("/fake".to_string(), format!("{}", result.display()));
 
         let rr = fs::remove_dir(temp_p);

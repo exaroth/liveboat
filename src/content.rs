@@ -88,11 +88,15 @@ pub fn process_article_content(
         info!("excluding domain from scraping {:?}", url_string);
         scrape = false;
     }
-    let extract_result: Result<extractor::Product, readability_liveboat::error::Error>;
+    let extract_result: Result<
+        extractor::Product,
+        readability_liveboat::error::Error,
+    >;
     if scrape {
         extract_result = extractor::scrape(&result.url.as_str());
     } else {
-        extract_result = extractor::extract(&mut original_content.as_bytes(), &url);
+        extract_result =
+            extractor::extract(&mut original_content.as_bytes(), &url);
     }
     if extract_result.is_ok() {
         let t = extract_result.unwrap();
@@ -135,10 +139,14 @@ fn get_hn_links(
 /// Fetch direct link from Reddits RSS content.
 fn get_reddit_direct_link(url: &Url, content: &String) -> Option<Url> {
     let host = url.host();
-    if host.is_none() || host.unwrap().to_string() != String::from("www.reddit.com") {
+    if host.is_none()
+        || host.unwrap().to_string() != String::from("www.reddit.com")
+    {
         return None;
     }
-    let re = Regex::new(r#"<a.*href\s?=['"]*(?<href>[^'"]*)[^>]*>\[link\]<\/a>"#).unwrap();
+    let re =
+        Regex::new(r#"<a.*href\s?=['"]*(?<href>[^'"]*)[^>]*>\[link\]<\/a>"#)
+            .unwrap();
     let cap_result = re.captures(content);
     if cap_result.is_none() {
         info!("No matching links in response response");
@@ -162,7 +170,8 @@ fn get_reddit_direct_link(url: &Url, content: &String) -> Option<Url> {
         return None;
     }
     let domain = host.unwrap().to_string();
-    let self_referential = REDDIT_SELF_REFERENTIAL_DOMAINS.iter().any(|d| d == &domain);
+    let self_referential =
+        REDDIT_SELF_REFERENTIAL_DOMAINS.iter().any(|d| d == &domain);
     if self_referential {
         info!("Self referential reddit link found, skipping");
         return None;
@@ -176,10 +185,16 @@ const SCRAPE_EXCLUDED_HN_SECTIONS: &[&str] = &["/ask"];
 
 /// Retrieve comments url from hnrss.org links and check if the page should
 /// be scraped based on the HN section.
-fn get_hnrss_org_links(feedlink: &Url, content: &String) -> Option<(String, bool)> {
+fn get_hnrss_org_links(
+    feedlink: &Url,
+    content: &String,
+) -> Option<(String, bool)> {
     // Matching on:
     // <p>Comments URL: <a href="?(<url>")>
-    let re = Regex::new(r#"<p>Comments URL: <a.*href\s?=['"]*(?<href>[^'"]*)[^>]*>"#).unwrap();
+    let re = Regex::new(
+        r#"<p>Comments URL: <a.*href\s?=['"]*(?<href>[^'"]*)[^>]*>"#,
+    )
+    .unwrap();
     let cap_result = re.captures(content);
     if cap_result.is_none() {
         info!("No matching links in response response");
@@ -214,5 +229,5 @@ fn get_native_hn_links(content: &String) -> Option<(String, bool)> {
         return None;
     }
     // Note: for native hn feeds we will dispatch scrape for all links
-    return Some((caps[1].to_string(), true))
+    return Some((caps[1].to_string(), true));
 }

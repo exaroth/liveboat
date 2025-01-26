@@ -33,9 +33,9 @@ impl QueryFeed {
     pub fn get_tags(&self) -> Result<Vec<String>, UrlReaderError> {
         let mut tags = Vec::new();
         let expr_result = filterparser::parse(&self.matcher.get_expression());
-		if expr_result.is_err() {
-			return Err(UrlReaderError::MatcherError(expr_result.unwrap_err()))
-		}
+        if expr_result.is_err() {
+            return Err(UrlReaderError::MatcherError(expr_result.unwrap_err()));
+        }
         retrieve_tags_for_expression(expr_result.unwrap(), &mut tags);
         return Ok(tags);
     }
@@ -43,7 +43,10 @@ impl QueryFeed {
 
 #[allow(unused)]
 /// Retrieve list of tags for given query feed expression.
-fn retrieve_tags_for_expression(expr: filterparser::Expression, tags: &mut Vec<String>) {
+fn retrieve_tags_for_expression(
+    expr: filterparser::Expression,
+    tags: &mut Vec<String>,
+) {
     match expr {
         filterparser::Expression::Comparison {
             attribute,
@@ -179,7 +182,9 @@ impl UrlReader {
                 info!("Is empty, Skipping");
                 continue;
             }
-            if !libutils::is_http_url(tokens[0].as_str()) && !tokens[0].starts_with("file://") {
+            if !libutils::is_http_url(tokens[0].as_str())
+                && !tokens[0].starts_with("file://")
+            {
                 info!("Is special, skipping");
                 continue;
             }
@@ -401,12 +406,18 @@ exec:~/.scripts/pocket_atom
         retrieve_tags_for_expression(expr, &mut tags);
         assert_eq!(Vec::from(["foo"]), tags);
 
-        expr = filterparser::parse("tags # \"podcast\" and unread = \"yes\" or age < 10").unwrap();
+        expr = filterparser::parse(
+            "tags # \"podcast\" and unread = \"yes\" or age < 10",
+        )
+        .unwrap();
         tags = Vec::new();
         retrieve_tags_for_expression(expr, &mut tags);
         assert_eq!(Vec::from(["podcast"]), tags);
 
-        expr = filterparser::parse("tags # \"foo\" and tags # \"bar\" or tags # \"baz\"").unwrap();
+        expr = filterparser::parse(
+            "tags # \"foo\" and tags # \"bar\" or tags # \"baz\"",
+        )
+        .unwrap();
         tags = Vec::new();
         retrieve_tags_for_expression(expr, &mut tags);
         assert_eq!(Vec::from(["foo", "bar", "baz"]), tags);

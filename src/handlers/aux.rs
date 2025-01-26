@@ -1,21 +1,24 @@
-use std::fs;
 use log::info;
+use std::fs;
 use std::io::Write;
 use std::path::Path;
 
 use flate2::read::GzDecoder;
-use tar::Archive;
 use std::cmp::Ordering;
+use tar::Archive;
 
-use anyhow::Result;
 use crate::template::{TemplateConfig, TEMPLATE_CONFIG_FNAME};
 use crate::utils;
+use anyhow::Result;
 
 const TEMPLATES_ARCHIVE_FNAME: &str = "templates.tar.gz";
 
-
 /// Download and update local templates, taking versions in config.toml under consideration.
-pub fn fetch_templates(release_chan: &String, dl_path: &Path, tpl_dir: &Path) -> Result<()> {
+pub fn fetch_templates(
+    release_chan: &String,
+    dl_path: &Path,
+    tpl_dir: &Path,
+) -> Result<()> {
     println!("Fetching templates");
     if !tpl_dir.is_dir() {
         fs::create_dir_all(tpl_dir)?;
@@ -48,13 +51,16 @@ pub fn fetch_templates(release_chan: &String, dl_path: &Path, tpl_dir: &Path) ->
         let out_t = tpl_dir.join(&dirname);
         info!("Local template path: {}", out_t.display());
         if out_t.exists() {
-            let mut remote_config = TemplateConfig::get_config_for_template(&dirpath.as_path())?;
-            let local_config = TemplateConfig::get_config_for_template(&out_t.as_path())?;
+            let mut remote_config =
+                TemplateConfig::get_config_for_template(&dirpath.as_path())?;
+            let local_config =
+                TemplateConfig::get_config_for_template(&out_t.as_path())?;
             println!(
                 "Remote template has version: {}, local: {}",
                 remote_config.version, local_config.version
             );
-            let remote_v = utils::Version::from_str(remote_config.version.clone())?;
+            let remote_v =
+                utils::Version::from_str(remote_config.version.clone())?;
             let local_v = utils::Version::from_str(local_config.version)?;
             if local_v.cmp(&remote_v) != Ordering::Less {
                 println!("Skipping update");

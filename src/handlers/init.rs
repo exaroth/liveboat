@@ -3,12 +3,13 @@ use std::fs;
 
 use anyhow::Result;
 
-use crate::paths::Paths;
-use crate::opts::Options;
-use crate::handlers::{RELEASE_CHANNEL, STABLE_CHANNEL_NAME, NIGHTLY_CHANNEL_NAME};
 use crate::cli;
 use crate::handlers::aux;
-
+use crate::handlers::{
+    NIGHTLY_CHANNEL_NAME, RELEASE_CHANNEL, STABLE_CHANNEL_NAME,
+};
+use crate::opts::Options;
+use crate::paths::Paths;
 
 /// Initialize configuration for the app, prompting user for input.
 pub fn cold_start(use_nightly: bool, paths: &Paths) -> Result<()> {
@@ -37,9 +38,11 @@ pub fn cold_start(use_nightly: bool, paths: &Paths) -> Result<()> {
 
     let release_channel: String;
     if use_nightly {
-        release_channel = format!("{}/{}", RELEASE_CHANNEL, NIGHTLY_CHANNEL_NAME);
+        release_channel =
+            format!("{}/{}", RELEASE_CHANNEL, NIGHTLY_CHANNEL_NAME);
     } else {
-        release_channel = format!("{}/{}", RELEASE_CHANNEL, STABLE_CHANNEL_NAME);
+        release_channel =
+            format!("{}/{}", RELEASE_CHANNEL, STABLE_CHANNEL_NAME);
     }
     println!("Using {} as release channel", release_channel);
 
@@ -52,12 +55,15 @@ pub fn cold_start(use_nightly: bool, paths: &Paths) -> Result<()> {
     Ok(())
 }
 
-
 fn initialization_wizard(opts: &mut Options, paths: &Paths) -> Result<()> {
-    opts.title = cli::prompt_string(opts.title.clone(), "Enter your feed page title:")?;
+    opts.title =
+        cli::prompt_string(opts.title.clone(), "Enter your feed page title:")?;
     info!("Title is : {}", opts.title);
-    opts.newsboat_urls_file =
-        cli::prompt_path(&paths.url_file(), true, "Enter path to Newsboat urls file:")?;
+    opts.newsboat_urls_file = cli::prompt_path(
+        &paths.url_file(),
+        true,
+        "Enter path to Newsboat urls file:",
+    )?;
     info!("url f is : {}", opts.newsboat_urls_file);
     opts.newsboat_cache_file = cli::prompt_path(
         &paths.cache_file(),
@@ -83,4 +89,3 @@ fn initialization_wizard(opts: &mut Options, paths: &Paths) -> Result<()> {
     info!("build dir is : {}", opts.build_dir);
     Ok(())
 }
-

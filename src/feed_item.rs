@@ -449,7 +449,16 @@ mod tests {
             "Feed".to_string(),
             "http://feedlink.com".to_string(),
         )));
-        let mut item = FeedItem::new("item1", "http://test.com", "", "", 970000000, false, "", 1);
+        let mut item = FeedItem::new(
+            "item1",
+            "http://test.com",
+            "",
+            "",
+            970000000,
+            false,
+            "",
+            1,
+        );
         item.set_ptr(Arc::clone(&f));
         f.borrow_mut().add_item(item);
         let mut attr = f.borrow().items[0].attribute_value("feedlink");

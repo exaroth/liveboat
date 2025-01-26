@@ -94,8 +94,10 @@ where
         let channel_dir = self.build_dir.join(SELF_REFERENTIAL_RSS_DIRNAME);
         copy_all(channel_dir_tmp, &channel_dir)?;
 
-        let tpl_index_path = self.tmp_dir.join(format!("{}.html", INDEX_FILENAME));
-        let index_path = self.build_dir.join(format!("{}.html", INDEX_FILENAME));
+        let tpl_index_path =
+            self.tmp_dir.join(format!("{}.html", INDEX_FILENAME));
+        let index_path =
+            self.build_dir.join(format!("{}.html", INDEX_FILENAME));
         info!(
             "Copying rendered index @ {} to {}",
             tpl_index_path.display(),
@@ -119,7 +121,8 @@ where
 
     /// Render template using context provided.
     fn render_templates(&self) -> Result<()> {
-        let tpl_file = self.template_path.join(format!("{}.hbs", INDEX_FILENAME));
+        let tpl_file =
+            self.template_path.join(format!("{}.hbs", INDEX_FILENAME));
         info!("Rendering template @ {}", &tpl_file.display());
         let raw = fs::read_to_string(tpl_file)?;
         let mut handlebars = Handlebars::new();
@@ -197,7 +200,8 @@ where
         let path = self.tmp_dir.join(RSS_FILE_FILENAME);
         let mut file = File::create(path)?;
         file.write_all(
-            generate_rss_channel(self.context.options(), self.context.feeds()).as_bytes(),
+            generate_rss_channel(self.context.options(), self.context.feeds())
+                .as_bytes(),
         )?;
         Ok(())
     }
@@ -211,7 +215,12 @@ where
         let path = self.tmp_dir.join(OPML_FILENAME);
         let mut file = File::create(path)?;
         file.write_all(
-            generate_opml(self.context.options(), self.context.feeds(), &url.unwrap()).as_bytes(),
+            generate_opml(
+                self.context.options(),
+                self.context.feeds(),
+                &url.unwrap(),
+            )
+            .as_bytes(),
         )?;
         Ok(())
     }
@@ -241,7 +250,11 @@ where
             info!("Saving channel data for query feed: {}", path.display());
             let mut file = File::create(path)?;
             file.write_all(
-                generate_rss_channel(self.context.options(), &Vec::from([f.clone()])).as_bytes(),
+                generate_rss_channel(
+                    self.context.options(),
+                    &Vec::from([f.clone()]),
+                )
+                .as_bytes(),
             )?;
         }
         Ok(())
@@ -261,11 +274,21 @@ where
     }
 
     /// Save list of all feeds.
-    fn save_json_feedlist(&self, feedlist: &FeedList, name: String) -> Result<()> {
+    fn save_json_feedlist(
+        &self,
+        feedlist: &FeedList,
+        name: String,
+    ) -> Result<()> {
         if self.debug {
-            self.save_feed_data(&name, serde_json::to_string_pretty(&feedlist)?.as_bytes())?;
+            self.save_feed_data(
+                &name,
+                serde_json::to_string_pretty(&feedlist)?.as_bytes(),
+            )?;
         } else {
-            self.save_feed_data(&name, serde_json::to_string(&feedlist)?.as_bytes())?;
+            self.save_feed_data(
+                &name,
+                serde_json::to_string(&feedlist)?.as_bytes(),
+            )?;
         }
         Ok(())
     }

@@ -80,7 +80,8 @@ pub fn init_logger(debug: bool) {
         true => "info",
         false => "error",
     };
-    env_logger::Builder::from_env(Env::default().default_filter_or(llevel)).init();
+    env_logger::Builder::from_env(Env::default().default_filter_or(llevel))
+        .init();
     info!("Logger initialized")
 }
 
@@ -109,7 +110,10 @@ pub fn tidy_up(tmp_dir: &Path) {
 
 /// Helper func for copying all the contents of directory
 /// to another.
-pub fn copy_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> io::Result<()> {
+pub fn copy_all(
+    src: impl AsRef<Path>,
+    dst: impl AsRef<Path>,
+) -> io::Result<()> {
     fs::create_dir_all(&dst)?;
     for entry in fs::read_dir(src)? {
         let entry = entry?;
