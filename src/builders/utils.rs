@@ -179,6 +179,30 @@ mod tests {
     }
 
     #[test]
+    fn test_generating_rss_with_media() {
+        let mut f1 = Feed::init(
+            "www.example.com/rss".to_string(),
+            "Test feed 1".to_string(),
+            "www.example.com".to_string(),
+        );
+        let mut item = FeedItem::new(
+            "item1",
+            "http://test1.com",
+            "",
+            "exaroth",
+            1733000000,
+            false,
+            "Test content 1",
+            1,
+        );
+        item.set_enc_url(String::from("http://www.example.com/test.mp3"));
+        item.set_enc_mime(String::from("audio/mp3"));
+        f1.items.push(item);
+        let result = generate_rss_channel(&Options::default(), &Vec::from([f1]));
+        assert_eq!(result,  "<?xml version=\"1.0\" encoding=\"utf-8\"?><rss version=\"2.0\"><channel><title>Liveboat feed page</title><link></link><description>Aggregated Liveboat rss feed for Liveboat feed page</description><item><title>item1</title><link>http://test1.com</link><author>exaroth</author><enclosure url=\"http://www.example.com/test.mp3\" length=\"\" type=\"audio/mp3\"/><pubDate>Sat, 30 Nov 2024 20:53:20 +0000</pubDate></item></channel></rss>")
+    }
+
+    #[test]
     fn test_generating_rss_with_query_feeds() {
         let mut f = Feed::init(
             "www.example.com/rss".to_string(),

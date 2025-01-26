@@ -59,6 +59,7 @@ pub struct FeedItem {
     pub feed_ptr: Option<Arc<RefCell<Feed>>>,
 }
 
+#[allow(dead_code)]
 impl FeedItem {
     /// Initialize new article item from db row.
     pub fn from_db_row(row: &Row) -> Result<FeedItem, SQLiteError> {
@@ -90,7 +91,6 @@ impl FeedItem {
     }
 
     /// Title of the article as retrieved from RSS feed.
-    #[allow(dead_code)]
     pub fn title(&self) -> &String {
         return &self.title;
     }
@@ -101,7 +101,6 @@ impl FeedItem {
     }
 
     /// Author of the article.
-    #[allow(dead_code)]
     pub fn author(&self) -> &String {
         return &self.author;
     }
@@ -145,7 +144,6 @@ impl FeedItem {
 
     /// Length of the content (includes raw text of the article
     /// excluding tags)
-    #[allow(dead_code)]
     pub fn content_length(&self) -> usize {
         return self.content_length;
     }
@@ -172,13 +170,11 @@ impl FeedItem {
 
     /// Url to media associated with the article, eg. mp3 file,
     /// youtube link etc.
-    #[allow(dead_code)]
     pub fn enc_url(&self) -> &Option<String> {
         return &self.enc_url;
     }
 
     /// Mimetype of enclosure url associated with the article.
-    #[allow(dead_code)]
     pub fn enc_mime(&self) -> &Option<String> {
         return &self.enc_mime;
     }
@@ -206,6 +202,14 @@ impl FeedItem {
 
     pub fn set_url(&mut self, url: String) {
         self.url = url
+    }
+    
+    pub fn set_enc_url(&mut self, url: String) {
+        self.enc_url = Some(url)
+    }
+
+    pub fn set_enc_mime(&mut self, mime: String) {
+        self.enc_mime = Some(mime)
     }
 
     /// Convert date ts assigned to feed item to datetime string
@@ -256,7 +260,6 @@ impl FeedItem {
         return item;
     }
 
-    #[allow(dead_code)]
     pub fn new(
         title: &str,
         url: &str,
