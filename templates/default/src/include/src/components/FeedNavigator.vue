@@ -70,7 +70,7 @@ export default {
         if (y > scrollTop + window.innerHeight) {
           continue
         }
-        const yTarget = scrollTop + window.innerHeight / 2
+        const yTarget = scrollTop + window.innerHeight / 4
 
         const nextF = this.navStore.getNextFeed(feed.index)
         if (!nextF || !nextF.ref) {
@@ -133,7 +133,7 @@ export default {
       return this.navStore.activeFeed === feedIndex
     },
     goToFeed(ref, index) {
-      const y = ref.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2 + 30
+      const y = ref.getBoundingClientRect().top + window.scrollY - window.innerHeight / 4 + 30
       window.scroll({
         top: y,
       })
