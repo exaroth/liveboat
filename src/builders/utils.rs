@@ -98,8 +98,9 @@ fn generate_feed_outline(f: &Feed, site_url: &Url) -> Outline {
     feed_outline.text = f.display_title().clone();
     feed_outline.r#type = Some("rss".to_string());
     if f.is_query_feed() {
-        let channel_url =
-            site_url.join(format!("channel/{}.xml", f.id()).as_str()).unwrap();
+        let channel_url = site_url
+            .join(format!("channel/{}.xml", f.id()).as_str())
+            .unwrap();
         feed_outline.xml_url = Some(channel_url.to_string());
         feed_outline.html_url = Some(site_url.to_string());
     } else {
@@ -278,7 +279,11 @@ mod tests {
         f2.tags.push("test".to_string());
         let mut f3 = Feed::init_query_feed("Query feed".to_string(), 1);
         let opts = Options::default();
-        let result = generate_opml(&opts, &Vec::from([f1, f2, f3]));
-        assert_eq!("<opml version=\"2.0\"><head><title>Liveboat feed page</title><dateCreated>Thu, 12 Dec 2024 03:42:54 +0000</dateCreated><dateModified>Thu, 12 Dec 2024 03:42:54 +0000</dateModified></head><body><outline text=\"test\" title=\"test\"><outline text=\"Test feed 2\" type=\"rss\" xmlUrl=\"www.example2.com/rss\" htmlUrl=\"www.example2.com\" title=\"Test feed 2\"/></outline><outline text=\"Test feed 1\" type=\"rss\" xmlUrl=\"www.example.com/rss\" htmlUrl=\"www.example.com\" title=\"Test feed 1\"/></body></opml>", result)
+        let result = generate_opml(
+            &opts,
+            &Vec::from([f1, f2, f3]),
+            &Url::parse("http://www.example.com").unwrap(),
+        );
+        assert_eq!("<opml version=\"2.0\"><head><title>Liveboat feed page</title><dateCreated>Thu, 12 Dec 2024 03:42:54 +0000</dateCreated><dateModified>Thu, 12 Dec 2024 03:42:54 +0000</dateModified></head><body><outline text=\"test\" title=\"test\"><outline text=\"Test feed 2\" type=\"rss\" category=\"test\" xmlUrl=\"www.example2.com/rss\" htmlUrl=\"www.example2.com\" title=\"Test feed 2\"/></outline><outline text=\"Test feed 1\" type=\"rss\" xmlUrl=\"www.example.com/rss\" htmlUrl=\"www.example.com\" title=\"Test feed 1\"/><outline text=\"Query feed\" type=\"rss\" xmlUrl=\"http://www.example.com/channel/5aSKHsoqmmoCnw.xml\" htmlUrl=\"http://www.example.com/\" title=\"Query feed\"/></body></opml>", result)
     }
 }
