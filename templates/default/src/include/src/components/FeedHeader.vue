@@ -199,7 +199,7 @@ onUnmounted(() => {
 
 #feed-header-tags {
   margin-left: 6px;
-  opacity: .7;
+  opacity: 0.7;
 }
 .feed-header-tag {
   color: var(--color-text);
@@ -210,5 +210,10 @@ onUnmounted(() => {
   line-height: 10px;
   border-radius: 25%;
   margin-left: 4px;
+}
+@media (max-width: 500px) {
+  #feed-header-tags {
+    display: none;
+  }
 }
 </style>

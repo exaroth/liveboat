@@ -198,8 +198,8 @@ const refreshPage = () => {
 
 #icons-aggro {
   position: absolute;
-  right: 0;
-  bottom: -12px;
+  left: 0;
+  bottom: 0px;
   width: 200px;
 }
 
@@ -208,21 +208,21 @@ const refreshPage = () => {
 #icon-github svg {
   fill: var(--color-text);
   display: inline-block;
-  float: right;
-  margin-left: 10px;
+  float: left;
+  margin-right: 10px;
 }
 
 #icon-github svg {
   width: 22px;
   height: 22px;
   top: 7px;
-  right: -5px;
 }
 
 #icon-rss svg {
   width: 20px;
   height: 20px;
   top: 8px;
+  left: 2px;
 }
 
 @media (max-width: 640px) {

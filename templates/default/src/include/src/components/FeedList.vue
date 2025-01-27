@@ -161,7 +161,6 @@ const handleLoadedFeed = (numItems) => {
   left: 50%;
   top: 30%;
   transform: translateX(-50%);
-  transform: translateY(-30%);
 }
 
 #no-feeds-found-indicator svg {

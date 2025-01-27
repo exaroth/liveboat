@@ -200,6 +200,13 @@ watch(searchFeedsTerm, (val) => {
 }
 
 @media (max-width: 640px) {
+  #filter-search-clear {
+    top: 24px;
+  }
+
+  #filter-search-icon {
+    top: 22px;
+  }
   .filter-container {
     margin: 0 0 30px 0;
     position: relative;
