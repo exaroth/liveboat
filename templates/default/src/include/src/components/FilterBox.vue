@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { useFiltersStore } from '../stores/filters'
 import IconCloseRound from './icons/IconCloseRound.vue'
+import IconSearch from './icons/IconSearch.vue'
 
 const fStore = useFiltersStore()
 const inputSearch = ref(null)
@@ -35,7 +36,7 @@ fStore.$subscribe((state) => {
 })
 
 const clearSearch = () => {
-  searchFeedsTerm.value = ""
+  searchFeedsTerm.value = ''
 }
 
 var searchDelayTimeout
@@ -92,9 +93,15 @@ watch(searchFeedsTerm, (val) => {
       </button></span
     >
     <span id="filter-search">
-      <button id="filter-search-clear" alt="Clear" v-if="inputSearch && inputSearch.value.length > 0" @click="clearSearch()">
+      <button
+        id="filter-search-clear"
+        alt="Clear"
+        v-if="inputSearch && inputSearch.value.length > 0"
+        @click="clearSearch()"
+      >
         <IconCloseRound />
       </button>
+      <span id="filter-search-icon"> <IconSearch /></span>
       <input
         placeholder="Search"
         :value="searchFeedsTerm"
@@ -106,22 +113,6 @@ watch(searchFeedsTerm, (val) => {
 </template>
 
 <style scoped>
-#filter-search-clear {
-  position: absolute;
-  right: 10px;
-  top: 4px;
-  color: rgb(from var(--color-text) r g b / 70%);
-  background-color: transparent;
-  border: none;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  align-content: center;
-}
-#filter-search-clear:hover {
-  color: rgb(from var(--color-text) r g b / 80%);
-}
-
 .filter-container {
   width: 100%;
   padding: 20px 0px 20px 0px;
@@ -176,10 +167,36 @@ watch(searchFeedsTerm, (val) => {
   background-color: transparent;
   outline: 1px solid rgb(from var(--color-text) r g b / 40%);
   font-weight: normal;
-  padding: 0px 0px 0px 6px;
+  padding: 0px 30px 0px 26px;
 }
+
 #filter-search input:focus {
   outline: 1px solid var(--color-custom);
+}
+
+#filter-search-clear,
+#filter-search-icon {
+  position: absolute;
+  color: rgb(from var(--color-text) r g b / 70%);
+  background-color: transparent;
+  border: none;
+  width: 18px;
+  height: 18px;
+  align-content: center;
+}
+
+#filter-search-clear {
+  right: 10px;
+  top: 4px;
+}
+
+#filter-search-icon {
+  left: 8px;
+  top: 2px
+}
+
+#filter-search-clear:hover {
+  color: rgb(from var(--color-text) r g b / 80%);
 }
 
 @media (max-width: 640px) {
