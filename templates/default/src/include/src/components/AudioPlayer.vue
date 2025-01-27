@@ -294,7 +294,22 @@ export default {
 #audio-player-mute-button {
   display: none;
 }
+#audio-player-close-button {
+  width: 28px;
+  height: 28px;
+}
 
+#player-additional-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 10px;
+}
+
+#player-track-desc {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
 @media (min-width: 768px) {
   #audio-player {
     padding: 0 20%;
