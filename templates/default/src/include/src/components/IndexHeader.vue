@@ -81,7 +81,9 @@ const refreshPage = () => {
 <template>
   <div class="header-crumbs">
     <span>
-      <h5>Page generated with <IconHeart /> by Liveboat</h5>
+      <h5>Page generated with <IconHeart /> by Liveboat</h5><br/>
+      <h5>Updated on {{ buildTime.toUTCString() }}</h5>
+      <h5>Template ver. {{ window.templateVersion }}</h5>
     </span>
   </div>
   <div class="header-container">
@@ -90,7 +92,6 @@ const refreshPage = () => {
         <IconLiveboat />
         <a :href="sitePath" v-html="pageTitle" />
       </h2>
-      <h5>Page last updated on {{ buildTime.toUTCString() }}</h5>
       <div id="icons-aggro">
         <a id="icon-github" href="https://github.com/exaroth/liveboat" target="_blank">
           <IconGithub />
@@ -145,6 +146,7 @@ const refreshPage = () => {
   position: absolute;
   right: 20px;
   top: 10px;
+  text-align: right;
 }
 .header-crumbs h5 {
   opacity: 0.5;

@@ -52,6 +52,7 @@
       window.autoreload = {{template_settings.autoreload}}
     {{/if}}
       window.sitePath = '/';
+      window.templateVersion = {{ template_version }};
       window.feeds = [
     {{#each feeds}}
         {{#unless this.isEmpty}}
