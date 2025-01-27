@@ -446,6 +446,7 @@ onMounted(async () => {
 
 .article-unexpand svg {
   transform: rotate(90deg);
+  top: 5px;
 }
 
 .comments-button {
