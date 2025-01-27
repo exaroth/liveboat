@@ -83,7 +83,7 @@ const refreshPage = () => {
   <div class="header-crumbs">
     <span>
       <h5>Page generated with <IconHeart /> by Liveboat</h5><br/>
-      <h5>Updated on {{ buildTime.toUTCString() }}</h5>
+      <h5>Updated on {{ buildTime.toUTCString() }}</h5><br/>
       <h5>Template ver. {{ templateVersion }}</h5>
     </span>
   </div>
@@ -148,6 +148,7 @@ const refreshPage = () => {
   right: 20px;
   top: 10px;
   text-align: right;
+  line-height: 16px;
 }
 .header-crumbs h5 {
   opacity: 0.5;
@@ -236,13 +237,9 @@ const refreshPage = () => {
   }
 
   .header-crumbs {
-    top: 2px;
-    right: 12px;
-  }
-
-  .header-crumbs h5 {
     display: none;
   }
+
 }
 
 @media (max-width: 1640px) {
