@@ -93,6 +93,15 @@ watch(searchFeedsTerm, (val) => {
       </button></span
     >
     <span id="filter-search">
+      <span id="filter-search-help">
+        <span>In order to filter search results by tag use <code>t:</code> operator<br/>
+          Valid examples:<br/>
+          <code>t:tag1 <\search-query\></code><br/>
+          <code>t:tag1,tag2</code><br/>
+          <code>t:tag1 t:tag2</code><br/>
+          <code>t:tag1,"Tag with space"</code>
+        </span>
+      </span>
       <button
         id="filter-search-clear"
         alt="Clear"
@@ -199,6 +208,37 @@ watch(searchFeedsTerm, (val) => {
   color: rgb(from var(--color-text) r g b / 80%);
 }
 
+#filter-search-help {
+  position: absolute;
+  left: -40px;
+  top: 2px;
+}
+#filter-search-help::after {
+  content: "?";
+  display: inline-block;
+  background-color: var(--color-accent);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  text-align: center;
+  font-weight: bold;
+
+}
+#filter-search-help:hover span {
+  display: block;
+  position: absolute;
+  width: 280px;
+  background-color: var(--color-background);
+  border-radius: 2px;
+  border: 1px solid var(--color-accent);
+  z-index: 999;
+  padding: 6px 12px;
+  font-size: .9em;
+}
+#filter-search-help span {
+  display: none;
+}
+
 @media (max-width: 640px) {
   #filter-search-clear {
     top: 24px;
@@ -232,6 +272,9 @@ watch(searchFeedsTerm, (val) => {
     left: 50%;
     transform: translate(-50%);
     bottom: -10px;
+  }
+  #filter-search-help {
+    display: none;
   }
 
   .filter-box {
