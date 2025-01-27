@@ -75,6 +75,7 @@ const generateFirehoseFeed = () => {
     displayTitle: 'Firehose',
     itemCount: 0,
     isQuery: false,
+    tags: [],
   }
 }
 
