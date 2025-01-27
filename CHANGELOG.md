@@ -6,15 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.1.2] 2025-01-27
 ### Added
+- Incorporate searching by tag into article search (default template)
 - Add enclosure url to generated RSS articles
+- Show feed tags in feed headers (default template)
 - Add `tags` attribute to serialized feeds in templates
 - Add `site_url` option to Liveboat config.
+- Include help button for article search (default template)
 ### Changed
 - Include self referential RSS channels for query feeds in OPML file.
 ### Fixed
 - Properly pass `tags` attribute for query feeds.
-
+- Fix readability attempting to scrape non-html sources.
 ## [1.1.1] 2025-01-25
 ### Added
 - Add feed navigator
