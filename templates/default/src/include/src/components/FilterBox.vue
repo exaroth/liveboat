@@ -1,8 +1,10 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useFiltersStore } from '../stores/filters'
+import IconCloseRound from './icons/IconCloseRound.vue'
 
 const fStore = useFiltersStore()
+const inputSearch = ref(null)
 
 const setTimeLimit = (limit) => {
   fStore.$patch({
@@ -31,6 +33,10 @@ fStore.$subscribe((state) => {
   filters.value = state.payload
   fStore.saveStore()
 })
+
+const clearSearch = () => {
+  searchFeedsTerm.value = ""
+}
 
 var searchDelayTimeout
 
@@ -86,16 +92,36 @@ watch(searchFeedsTerm, (val) => {
       </button></span
     >
     <span id="filter-search">
+      <button id="filter-search-clear" alt="Clear" v-if="inputSearch && inputSearch.value.length > 0" @click="clearSearch()">
+        <IconCloseRound />
+      </button>
       <input
         placeholder="Search"
         :value="searchFeedsTerm"
         @input="(event) => (searchFeedsTerm = event.target.value)"
+        ref="inputSearch"
       />
     </span>
   </div>
 </template>
 
 <style scoped>
+#filter-search-clear {
+  position: absolute;
+  right: 10px;
+  top: 4px;
+  color: rgb(from var(--color-text) r g b / 70%);
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  align-content: center;
+}
+#filter-search-clear:hover {
+  color: rgb(from var(--color-text) r g b / 80%);
+}
+
 .filter-container {
   width: 100%;
   padding: 20px 0px 20px 0px;
@@ -140,16 +166,20 @@ watch(searchFeedsTerm, (val) => {
 }
 
 #filter-search {
+  position: relative;
   float: right;
 }
 
 #filter-search input {
-  width: 164px;
+  width: 200px;
   height: 29px;
   background-color: transparent;
-  outline: 1px solid var(--color-text);
+  outline: 1px solid rgb(from var(--color-text) r g b / 40%);
   font-weight: normal;
   padding: 0px 0px 0px 6px;
+}
+#filter-search input:focus {
+  outline: 1px solid var(--color-custom);
 }
 
 @media (max-width: 640px) {
