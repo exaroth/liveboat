@@ -140,10 +140,15 @@ const _filterByTerm = (items, term) => {
     if (props.feed.tags.length === 0) {
       return []
     }
-    for (let t of props.feed.tags) {
-      if (tags.indexOf(t) < 0) {
-        return []
+    let found = false
+    for (let t of tags) {
+      if (props.feed.tags.indexOf(t) > -1) {
+        found = true
+        break
       }
+    }
+    if (!found) {
+      return []
     }
   }
   let title = (props.feed.displayTitle || props.feed.title).toLowerCase().split(' ')
