@@ -47,7 +47,7 @@
   <body>
       <script>
       window.buildTime = {{ build_time }};
-      window.templateVer = {{ template_version }};
+      window.templateVer = "{{ template_version }}";
       window.pageTitle = '{{ options.title }}';
     {{#if template_settings.autoreload}}
       window.autoreload = {{template_settings.autoreload}}
