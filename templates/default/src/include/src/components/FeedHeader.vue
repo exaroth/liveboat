@@ -38,6 +38,8 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(['expand-feed'])
+
 const retrieveItemData = async () => {
   return await getFeedItems(props.feed.id, props.archived)
 }
@@ -57,6 +59,15 @@ const getNavData = () => {
     index: props.feedIndex,
     minimized: minimizeStore.showFeedMinimized(props.feed.id),
   }
+}
+
+const expandFeed = () => {
+  const y =
+    feedHeaderRef.value.getBoundingClientRect().top + window.scrollY - window.innerHeight / 4 + 30
+  window.scroll({
+    top: y,
+  })
+  emit('expand-feed', dispatchExpandItems())
 }
 
 onMounted(() => {
@@ -99,7 +110,7 @@ onUnmounted(() => {
         <IconMaximize />
       </button>
       <button
-        @click="$emit('expand-feed', dispatchExpandItems())"
+        @click="expandFeed()"
         class="expand-button feed-expand-button"
         title="Expand"
         v-if="
