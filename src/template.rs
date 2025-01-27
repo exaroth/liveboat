@@ -87,7 +87,6 @@ impl<'a> Context for SimpleContext<'a> {
 }
 
 impl<'a> SimpleContext<'a> {
-
     /// Initialize new context given processing and context opts.
     pub fn init(
         url_feeds: &'a Vec<Arc<RefCell<Feed>>>,
@@ -150,7 +149,16 @@ mod tests {
         let mut feeds = Vec::new();
 
         // Feed non hidden with and item
-        let item1 = FeedItem::new("item1", "http://test.com", "", "",  123456, false, "", 1);
+        let item1 = FeedItem::new(
+            "item1",
+            "http://test.com",
+            "",
+            "",
+            123456,
+            false,
+            "",
+            1,
+        );
 
         let mut f1 = Feed::init(
             "http://example.com".to_string(),
@@ -182,7 +190,8 @@ mod tests {
 
         let mut query_feeds = Vec::new();
         // Query feed with no items
-        query_feeds.push(Feed::init_query_feed(String::from("Query feed1"), 10));
+        query_feeds
+            .push(Feed::init_query_feed(String::from("Query feed1"), 10));
         // Query feed with items
         let mut qfeed = Feed::init_query_feed(String::from("Query feed2"), 2);
         qfeed.add_item(item1.clone());
@@ -199,7 +208,11 @@ mod tests {
         );
 
         assert_eq!(4, ctx.feeds.len());
-        let titles = ctx.feeds.into_iter().map(|f| f.title().clone()).collect::<Vec<String>>();
+        let titles = ctx
+            .feeds
+            .into_iter()
+            .map(|f| f.title().clone())
+            .collect::<Vec<String>>();
         assert!(titles.contains(&"Url feed1".to_string()));
         assert!(titles.contains(&"Url feed2".to_string()));
         assert!(titles.contains(&"Url feed3".to_string()));

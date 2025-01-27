@@ -1,17 +1,17 @@
 mod args;
+mod builders;
 mod cli;
+mod content;
 mod db;
 mod errors;
 mod feed;
 mod feed_item;
+mod handlers;
 mod opts;
 mod paths;
 mod template;
 mod urls;
 mod utils;
-mod content;
-mod builders;
-mod handlers;
 
 use anyhow::Result;
 use clap::Parser;
@@ -21,11 +21,11 @@ use std::path::PathBuf;
 use sudo;
 
 use crate::args::{Args, Command};
+use crate::handlers::LIVEBOAT_UPDATE_BIN_PATH_ENV;
+use crate::handlers::{build, init, update};
 use crate::paths::Paths;
 use crate::utils::tidy_up;
 use log::info;
-use crate::handlers::{build, update, init};
-use crate::handlers::LIVEBOAT_UPDATE_BIN_PATH_ENV;
 
 fn main() {
     let args = Args::parse();

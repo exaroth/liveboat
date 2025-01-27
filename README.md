@@ -1,5 +1,5 @@
 <h1 align="center">
-<img align="center" width="100" height="100" src="logo.png" alt="Liveboat"><br/>
+<img align="center" width="100" height="100" src="logo.png"><br/>
 Liveboat
 </h1>
 
@@ -124,6 +124,7 @@ Configuration file can be found at `~/.config/liveboat/config.toml` and stores o
 
 - `title` - Main title for the feed page.
 - `site_path` - This defines base path under which feed page will be hosted, unless deployed at the root domain this variable should be updated, eg. if hosted on the Github Pages (as a repository) this will need to be changed to `/<repo_name>/`.
+- `site_url` - If you are planning on using Liveboat OPML channel this value should be set to base url where Liveboat is hosted at, so that Query Feed entries will contain proper backlink pointing back to Liveboat instance.
 - `show_read_articles` - Whether or not to include articles marked as read by Newsboat.
 - `time_threshold` - Amount of time in the past (in days) for which Liveboat should look for when retrieving articles. 
 - `template_name` - Name of the template to use when generating the feed page, templates are stored at `~/.config/liveboat/templates`, if you want to use template located elsewhere use `--template-path` argument when invoking Liveboat.

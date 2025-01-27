@@ -1,5 +1,5 @@
-use resolve_path::PathResolveExt;
 use log::info;
+use resolve_path::PathResolveExt;
 
 use anyhow::Result;
 use console::Style;

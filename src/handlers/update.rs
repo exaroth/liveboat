@@ -1,9 +1,9 @@
-use std::fs;
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::env::current_exe;
-use std::os::unix::fs::PermissionsExt;
+use std::fs;
 use std::fs::read_to_string;
-use std::cmp::Ordering;
+use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
 
 use anyhow::Result;
@@ -11,12 +11,13 @@ use log::info;
 use self_replace::self_replace;
 
 use crate::errors::FilesystemError;
-use crate::paths::Paths;
-use crate::handlers::{RELEASE_CHANNEL, STABLE_CHANNEL_NAME, NIGHTLY_CHANNEL_NAME};
-use crate::handlers::LIVEBOAT_UPDATE_BIN_PATH_ENV;
 use crate::handlers::aux;
+use crate::handlers::LIVEBOAT_UPDATE_BIN_PATH_ENV;
+use crate::handlers::{
+    NIGHTLY_CHANNEL_NAME, RELEASE_CHANNEL, STABLE_CHANNEL_NAME,
+};
+use crate::paths::Paths;
 use crate::utils;
-
 
 lazy_static::lazy_static! {
     /// Static map of target->release bin name.
@@ -35,7 +36,11 @@ const UPDATER_TEMP_BIN_PATH: &str = "/tmp/liveboat.__u_temp__";
 
 /// Check for Liveboat updates, if there is new version available
 /// fetch both liveboat binary as template files.
-pub fn update_files(debug: bool, use_nightly: bool, paths: &Paths) -> Result<bool> {
+pub fn update_files(
+    debug: bool,
+    use_nightly: bool,
+    paths: &Paths,
+) -> Result<bool> {
     if !paths.initialized() {
         Err(FilesystemError::NotInitialized)?;
     }
@@ -46,30 +51,44 @@ pub fn update_files(debug: bool, use_nightly: bool, paths: &Paths) -> Result<boo
     match use_nightly {
         true => {
             println!("Nightly mode enabled, using dev channel for updates");
-            release_channel = format!("{}/{}", RELEASE_CHANNEL, NIGHTLY_CHANNEL_NAME);
+            release_channel =
+                format!("{}/{}", RELEASE_CHANNEL, NIGHTLY_CHANNEL_NAME);
         }
-        false => release_channel = format!("{}/{}", RELEASE_CHANNEL, STABLE_CHANNEL_NAME),
+        false => {
+            release_channel =
+                format!("{}/{}", RELEASE_CHANNEL, STABLE_CHANNEL_NAME)
+        }
     }
     println!("Using {} as release channel", release_channel);
 
     let mut restart_required = false;
-    let new_version_available =
-        check_newer_binary_version_available(&release_channel, dl_path.as_path())?;
+    let new_version_available = check_newer_binary_version_available(
+        &release_channel,
+        dl_path.as_path(),
+    )?;
     match new_version_available {
         true => {
             println!("Newer version of Liveboat found. Fetching...");
-            restart_required = update_liveboat_binary(&release_channel, dl_path.as_path())?;
+            restart_required =
+                update_liveboat_binary(&release_channel, dl_path.as_path())?;
         }
         false => {
             if debug {
                 println!("Debug mode enabled, forcing redownload...");
-                restart_required = update_liveboat_binary(&release_channel, dl_path.as_path())?;
+                restart_required = update_liveboat_binary(
+                    &release_channel,
+                    dl_path.as_path(),
+                )?;
             } else {
                 println!("Latest version of Liveboat is already installed.")
             }
         }
     }
-    aux::fetch_templates(&release_channel, dl_path.as_path(), paths.template_dir())?;
+    aux::fetch_templates(
+        &release_channel,
+        dl_path.as_path(),
+        paths.template_dir(),
+    )?;
     if !restart_required {
         println!("Update completed");
     }
@@ -78,7 +97,10 @@ pub fn update_files(debug: bool, use_nightly: bool, paths: &Paths) -> Result<boo
 
 /// Download and update local liveboat binary. We return bool in result
 /// indicating whether to attempt to propagate to sudo in order to replace the binary.
-fn update_liveboat_binary(release_chan: &String, dl_path: &Path) -> Result<bool> {
+fn update_liveboat_binary(
+    release_chan: &String,
+    dl_path: &Path,
+) -> Result<bool> {
     let target_r = option_env!("TARGET");
     if target_r.is_none() {
         println!("Looks like your version of Liveboat cannot be updated");
@@ -112,10 +134,12 @@ fn update_liveboat_binary(release_chan: &String, dl_path: &Path) -> Result<bool>
     Ok(false)
 }
 
-
 /// Fetch and compare VERSION file in the latest release channel and
 /// compare against local version.
-fn check_newer_binary_version_available(release_chan: &String, dl_path: &Path) -> Result<bool> {
+fn check_newer_binary_version_available(
+    release_chan: &String,
+    dl_path: &Path,
+) -> Result<bool> {
     println!("Checking for new liveboat version...");
     let v_url = format!("{}/{}", release_chan, VERSION_FNAME);
     info!("Remote url for VERSION file is {}", v_url);
@@ -131,6 +155,7 @@ fn check_newer_binary_version_available(release_chan: &String, dl_path: &Path) -
     println!("Found remote version: {}", v_contents);
     println!("Local version: {}", env!("CARGO_PKG_VERSION"));
     let remote_ver = utils::Version::from_str(v_contents.to_string())?;
-    let current_ver = utils::Version::from_str(env!("CARGO_PKG_VERSION").to_string())?;
+    let current_ver =
+        utils::Version::from_str(env!("CARGO_PKG_VERSION").to_string())?;
     return Ok(current_ver.cmp(&remote_ver) == Ordering::Less);
 }

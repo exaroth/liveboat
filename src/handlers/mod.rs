@@ -1,7 +1,6 @@
 /// This module contains implementation of command handlers
 /// such as building pages, initializing configuration or updating
 /// files.
-
 pub mod build;
 pub mod init;
 pub mod update;
@@ -9,7 +8,8 @@ pub mod update;
 mod aux;
 
 /// Base path to Github releae to fetch binaries/templates from
-pub const RELEASE_CHANNEL: &str = "https://github.com/exaroth/liveboat/releases/download";
+pub const RELEASE_CHANNEL: &str =
+    "https://github.com/exaroth/liveboat/releases/download";
 /// Tag name for release channel
 pub const STABLE_CHANNEL_NAME: &str = "stable";
 /// Tag name for development channel

@@ -44,7 +44,6 @@ pub struct DBConnector {
 }
 
 impl DBConnector {
-
     /// Initialize new DB connector.
     pub fn init(db_path: &Path) -> Result<DBConnector> {
         let connector = DBConnector {
@@ -54,7 +53,10 @@ impl DBConnector {
     }
 
     /// Instantiate feed objects based on the rows retrieved from db.
-    fn load_feed_items(&self, rows: &mut Rows<'_>) -> Result<Vec<FeedItem>, SQLiteError> {
+    fn load_feed_items(
+        &self,
+        rows: &mut Rows<'_>,
+    ) -> Result<Vec<FeedItem>, SQLiteError> {
         let mut results: Vec<FeedItem> = Vec::new();
         while let Some(row) = rows.next()? {
             let feed_item = FeedItem::from_db_row(row)?;
@@ -76,7 +78,8 @@ impl Connector for DBConnector {
         // NOTE: we cant interpolate days integer directly with rusql
         let days_s = format!("-{} days", days_back);
         info!("Day threshold param == {}", days_s);
-        let mut results = stmt.query(rusqlite::named_params! {"$days": days_s})?;
+        let mut results =
+            stmt.query(rusqlite::named_params! {"$days": days_s})?;
         let results = self.load_feed_items(&mut results)?;
         Ok(results)
     }

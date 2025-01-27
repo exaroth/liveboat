@@ -1,5 +1,5 @@
-use thiserror::Error;
 use std::path::PathBuf;
+use thiserror::Error;
 
 /// Error used for handling common issues related
 /// to filesystem such as missing files.
@@ -24,4 +24,12 @@ pub enum UrlReaderError {
 
     #[error("Error matching query feed {0}")]
     MatcherError(String),
+}
+
+/// Errors related to invalid configuration settings passed
+/// by the user.
+#[derive(Error, Debug)]
+pub enum ConfigurationError {
+    #[error("Invalid site URL defined in Liveboat options")]
+    InvalidSiteUrl,
 }

@@ -29,7 +29,7 @@ const handleArticleUnexpand = (articleId) => {
 </script>
 
 <template>
-  <IndexHeader />
+  <IndexHeader :feeedList="false" />
   <FeedItems
     :filtered="false"
     :archived="true"

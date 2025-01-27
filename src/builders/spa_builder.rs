@@ -8,9 +8,11 @@ use std::{fs, io};
 
 use anyhow::Result;
 use handlebars::Handlebars;
+use url::Url;
 
 use crate::builders::aux::Builder;
 use crate::builders::utils::{generate_opml, generate_rss_channel};
+use crate::errors::ConfigurationError;
 use crate::feed::{Feed, FeedList};
 use crate::template::Context;
 use crate::utils::copy_all;
@@ -25,6 +27,9 @@ const INDEX_FILENAME: &str = "index";
 const BUILD_TIME_FILENAME: &str = "build_time.txt";
 /// Filename of the rss file.
 const RSS_FILE_FILENAME: &str = "rss.xml";
+/// Directory name used for storing self referential rss documents
+/// used for storing query feed rss data.
+const SELF_REFERENTIAL_RSS_DIRNAME: &str = "channels";
 /// Filename of the ompl file.
 const OPML_FILENAME: &str = "opml.xml";
 
@@ -51,6 +56,7 @@ where
         _ = fs::create_dir(self.tmp_dir)?;
         info!("Creating tmp feeds dir");
         _ = fs::create_dir(self.tmp_dir.join(FEEDS_DIRNAME))?;
+        _ = fs::create_dir(self.tmp_dir.join(SELF_REFERENTIAL_RSS_DIRNAME))?;
         Ok(())
     }
 
@@ -60,6 +66,7 @@ where
         self.save_json_feeds()?;
         self.save_build_time()?;
         self.save_rss_channel()?;
+        self.save_query_feed_channels()?;
         self.save_opml()?;
         Ok(())
     }
@@ -83,8 +90,14 @@ where
         }
         copy_all(feeds_dir_tmp, &feeds_dir)?;
 
-        let tpl_index_path = self.tmp_dir.join(format!("{}.html", INDEX_FILENAME));
-        let index_path = self.build_dir.join(format!("{}.html", INDEX_FILENAME));
+        let channel_dir_tmp = self.tmp_dir.join(SELF_REFERENTIAL_RSS_DIRNAME);
+        let channel_dir = self.build_dir.join(SELF_REFERENTIAL_RSS_DIRNAME);
+        copy_all(channel_dir_tmp, &channel_dir)?;
+
+        let tpl_index_path =
+            self.tmp_dir.join(format!("{}.html", INDEX_FILENAME));
+        let index_path =
+            self.build_dir.join(format!("{}.html", INDEX_FILENAME));
         info!(
             "Copying rendered index @ {} to {}",
             tpl_index_path.display(),
@@ -108,7 +121,8 @@ where
 
     /// Render template using context provided.
     fn render_templates(&self) -> Result<()> {
-        let tpl_file = self.template_path.join(format!("{}.hbs", INDEX_FILENAME));
+        let tpl_file =
+            self.template_path.join(format!("{}.hbs", INDEX_FILENAME));
         info!("Rendering template @ {}", &tpl_file.display());
         let raw = fs::read_to_string(tpl_file)?;
         let mut handlebars = Handlebars::new();
@@ -186,17 +200,31 @@ where
         let path = self.tmp_dir.join(RSS_FILE_FILENAME);
         let mut file = File::create(path)?;
         file.write_all(
-            generate_rss_channel(self.context.options(), self.context.feeds()).as_bytes(),
+            generate_rss_channel(
+                self.context.options(),
+                self.context.feeds(),
+                true,
+            )
+            .as_bytes(),
         )?;
         Ok(())
     }
 
     /// Save atom feed for all the feeds
     fn save_opml(&self) -> Result<()> {
+        let url = Url::parse(self.context.options().site_url.as_str());
+        if url.is_err() {
+            return Err(ConfigurationError::InvalidSiteUrl.into());
+        }
         let path = self.tmp_dir.join(OPML_FILENAME);
         let mut file = File::create(path)?;
         file.write_all(
-            generate_opml(self.context.options(), self.context.feeds()).as_bytes(),
+            generate_opml(
+                self.context.options(),
+                self.context.feeds(),
+                &url.unwrap(),
+            )
+            .as_bytes(),
         )?;
         Ok(())
     }
@@ -208,6 +236,32 @@ where
         info!("Saving feed at path {}", path.display());
         let mut file = File::create(path)?;
         file.write_all(data)?;
+        Ok(())
+    }
+
+    /// Save rss feeds containing query feed data used in the
+    /// self referential data used in OPML channel.
+    fn save_query_feed_channels(&self) -> Result<()> {
+        let base_path = self.tmp_dir.join(SELF_REFERENTIAL_RSS_DIRNAME);
+        let q_feeds: Vec<&Feed> = self
+            .context
+            .feeds()
+            .into_iter()
+            .filter(|f| f.is_query_feed() == true)
+            .collect();
+        for f in q_feeds {
+            let path = base_path.join(format!("{}.xml", f.id()));
+            info!("Saving channel data for query feed: {}", path.display());
+            let mut file = File::create(path)?;
+            file.write_all(
+                generate_rss_channel(
+                    self.context.options(),
+                    &Vec::from([f.clone()]),
+                    false,
+                )
+                .as_bytes(),
+            )?;
+        }
         Ok(())
     }
 
@@ -225,11 +279,21 @@ where
     }
 
     /// Save list of all feeds.
-    fn save_json_feedlist(&self, feedlist: &FeedList, name: String) -> Result<()> {
+    fn save_json_feedlist(
+        &self,
+        feedlist: &FeedList,
+        name: String,
+    ) -> Result<()> {
         if self.debug {
-            self.save_feed_data(&name, serde_json::to_string_pretty(&feedlist)?.as_bytes())?;
+            self.save_feed_data(
+                &name,
+                serde_json::to_string_pretty(&feedlist)?.as_bytes(),
+            )?;
         } else {
-            self.save_feed_data(&name, serde_json::to_string(&feedlist)?.as_bytes())?;
+            self.save_feed_data(
+                &name,
+                serde_json::to_string(&feedlist)?.as_bytes(),
+            )?;
         }
         Ok(())
     }

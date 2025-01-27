@@ -30,6 +30,7 @@ coverage
 *.tsbuildinfo
 index.html
 feeds
+channels
 package-lock.json
 build_time.txt
 rss.xml

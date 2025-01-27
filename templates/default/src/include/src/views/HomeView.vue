@@ -12,7 +12,7 @@ const handleNavToggle = () => {
 
 <template>
   <main>
-    <IndexHeader @toggle-nav="handleNavToggle" />
+    <IndexHeader @toggle-nav="handleNavToggle" :feedList="true" />
     <FeedList :filtered="true" :archived="false" :showNav="navVisible" />
   </main>
 </template>

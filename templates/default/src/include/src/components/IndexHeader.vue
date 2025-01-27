@@ -18,9 +18,17 @@ const pageTitle = window.pageTitle
 const sitePath = window.sitePath
 const showScrollToTop = ref(false)
 const showRefresh = ref(false)
+const templateVersion = ref(window.templateVersion)
 
 const embedStore = useEmbedStore()
 const { resetFeedItems } = useFeedItemsStore()
+
+const props = defineProps({
+  feedList: {
+    type: Boolean,
+    required: true,
+  },
+})
 
 const setScrollToTop = () => {
   let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
@@ -74,7 +82,9 @@ const refreshPage = () => {
 <template>
   <div class="header-crumbs">
     <span>
-      <h5>Page generated with <IconHeart /> by Liveboat</h5>
+      <h5>Page generated with <IconHeart /> by Liveboat</h5><br/>
+      <h5>Updated on {{ buildTime.toUTCString() }}</h5><br/>
+      <h5>Template ver. {{ templateVersion }}</h5>
     </span>
   </div>
   <div class="header-container">
@@ -83,7 +93,6 @@ const refreshPage = () => {
         <IconLiveboat />
         <a :href="sitePath" v-html="pageTitle" />
       </h2>
-      <h5>Page last updated on {{ buildTime.toUTCString() }}</h5>
       <div id="icons-aggro">
         <a id="icon-github" href="https://github.com/exaroth/liveboat" target="_blank">
           <IconGithub />
@@ -105,7 +114,7 @@ const refreshPage = () => {
         @click="refreshPage()"
         ><IconRefresh
       /></a>
-      <a id="side-button-nav" title="Show navigation" @click="toggleNav()"><IconNav /></a>
+      <a id="side-button-nav" v-if="props.feedList" title="Show navigation" @click="toggleNav()"><IconNav /></a>
     </div>
   </div>
 </template>
@@ -138,6 +147,8 @@ const refreshPage = () => {
   position: absolute;
   right: 20px;
   top: 10px;
+  text-align: right;
+  line-height: 16px;
 }
 .header-crumbs h5 {
   opacity: 0.5;
@@ -187,8 +198,8 @@ const refreshPage = () => {
 
 #icons-aggro {
   position: absolute;
-  right: 0;
-  bottom: -12px;
+  left: 0;
+  bottom: 0px;
   width: 200px;
 }
 
@@ -197,21 +208,21 @@ const refreshPage = () => {
 #icon-github svg {
   fill: var(--color-text);
   display: inline-block;
-  float: right;
-  margin-left: 10px;
+  float: left;
+  margin-right: 10px;
 }
 
 #icon-github svg {
   width: 22px;
   height: 22px;
   top: 7px;
-  right: -5px;
 }
 
 #icon-rss svg {
   width: 20px;
   height: 20px;
   top: 8px;
+  left: 2px;
 }
 
 @media (max-width: 640px) {
@@ -226,13 +237,9 @@ const refreshPage = () => {
   }
 
   .header-crumbs {
-    top: 2px;
-    right: 12px;
-  }
-
-  .header-crumbs h5 {
     display: none;
   }
+
 }
 
 @media (max-width: 1640px) {
