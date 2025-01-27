@@ -65,7 +65,6 @@ const emit = defineEmits([
 ])
 const itemDetails = ref(null)
 
-
 // Utility
 // ===============
 const _dateOpts = {
@@ -124,12 +123,35 @@ const filterFeedItems = async (state) => {
 }
 
 const _filterByTerm = (items, term) => {
+  // Split by whitespace unless space is contained in quotes
+  let termS = term.match(/(?:[^\s"]+|"[^"]*")+/g)
+  var tags = []
+  for (let i = 0; i < termS.length; i += 1) {
+    if (termS[i].startsWith('t:')) {
+      let tagRaw = termS.splice(i, 1)[0]
+      i -= 1
+      tagRaw = tagRaw.substring(2, tagRaw.length)
+      let tagS = tagRaw.split(',').map((t) => t.trim())
+      tagS = tagS.map((t) => t.replace(/['"]+/g, '')).filter((t) => t.length > 0)
+      tags.push(...tagS)
+    }
+  }
+  if (tags.length > 0) {
+    if (props.feed.tags.length === 0) {
+      return []
+    }
+    for (let t of props.feed.tags) {
+      if (tags.indexOf(t) < 0) {
+        return []
+      }
+    }
+  }
   let title = (props.feed.displayTitle || props.feed.title).toLowerCase().split(' ')
   let checker = (arr, target) => target.every((v) => arr.some((vv) => vv.includes(v)))
   return items.filter((f) => {
     let fTitle = f.title.toLowerCase().split(' ')
     fTitle.push(f.author.toLowerCase())
-    return checker(fTitle.concat(title), term.split(' '))
+    return checker(fTitle.concat(title), termS)
   })
 }
 const _updateItemsWithDate = (items, daysBack) => {
