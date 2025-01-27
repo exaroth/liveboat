@@ -18,6 +18,7 @@ const pageTitle = window.pageTitle
 const sitePath = window.sitePath
 const showScrollToTop = ref(false)
 const showRefresh = ref(false)
+const templateVersion = ref(window.templateVersion)
 
 const embedStore = useEmbedStore()
 const { resetFeedItems } = useFeedItemsStore()
@@ -83,7 +84,7 @@ const refreshPage = () => {
     <span>
       <h5>Page generated with <IconHeart /> by Liveboat</h5><br/>
       <h5>Updated on {{ buildTime.toUTCString() }}</h5>
-      <h5>Template ver. {{ window.templateVersion }}</h5>
+      <h5>Template ver. {{ templateVersion }}</h5>
     </span>
   </div>
   <div class="header-container">
