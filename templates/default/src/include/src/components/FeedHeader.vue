@@ -75,8 +75,11 @@ onUnmounted(() => {
     <router-link :to="{ name: 'feedView', params: { feedId: feed.id } }" v-if="!props.firehose"
       ><span v-html="feed.displayTitle || feed.title" />
       <span v-if="feed.isQuery" class="feed-query-indicator"></span>
-      <span class="item-count">({{ feed.itemCount }})</span></router-link
-    >
+      <span class="item-count">({{ feed.itemCount }})</span>
+      <span id="feed-header-tags" v-for="(tag, index) in props.feed.tags" :key="index">
+        <span class="feed-header-tag">#{{ tag }}</span>
+      </span>
+    </router-link>
     <a v-else href="#">{{ feed.displayTitle }}</a>
     <span class="feed-buttons">
       <button
@@ -138,7 +141,7 @@ onUnmounted(() => {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  position:relative;
+  position: relative;
   top: 7px;
 }
 
@@ -191,6 +194,21 @@ onUnmounted(() => {
 }
 .item-count {
   opacity: 0.6;
+  margin-left: 4px;
+}
+
+#feed-header-tags {
+  margin-left: 6px;
+  opacity: .7;
+}
+.feed-header-tag {
+  color: var(--color-text);
+  background-color: var(--color-background);
+  font-size: 0.8em;
+  padding: 2px 10px;
+  font-weight: bold;
+  line-height: 10px;
+  border-radius: 25%;
   margin-left: 4px;
 }
 </style>
