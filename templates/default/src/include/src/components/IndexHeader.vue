@@ -31,6 +31,7 @@ const props = defineProps({
 })
 
 const subHeaderText = ref(window.subHeaderText || null)
+const repoUrl = ref(window.repoUrl || null)
 
 const setScrollToTop = () => {
   let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
@@ -84,20 +85,26 @@ const refreshPage = () => {
 <template>
   <div class="header-crumbs">
     <span>
-      <h5>Page generated with <IconHeart /> by Liveboat</h5><br/>
-      <h5>Updated on {{ buildTime.toUTCString() }}</h5><br/>
+      <h5>Page generated with <IconHeart /> by Liveboat</h5>
+      <br />
+      <h5>Updated on {{ buildTime.toUTCString() }}</h5>
+      <br />
       <h5>Template ver. {{ templateVersion }}</h5>
     </span>
   </div>
-  <div class="header-container">
+  <div :class="{ 'header-container': true, 'header-container-archive': !props.feedList }">
     <div class="header-title">
       <h2>
         <IconLiveboat />
         <a :href="sitePath" v-html="pageTitle" />
       </h2>
-      <h3 v-if="subHeaderText" v-html="subHeaderText" id="header-subtitle"/>
+      <h3 v-if="subHeaderText" v-html="subHeaderText" id="header-subtitle" />
       <div id="icons-aggro">
-        <a id="icon-github" href="https://github.com/exaroth/liveboat" target="_blank">
+        <a
+          id="icon-github"
+          :href="repoUrl || 'https://github.com/exaroth/liveboat'"
+          target="_blank"
+        >
           <IconGithub />
         </a>
         <a id="icon-rss" href="rss.xml" target="_blank"><IconRss /></a>
@@ -117,7 +124,9 @@ const refreshPage = () => {
         @click="refreshPage()"
         ><IconRefresh
       /></a>
-      <a id="side-button-nav" v-if="props.feedList" title="Show navigation" @click="toggleNav()"><IconNav /></a>
+      <a id="side-button-nav" v-if="props.feedList" title="Show navigation" @click="toggleNav()"
+        ><IconNav
+      /></a>
     </div>
   </div>
 </template>
@@ -125,14 +134,17 @@ const refreshPage = () => {
 <style scoped>
 #header-subtitle {
   display: box;
-  margin: 10px 0 ;
+  margin: 10px 0;
   font-weight: 600;
 }
 .header-container {
   width: 100%;
   height: 80px;
-  margin: 10px 0px 10px 0px;
+  margin: 10px 0px 14px 0px;
   position: relative;
+}
+.header-container-archive {
+  margin: 10px 0px 50px 0px;
 }
 .header-title h2 {
   font-size: 1.8rem;
@@ -246,7 +258,6 @@ const refreshPage = () => {
   .header-crumbs {
     display: none;
   }
-
 }
 
 @media (max-width: 1640px) {
@@ -268,6 +279,10 @@ const refreshPage = () => {
   }
   #icons-aggro {
     margin-top: 20px;
+    width: 100%;
+  }
+  .header-container-archive {
+    margin: 10px 0px 50px 0px;
   }
 }
 </style>
