@@ -95,7 +95,7 @@ const refreshPage = () => {
         <IconLiveboat />
         <a :href="sitePath" v-html="pageTitle" />
       </h2>
-      <h4 v-if="subHeaderText" v-html="subHeaderText"/>
+      <h3 v-if="subHeaderText" v-html="subHeaderText" id="header-subtitle"/>
       <div id="icons-aggro">
         <a id="icon-github" href="https://github.com/exaroth/liveboat" target="_blank">
           <IconGithub />
@@ -123,6 +123,11 @@ const refreshPage = () => {
 </template>
 
 <style scoped>
+#header-subtitle {
+  display: box;
+  margin: 10px 0 ;
+  font-weight: 600;
+}
 .header-container {
   width: 100%;
   height: 80px;
@@ -200,9 +205,8 @@ const refreshPage = () => {
 }
 
 #icons-aggro {
-  position: absolute;
+  position: relative;
   left: 0;
-  bottom: 0px;
   width: 200px;
 }
 
@@ -261,6 +265,9 @@ const refreshPage = () => {
 @media (max-width: 810px) {
   #side-button-nav {
     display: none;
+  }
+  #icons-aggro {
+    margin-top: 20px;
   }
 }
 </style>

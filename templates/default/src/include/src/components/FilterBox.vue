@@ -239,7 +239,7 @@ watch(searchFeedsTerm, (val) => {
   display: none;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   #filter-search-clear {
     top: 24px;
   }
