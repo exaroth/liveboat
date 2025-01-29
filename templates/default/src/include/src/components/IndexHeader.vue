@@ -30,6 +30,8 @@ const props = defineProps({
   },
 })
 
+const subHeaderText = ref(window.subHeaderText || null)
+
 const setScrollToTop = () => {
   let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
   let offset = window.pageYOffset
@@ -93,6 +95,7 @@ const refreshPage = () => {
         <IconLiveboat />
         <a :href="sitePath" v-html="pageTitle" />
       </h2>
+      <h4 v-if="subHeaderText" v-html="subHeaderText"/>
       <div id="icons-aggro">
         <a id="icon-github" href="https://github.com/exaroth/liveboat" target="_blank">
           <IconGithub />
