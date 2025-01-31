@@ -220,15 +220,16 @@ const refreshPage = () => {
   position: relative;
   left: 0;
   width: 200px;
+  z-index: 1;
 }
 
-#icon-rss svg,
-#icon-opml svg,
-#icon-github svg {
+#icon-rss,
+#icon-opml,
+#icon-github {
   fill: var(--color-text);
-  display: inline-block;
   float: left;
   margin-right: 10px;
+  display: block;
 }
 
 #icon-github svg {
