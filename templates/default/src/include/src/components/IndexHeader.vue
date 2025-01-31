@@ -85,7 +85,7 @@ const refreshPage = () => {
 <template>
   <div class="header-crumbs">
     <span>
-      <h5>Page generated with <IconHeart /> by Liveboat</h5>
+      <h5>Page generated with <IconHeart /> by <a href="https://github.com/exaroth/liveboat" target="_blank">Liveboat</a></h5>
       <br />
       <h5>Updated on {{ buildTime.toUTCString() }}</h5>
       <br />
