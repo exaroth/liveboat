@@ -35,6 +35,7 @@ const props = defineProps({
 })
 
 const subHeaderText = ref(window.subHeaderText || null)
+const headerSvg = ref(window.headerSvg || null)
 const repoUrl = ref(window.repoUrl || null)
 
 const setScrollToTop = () => {
@@ -111,7 +112,8 @@ onMounted(() => {
   <div :class="{ 'header-container': true, 'header-container-archive': !props.feedList }">
     <div class="header-title">
       <h2>
-        <IconLiveboat />
+        <span id="header-custom-svg" v-if="headerSvg"><img :src="headerSvg"></span>
+        <IconLiveboat v-else />
         <a :href="sitePath" v-html="pageTitle" />
       </h2>
       <h3 v-if="subHeaderText" v-html="subHeaderText" id="header-subtitle" />
@@ -242,7 +244,7 @@ onMounted(() => {
   position: relative;
   left: 0;
   width: 200px;
-  z-index: 1;
+  z-index: 4;
 }
 
 #icon-rss,
@@ -270,6 +272,7 @@ onMounted(() => {
 #theme-selector {
   position: relative;
   top: 4px;
+  z-index: 3;
 }
 #theme-selector select {
   width: 140px;
@@ -295,8 +298,17 @@ onMounted(() => {
 
 #header-subtitle {
   display: box;
-  margin: 10px 0;
+  margin: 0 0 10px 0;
   font-weight: 600;
+}
+
+#header-custom-svg img {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: inline;
+  margin-right: 9px;
+  top: 4px;
 }
 
 @media (max-width: 640px) {
