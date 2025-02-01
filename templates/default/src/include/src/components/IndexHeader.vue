@@ -1,8 +1,9 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 import { useEmbedStore } from '../stores/embed'
 import { useFeedItemsStore } from '../stores/feedItems'
+import { useThemeStore } from '../stores/theme'
 
 import IconGithub from './icons/IconGithub.vue'
 import IconHeart from './icons/IconHeart.vue'
@@ -21,6 +22,7 @@ const showRefresh = ref(false)
 const templateVersion = ref(window.templateVersion)
 
 const embedStore = useEmbedStore()
+const themeStore = useThemeStore()
 const { resetFeedItems } = useFeedItemsStore()
 
 const props = defineProps({
@@ -29,6 +31,9 @@ const props = defineProps({
     required: true,
   },
 })
+
+const subHeaderText = ref(window.subHeaderText || null)
+const repoUrl = ref(window.repoUrl || null)
 
 const setScrollToTop = () => {
   let vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
@@ -74,33 +79,59 @@ const toggleNav = () => {
   emit('toggle-nav')
 }
 
+const selectedTheme = ref(null)
+const selectTheme = () => {
+  themeStore.selectTheme(selectedTheme.value)
+}
+
 const refreshPage = () => {
   window.location.reload()
 }
+
+onMounted(() => {
+  selectedTheme.value = themeStore.themeName
+})
 </script>
 
 <template>
   <div class="header-crumbs">
     <span>
-      <h5>Page generated with <IconHeart /> by Liveboat</h5><br/>
-      <h5>Updated on {{ buildTime.toUTCString() }}</h5><br/>
+      <h5>
+        Page generated with <IconHeart /> by
+        <a href="https://github.com/exaroth/liveboat" target="_blank">Liveboat</a>
+      </h5>
+      <br />
+      <h5>Updated on {{ buildTime.toUTCString() }}</h5>
+      <br />
       <h5>Template ver. {{ templateVersion }}</h5>
     </span>
   </div>
-  <div class="header-container">
+  <div :class="{ 'header-container': true, 'header-container-archive': !props.feedList }">
     <div class="header-title">
       <h2>
         <IconLiveboat />
         <a :href="sitePath" v-html="pageTitle" />
       </h2>
+      <h3 v-if="subHeaderText" v-html="subHeaderText" id="header-subtitle" />
       <div id="icons-aggro">
-        <a id="icon-github" href="https://github.com/exaroth/liveboat" target="_blank">
+        <a
+          id="icon-github"
+          :href="repoUrl || 'https://github.com/exaroth/liveboat'"
+          target="_blank"
+        >
           <IconGithub />
         </a>
         <a id="icon-rss" href="rss.xml" target="_blank"><IconRss /></a>
         <a id="icon-opml" href="opml.xml" target="_blank"><IconOPML /></a>
       </div>
     </div>
+  </div>
+  <div id="theme-selector">
+    <select v-model="selectedTheme" @change="selectTheme()">
+      <option v-for="(themeO, theme) in themeStore.availableThemes" :value="theme" :key="theme">
+        {{ themeO.txt }}
+      </option>
+    </select>
   </div>
   <div id="side-buttons-wrapper">
     <div v-if="!embedStore.showModal" id="side-buttons">
@@ -114,17 +145,53 @@ const refreshPage = () => {
         @click="refreshPage()"
         ><IconRefresh
       /></a>
-      <a id="side-button-nav" v-if="props.feedList" title="Show navigation" @click="toggleNav()"><IconNav /></a>
+      <a id="side-button-nav" v-if="props.feedList" title="Show navigation" @click="toggleNav()"
+        ><IconNav
+      /></a>
     </div>
   </div>
 </template>
 
 <style scoped>
+#theme-selector {
+  position: relative;
+  top: 4px;
+}
+#theme-selector select {
+  width: 140px;
+  -webkit-appearance: none !important;
+  -moz-appearance:none !important;
+  appearance: none !important;
+  border: 1px solid rgb(from var(--color-text) r g b / 20%);
+  padding: 4px 8px;;
+  outline: none;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+#theme-selector::after {
+  position: absolute;
+  content: "\2304";
+  top: -6px;
+  left: 230px;
+  color: rgb(from var(--color-text) r g b / 30%);
+  font-size: 1.4em;
+  pointer-events: none;
+}
+
+#header-subtitle {
+  display: box;
+  margin: 10px 0;
+  font-weight: 600;
+}
 .header-container {
   width: 100%;
   height: 80px;
-  margin: 10px 0px 10px 0px;
+  margin: 10px 0px 14px 0px;
   position: relative;
+}
+.header-container-archive {
+  margin: 10px 0px 50px 0px;
 }
 .header-title h2 {
   font-size: 1.8rem;
@@ -197,19 +264,19 @@ const refreshPage = () => {
 }
 
 #icons-aggro {
-  position: absolute;
+  position: relative;
   left: 0;
-  bottom: 0px;
   width: 200px;
+  z-index: 1;
 }
 
-#icon-rss svg,
-#icon-opml svg,
-#icon-github svg {
+#icon-rss,
+#icon-opml,
+#icon-github {
   fill: var(--color-text);
-  display: inline-block;
   float: left;
   margin-right: 10px;
+  display: block;
 }
 
 #icon-github svg {
@@ -239,7 +306,6 @@ const refreshPage = () => {
   .header-crumbs {
     display: none;
   }
-
 }
 
 @media (max-width: 1640px) {
@@ -258,6 +324,16 @@ const refreshPage = () => {
 @media (max-width: 810px) {
   #side-button-nav {
     display: none;
+  }
+  #icons-aggro {
+    margin-top: 20px;
+    width: 100%;
+  }
+  .header-container-archive {
+    margin: 10px 0px 50px 0px;
+  }
+  #theme-selector {
+    top: 20px;
   }
 }
 </style>
