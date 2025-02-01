@@ -4,6 +4,7 @@ import { ref, onMounted } from 'vue'
 import { useEmbedStore } from '../stores/embed'
 import { useFeedItemsStore } from '../stores/feedItems'
 import { useThemeStore } from '../stores/theme'
+import { useFiltersStore } from '../stores/filters'
 
 import IconGithub from './icons/IconGithub.vue'
 import IconHeart from './icons/IconHeart.vue'
@@ -21,6 +22,7 @@ const showScrollToTop = ref(false)
 const showRefresh = ref(false)
 const templateVersion = ref(window.templateVersion)
 
+const fStore = useFiltersStore()
 const embedStore = useEmbedStore()
 const themeStore = useThemeStore()
 const { resetFeedItems } = useFeedItemsStore()
@@ -125,13 +127,13 @@ onMounted(() => {
         <a id="icon-opml" href="opml.xml" target="_blank"><IconOPML /></a>
       </div>
     </div>
-  </div>
-  <div id="theme-selector">
-    <select v-model="selectedTheme" @change="selectTheme()">
-      <option v-for="(themeO, theme) in themeStore.availableThemes" :value="theme" :key="theme">
-        {{ themeO.txt }}
-      </option>
-    </select>
+    <div id="theme-selector">
+      <select v-model="selectedTheme" @change="selectTheme()">
+        <option v-for="(themeO, theme) in themeStore.availableThemes" :value="theme" :key="theme">
+          {{ themeO.txt }}
+        </option>
+      </select>
+    </div>
   </div>
   <div id="side-buttons-wrapper">
     <div v-if="!embedStore.showModal" id="side-buttons">
@@ -145,7 +147,11 @@ onMounted(() => {
         @click="refreshPage()"
         ><IconRefresh
       /></a>
-      <a id="side-button-nav" v-if="props.feedList" title="Show navigation" @click="toggleNav()"
+      <a
+        id="side-button-nav"
+        v-if="props.feedList && !fStore.firehose"
+        title="Show navigation"
+        @click="toggleNav()"
         ><IconNav
       /></a>
     </div>
@@ -153,37 +159,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-#theme-selector {
-  position: relative;
-  top: 4px;
-}
-#theme-selector select {
-  width: 140px;
-  -webkit-appearance: none !important;
-  -moz-appearance:none !important;
-  appearance: none !important;
-  border: 1px solid rgb(from var(--color-text) r g b / 20%);
-  padding: 4px 8px;;
-  outline: none;
-  background-color: var(--color-background);
-  color: var(--color-text);
-}
-
-#theme-selector::after {
-  position: absolute;
-  content: "\2304";
-  top: -6px;
-  left: 230px;
-  color: rgb(from var(--color-text) r g b / 30%);
-  font-size: 1.4em;
-  pointer-events: none;
-}
-
-#header-subtitle {
-  display: box;
-  margin: 10px 0;
-  font-weight: 600;
-}
 .header-container {
   width: 100%;
   height: 80px;
@@ -292,6 +267,38 @@ onMounted(() => {
   left: 2px;
 }
 
+#theme-selector {
+  position: relative;
+  top: 4px;
+}
+#theme-selector select {
+  width: 140px;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  border: 1px solid rgb(from var(--color-text) r g b / 20%);
+  padding: 4px 8px;
+  outline: none;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+#theme-selector::after {
+  position: absolute;
+  content: '\2304';
+  top: -6px;
+  left: 230px;
+  color: rgb(from var(--color-text) r g b / 30%);
+  font-size: 1.4em;
+  pointer-events: none;
+}
+
+#header-subtitle {
+  display: box;
+  margin: 10px 0;
+  font-weight: 600;
+}
+
 @media (max-width: 640px) {
   .header-container {
     margin: 0;
@@ -331,9 +338,6 @@ onMounted(() => {
   }
   .header-container-archive {
     margin: 10px 0px 50px 0px;
-  }
-  #theme-selector {
-    top: 20px;
   }
 }
 </style>
