@@ -1,8 +1,9 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 import { useEmbedStore } from '../stores/embed'
 import { useFeedItemsStore } from '../stores/feedItems'
+import { useThemeStore } from '../stores/theme'
 
 import IconGithub from './icons/IconGithub.vue'
 import IconHeart from './icons/IconHeart.vue'
@@ -21,6 +22,7 @@ const showRefresh = ref(false)
 const templateVersion = ref(window.templateVersion)
 
 const embedStore = useEmbedStore()
+const themeStore = useThemeStore()
 const { resetFeedItems } = useFeedItemsStore()
 
 const props = defineProps({
@@ -77,15 +79,27 @@ const toggleNav = () => {
   emit('toggle-nav')
 }
 
+const selectedTheme = ref(null)
+const selectTheme = () => {
+  themeStore.selectTheme(selectedTheme.value)
+}
+
 const refreshPage = () => {
   window.location.reload()
 }
+
+onMounted(() => {
+  selectedTheme.value = themeStore.themeName
+})
 </script>
 
 <template>
   <div class="header-crumbs">
     <span>
-      <h5>Page generated with <IconHeart /> by <a href="https://github.com/exaroth/liveboat" target="_blank">Liveboat</a></h5>
+      <h5>
+        Page generated with <IconHeart /> by
+        <a href="https://github.com/exaroth/liveboat" target="_blank">Liveboat</a>
+      </h5>
       <br />
       <h5>Updated on {{ buildTime.toUTCString() }}</h5>
       <br />
@@ -111,6 +125,13 @@ const refreshPage = () => {
         <a id="icon-opml" href="opml.xml" target="_blank"><IconOPML /></a>
       </div>
     </div>
+  </div>
+  <div id="theme-selector">
+    <select v-model="selectedTheme" @change="selectTheme()">
+      <option v-for="(themeO, theme) in themeStore.availableThemes" :value="theme" :key="theme">
+        {{ themeO.txt }}
+      </option>
+    </select>
   </div>
   <div id="side-buttons-wrapper">
     <div v-if="!embedStore.showModal" id="side-buttons">
