@@ -153,6 +153,32 @@ onMounted(() => {
 </template>
 
 <style scoped>
+#theme-selector {
+  position: relative;
+  top: 4px;
+}
+#theme-selector select {
+  width: 140px;
+  -webkit-appearance: none !important;
+  -moz-appearance:none !important;
+  appearance: none !important;
+  border: 1px solid rgb(from var(--color-text) r g b / 20%);
+  padding: 4px 8px;;
+  outline: none;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+#theme-selector::after {
+  position: absolute;
+  content: "\2304";
+  top: -6px;
+  left: 230px;
+  color: rgb(from var(--color-text) r g b / 30%);
+  font-size: 1.4em;
+  pointer-events: none;
+}
+
 #header-subtitle {
   display: box;
   margin: 10px 0;
@@ -305,6 +331,9 @@ onMounted(() => {
   }
   .header-container-archive {
     margin: 10px 0px 50px 0px;
+  }
+  #theme-selector {
+    top: 20px;
   }
 }
 </style>
