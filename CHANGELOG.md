@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Add theme selector
+- Add support for `header-svg`, `repo-url` and `subheader-text` template settings (default template)
 ### Fixed
 - Disable nav button when displaying firehose feed
  

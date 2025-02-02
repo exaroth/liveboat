@@ -112,7 +112,7 @@ onMounted(() => {
   <div :class="{ 'header-container': true, 'header-container-archive': !props.feedList }">
     <div class="header-title">
       <h2>
-        <span id="header-custom-svg" v-if="headerSvg"><img :src="headerSvg"></span>
+        <span id="header-custom-svg" v-if="headerSvg"><img :src="headerSvg" /></span>
         <IconLiveboat v-else />
         <a :href="sitePath" v-html="pageTitle" />
       </h2>
@@ -273,13 +273,15 @@ onMounted(() => {
   position: relative;
   top: 4px;
   z-index: 3;
+  width: 140px;
+  float: left;
 }
 #theme-selector select {
-  width: 140px;
+  width: 100%;
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
   appearance: none !important;
-  border: 1px solid rgb(from var(--color-text) r g b / 20%);
+  border: 1px solid rgb(from var(--color-text) r g b / 40%);
   padding: 4px 8px;
   outline: none;
   background-color: var(--color-background);
@@ -290,7 +292,7 @@ onMounted(() => {
   position: absolute;
   content: '\2304';
   top: -6px;
-  left: 230px;
+  right: 4px;
   color: rgb(from var(--color-text) r g b / 30%);
   font-size: 1.4em;
   pointer-events: none;
