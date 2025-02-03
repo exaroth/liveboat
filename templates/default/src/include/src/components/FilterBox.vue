@@ -94,11 +94,12 @@ watch(searchFeedsTerm, (val) => {
     >
     <span id="filter-search">
       <span id="filter-search-help">
-        <span>In order to filter search results by tag use <code>t:</code> operator<br/>
-          Valid examples:<br/>
-          <code>t:tag1 <\search-query\></code><br/>
-          <code>t:tag1,tag2</code><br/>
-          <code>t:tag1 t:tag2</code><br/>
+        <span
+          >In order to filter search results by tag use <code>t:</code> operator<br />
+          Valid examples:<br />
+          <code>t:tag1 <\search-query\></code><br />
+          <code>t:tag1,tag2</code><br />
+          <code>t:tag1 t:tag2</code><br />
           <code>t:tag1,"Tag with space"</code>
         </span>
       </span>
@@ -201,7 +202,7 @@ watch(searchFeedsTerm, (val) => {
 
 #filter-search-icon {
   left: 8px;
-  top: 2px
+  top: 2px;
 }
 
 #filter-search-clear:hover {
@@ -214,7 +215,7 @@ watch(searchFeedsTerm, (val) => {
   top: 2px;
 }
 #filter-search-help::after {
-  content: "?";
+  content: '?';
   display: inline-block;
   background-color: var(--color-accent);
   width: 24px;
@@ -222,7 +223,6 @@ watch(searchFeedsTerm, (val) => {
   border-radius: 50%;
   text-align: center;
   font-weight: bold;
-
 }
 #filter-search-help:hover span {
   display: block;
@@ -233,13 +233,13 @@ watch(searchFeedsTerm, (val) => {
   border: 1px solid var(--color-accent);
   z-index: 999;
   padding: 6px 12px;
-  font-size: .9em;
+  font-size: 0.9em;
 }
 #filter-search-help span {
   display: none;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1000px) {
   #filter-search-clear {
     top: 24px;
   }

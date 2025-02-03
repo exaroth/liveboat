@@ -92,7 +92,7 @@ const handleLoadedFeed = (numItems) => {
 <template>
   <div class="loading-spinner" v-if="showLoadingSpinner" />
   <div id="no-feeds-found-indicator" v-if="totalItemCount === 0 && !showLoadingSpinner">
-    <IconNotFound/>
+    <IconNotFound />
     <h2>No feeds found</h2>
   </div>
   <FeedNavigator v-if="!props.archived" :show="showNav" />
@@ -169,5 +169,18 @@ const handleLoadedFeed = (numItems) => {
   display: block;
   margin: auto;
   stroke: #c7cfcc;
+}
+
+@media (max-width: 1000px) {
+  #no-feeds-found-indicator {
+    top: auto;
+    bottom: 10%;
+  }
+}
+
+@media (max-height: 400px) {
+  #no-feeds-found-indicator {
+    display: none;
+  }
 }
 </style>

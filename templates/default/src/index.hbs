@@ -48,9 +48,6 @@
       <script>
       window.buildTime = {{ build_time }};
       window.pageTitle = '{{ options.title }}';
-    {{#if template_settings.autoreload}}
-      window.autoreload = {{template_settings.autoreload}}
-    {{/if}}
       window.sitePath = '/';
       window.templateVersion = "{{ template_version }}";
       window.feeds = [
@@ -73,6 +70,18 @@
         {{/unless}}
     {{/each}}
           ];
+    {{#if template_settings.autoreload}}
+      window.autoreload = {{template_settings.autoreload}}
+    {{/if}}
+    {{#if template_settings.repo-url}}
+      window.repoUrl = "{{template_settings.repo-url}}"
+    {{/if}}
+    {{#if template_settings.subheader-text}}
+      window.subHeaderText = "{{template_settings.subheader-text}}"
+    {{/if}}
+    {{#if template_settings.header-svg}}
+      window.headerSvg = "{{template_settings.header-svg}}"
+    {{/if}}
       </script>
       <div id="app"></div>
 
