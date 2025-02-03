@@ -275,15 +275,17 @@ onMounted(() => {
   z-index: 3;
   width: 140px;
   float: left;
+  border: 1px solid rgb(from var(--color-text) r g b / 40%);
 }
 #theme-selector select {
   width: 100%;
+  height: 28px;
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
   appearance: none !important;
-  border: 1px solid rgb(from var(--color-text) r g b / 40%);
   padding: 4px 8px;
   outline: none;
+  border: none;
   background-color: var(--color-background);
   color: var(--color-text);
 }
@@ -292,7 +294,7 @@ onMounted(() => {
   position: absolute;
   content: '\2304';
   top: -6px;
-  right: 4px;
+  right: 8px;
   color: rgb(from var(--color-text) r g b / 30%);
   font-size: 1.4em;
   pointer-events: none;
