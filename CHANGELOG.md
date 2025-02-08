@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Add additional themes (default template)
 ### Fixed
 - Fix processing tags for feed which uses NotContains operator expression
 - Fix colors for Tokyo Night theme

@@ -1,0 +1,39 @@
+name: liveboat
+version: 1.1.4
+summary: Static page generator and aggregator for RSS feeds
+description: |
+  Liveboat is a static page generator which uses Newsboat RSS reader feed data and turns it into beautiful static websites.
+
+base: core24
+adopt-info: liveboat
+grade: stable
+confinement: strict
+
+platforms:
+  amd64:
+    build-on: [amd64]
+    build-for: [amd64]
+  arm64:
+    build-on: [arm64]
+    build-for: [arm64]
+
+platforms:
+  amd64:
+    build-on: [amd64]
+    build-for: [amd64]
+  arm64:
+    build-on: [arm64]
+    build-for: [arm64]
+
+apps:
+  liveboat:
+    command: bin/liveboat
+    plugs:
+      - home
+      - network
+      - desktop
+
+parts:
+  liveboat:
+    plugin: rust
+    source: .

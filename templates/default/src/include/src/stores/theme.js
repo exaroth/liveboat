@@ -9,10 +9,15 @@ const AVAILABLE_THEMES = {
   sollight: { cl: 'sollight-theme', txt: 'Solarized Light' },
   tokyo: { cl: 'tokyo-theme', txt: 'Tokyo Night' },
   seabreeze: { cl: 'seabreeze-theme', txt: 'Seabreeze' },
+  gameboy: { cl: 'gameboy-theme', txt: 'Gameboy' },
+  sunset: { cl: 'sunset-theme', txt: 'Sunset' },
 }
 
 const getTheme = () => {
-  const savedTheme = localStorage.getItem(LOCAL_STORAGE_KEY) || 'default'
+  let savedTheme = localStorage.getItem(LOCAL_STORAGE_KEY)
+  if (savedTheme == null || AVAILABLE_THEMES[savedTheme] == null) {
+    savedTheme = "default"
+  }
   const theme = AVAILABLE_THEMES[savedTheme]
   document.body.classList.add(theme.cl)
   return {

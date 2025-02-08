@@ -53,7 +53,6 @@ fn retrieve_tags_for_expression(
             op,
             value,
         } => {
-            println!("{:?}", op);
             if attribute == "tags" && op != filterparser::Operator::NotContains {
                 tags.push(value.literal().to_string())
             }
