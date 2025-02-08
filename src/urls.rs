@@ -53,7 +53,8 @@ fn retrieve_tags_for_expression(
             op,
             value,
         } => {
-            if attribute == "tags" {
+            println!("{:?}", op);
+            if attribute == "tags" && op != filterparser::Operator::NotContains {
                 tags.push(value.literal().to_string())
             }
         }
@@ -64,7 +65,7 @@ fn retrieve_tags_for_expression(
                     op,
                     value,
                 } => {
-                    if attribute == "tags" {
+                    if attribute == "tags" && op != filterparser::Operator::NotContains  {
                         tags.push(value.literal().to_string())
                     }
                 }
@@ -79,7 +80,7 @@ fn retrieve_tags_for_expression(
                     op,
                     value,
                 } => {
-                    if attribute == "tags" {
+                    if attribute == "tags" && op != filterparser::Operator::NotContains {
                         tags.push(value.literal().to_string())
                     }
                 }
@@ -421,6 +422,14 @@ exec:~/.scripts/pocket_atom
         tags = Vec::new();
         retrieve_tags_for_expression(expr, &mut tags);
         assert_eq!(Vec::from(["foo", "bar", "baz"]), tags);
+
+        expr = filterparser::parse(
+            "tags # \"foo\" and tags !# \"bar\" or tags # \"baz\"",
+        )
+        .unwrap();
+        tags = Vec::new();
+        retrieve_tags_for_expression(expr, &mut tags);
+        assert_eq!(Vec::from(["foo", "baz"]), tags);
     }
 
     #[test]

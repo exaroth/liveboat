@@ -1,6 +1,6 @@
 name = "Default Template"
 builder = "spa"
-version = "1.2.5"
+version = "1.2.6"
 author = "Konrad Wasowicz (exaroth@gmail.com)"
 
 [template_settings]
@@ -10,3 +10,6 @@ accent-color = "#2D4566"
 background-color = "#121414"
 custom-color = "#f3a833"
 autoreload = "1"
+header-svg = "/assets/logo.svg"
+subheader-text = "Updated every hour"
+repo-url = "https://github.com/exaroth/awesome-dev.news"
