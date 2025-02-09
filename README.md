@@ -1,15 +1,19 @@
 <h1 align="center">
-<img align="center" width="100" height="100" src="logo.png"><br/>
+<img align="center" width="70" height="70" src="logo.png"><br/> <br/>
 Liveboat
 </h1>
-
-<h2 align="center">
-See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo</a>
-</h2>
 
 ![stable](https://github.com/exaroth/liveboat/actions/workflows/test.yml/badge.svg?branch=main)
 [![License](https://img.shields.io/github/license/exaroth/liveboat)](https://github.com/exaroth/liveboat/blob/develop/LICENSE)
 [![rustc 1.84.0](https://img.shields.io/badge/rust-1.84%2B-orange.svg)](https://img.shields.io/badge/rust-1.84%2B-orange.svg)
+[![liveboat](https://snapcraft.io/liveboat/badge.svg)](https://snapcraft.io/liveboat)
+<br/>
+<br/>
+Liveboat is a static page generator which turns Newsboat RSS reader feed data into beautiful static websites.
+
+<h3 align="center" border="none">
+See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo</a>
+</h3>
 
 ## What Liveboat is about
 - Generate static pages for your RSS/Atom subscriptions allowing you to access all the news from the browser
@@ -27,17 +31,21 @@ For details follow instructions at [https://github.com/exaroth/liveboat-github-r
 
 ### Installation
 
-For Arch users:
-
-``` sh
-yay -S liveboat
-```
-
-Other Linux distros:
-
 via `cargo`
 ```
 cargo install liveboat
+```
+
+via `snap`
+
+``` sh
+snap install liveboat
+```
+
+via `yay`
+
+``` sh
+yay -S liveboat
 ```
 
 via `wget`
@@ -46,7 +54,7 @@ via `wget`
 sh -c 'wget -O /usr/local/bin/liveboat https://github.com/exaroth/liveboat/releases/download/stable/liveboat-linux-musl && chmod +x /usr/local/bin/liveboat'
 ```
 
-OSX:
+via `homebrew` (OSX)
 
 ``` sh
 brew tap exaroth/liveboat

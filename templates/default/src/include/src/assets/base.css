@@ -65,7 +65,7 @@ body.sollight-theme {
 body.tokyo-theme {
   --color-text: #c0caf5 !important;
   --color-highlight: #7aa2f7 !important;
-  --color-accent: #151621 !important;
+  --color-accent: #394b70 !important;
   --color-background: #1a1b26 !important;
   --color-custom: #9ece6a !important;
 }
@@ -76,4 +76,20 @@ body.seabreeze-theme {
   --color-accent: #d7d7db !important;
   --color-background: #e1e2e7 !important;
   --color-custom: #f52a65 !important;
+}
+
+body.gameboy-theme {
+  --color-text: #283818 !important;
+  --color-highlight:  #607050 !important;
+  --color-accent: #889878 !important;
+  --color-background:  #b0c0a0 !important;
+  --color-custom:  #476b42 !important;
+}
+
+body.sunset-theme {
+  --color-text: #fbbbad !important;
+  --color-highlight: #ee8695 !important;
+  --color-accent: #4a7a96 !important;
+  --color-background: #27232A !important;
+  --color-custom: #333f58   !important;
 }
