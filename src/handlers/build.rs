@@ -158,6 +158,7 @@ impl BuildController {
     /// Process content of each url article, removing all extraneous elements
     /// and scraping source data when required.
     fn process_article_content(&self, feeds: &Vec<Arc<RefCell<Feed>>>) {
+        println!("Processing article content");
         for f in feeds {
             f.borrow_mut().sort_items();
             let title = f.borrow().title().clone();
