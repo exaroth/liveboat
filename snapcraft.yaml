@@ -1,5 +1,5 @@
 name: liveboat
-version: 1.1.4
+version: 1.1.5
 summary: Static page generator and aggregator for RSS feeds
 description: |
   Liveboat is a static page generator which uses Newsboat RSS reader feed data and turns it into beautiful static websites.
