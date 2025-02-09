@@ -9,13 +9,6 @@ adopt-info: liveboat
 grade: stable
 confinement: strict
 
-plugs:
-  allow-access-to-newsboat-files:
-    interface: personal-files
-    read:
-      - $HOME/.newsboat
-      - $HOME/snap/newsboat/current/.newsboat
-
 platforms:
   amd64:
     build-on: [amd64]
@@ -31,7 +24,6 @@ apps:
       - home
       - network
       - desktop
-      - allow-access-to-newsboat-files
 
 parts:
   liveboat:
