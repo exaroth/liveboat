@@ -3,9 +3,9 @@ import { defineStore } from 'pinia'
 const LOCAL_STORAGE_KEY = 'liveboat-default-filters'
 
 const getDefaultFilters = () => ({
-  itemCount: 0,
+  itemCount: 20,
   daysBackCount: 1,
-  filterByDays: true,
+  filterByDays: false,
   firehose: false,
   searchTerm: '',
 })
