@@ -83,6 +83,9 @@
     {{#if template_settings.header-svg}}
       window.headerSvg = "{{template_settings.header-svg}}"
     {{/if}}
+    {{#if template_settings.youtube-embed-params}}
+      window.youtubeEmbedParams = "{{{template_settings.youtube-embed-params}}}"
+    {{/if}}
       </script>
       <div id="app"></div>
 
