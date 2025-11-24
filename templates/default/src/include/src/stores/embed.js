@@ -32,7 +32,13 @@ const embedConfigs = {
           continue
         }
         let id = tokens[1]
-        return `<iframe allow="fullscreen;" src="https://www.youtube.com/embed/${id}?autoplay=1"/>`
+        let embedParams = ""
+        if (window.youtubeEmbedParams != null && window.youtubeEmbedParams.length > 0) {
+          embedParams = `?${window.youtubeEmbedParams}`
+        }
+        const frame = `<iframe allow="fullscreen;" src="https://www.youtube.com/embed/${id}${embedParams}"/>`
+        console.log(frame)
+        return frame
       }
       return null
     },
