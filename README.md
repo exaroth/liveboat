@@ -159,6 +159,18 @@ liveboat $build_dir;
 cd $build_dir && git add -A . && git commit -a -m "Liveboat build @ $timestamp" && git push;
 cd -
 ```
+
+### Template Configuration
+
+Each template can be further configured by editing `config.toml` file located in `<liveboat-dir>/templates/<template-name>`, each template can expose set of arbitrary settings to further customize look and feel of the website. Default template supplied with Liveboat exposes following settings:
+
+- `text-color`, `highlight-color`, `accent-color`, `background-color`, `custom-color` - These are hex based color values to be used for default theme of the website.
+- `autoreload` - If set to 1 it will auto refresh the website when feeds have been updated
+- `youtube-embed-params` - Customizes embedded youtube player query parameters, see [Youtube documentation](https://developers.google.com/youtube/player_parameters) for details, values should be in a form `<key>=<value>` separated by `&`
+- `header-svg` - path to SVG file to show in the website title (optional)
+- `subheader-text` - If set will show additional text under website title
+
+
 ### Using Liveboat JSON API
 
 Liveboat exposes simple idempodent API consisting of 3 endpoints

@@ -134,8 +134,9 @@ export default {
     },
     seek(e) {
       if (!this.loaded) return
-      const el = e.target.getBoundingClientRect()
-      const seekPos = (e.clientX - el.left) / el.width
+      const el = document.getElementById("player-track-progress")
+      const rect = el.getBoundingClientRect()
+      const seekPos = (e.clientX - rect.left) / rect.width
       this.audio.currentTime = this.audio.duration * seekPos
     },
     stop() {
@@ -326,7 +327,7 @@ export default {
   }
   #player-track-progress {
     top: -5px;
-    height: 3px;
+    height: 6px;
     margin-top: 0.75rem;
     position: relative;
   }
