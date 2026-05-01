@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Update Cargo dependencies
+- Update npm/vue dependencies
+
 ## [1.1.7] 2025-11-26
 ### Fixed
 - Fix audio player seek when rewinding back in the timeline
