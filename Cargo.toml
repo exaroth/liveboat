@@ -42,6 +42,7 @@ opml = "1.1.6"
 url = "2.5.8"
 libnewsboat = "2.38.0"
 regex = "1.12.3"
+rustls-webpki = "0.103.13"
 
 [[bin]]
 name = "liveboat"

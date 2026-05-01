@@ -1420,6 +1420,7 @@ dependencies = [
  "resolve-path",
  "rss",
  "rusqlite",
+ "rustls-webpki 0.103.13",
  "self-replace",
  "serde",
  "serde_json",
