@@ -1,6 +1,6 @@
 [package]
 name = "liveboat"
-version = "1.1.7"
+version = "1.1.8"
 edition = "2021"
 description = "Static page generator for Newsboat feeds"
 homepage = "https://github.com/exaroth/liveboat"
@@ -12,36 +12,37 @@ categories = ["command-line-utilities", "no-std", "template-engine", "web-progra
 exclude = [".github/", "liveboat/", "scripts/", "templates/"]
 
 [dependencies]
-clap = { version = "4.5.21", features = ["derive"] }
-serde = { version = "1.0.215", features = ["derive"] }
+clap = { version = "4.6.1", features = ["derive"] }
+serde = { version = "1.0.228", features = ["derive"] }
 rusqlite = { version="0.32.1", features=["bundled"] }
-reqwest = { version = "0.12.9", features = ["blocking", "native-tls-vendored"] }
+reqwest = { version = "0.12.28", features = ["blocking", "native-tls-vendored"] }
 nix = { version = "0.29.0", features = ["user"] }
 # readability-liveboat = { path="../readability",  version = "0.3.1"}
 readability-liveboat = "0.3.4"
-toml = "0.8.19"
-serde_json = "1.0.133"
-chrono = "0.4.38"
+toml = "0.8.23"
+serde_json = "1.0.149"
+chrono = "0.4.44"
 bs58 = "0.5.1"
-handlebars = "6.2.0"
-rand = "0.8.5"
+handlebars = "6.4.0"
+rand = "0.8.6"
 resolve-path = "0.1.0"
 dialoguer = "0.11.0"
-thiserror = "2.0.3"
-console = "0.15.8"
-env_logger = "0.11.5"
-log = "0.4.22"
-anyhow = "1.0.94"
+thiserror = "2.0.18"
+console = "0.15.11"
+env_logger = "0.11.10"
+log = "0.4.29"
+anyhow = "1.0.102"
 self-replace = "1.5.0"
-tar = "0.4.43"
-flate2 = "1.0.35"
+tar = "0.4.45"
+flate2 = "1.1.9"
 sudo = "0.6.0"
 lazy_static = "1.5.0"
-rss = "2.0.11"
+rss = "2.0.12"
 opml = "1.1.6"
-url = "2.5.4"
+url = "2.5.8"
 libnewsboat = "2.38.0"
-regex = "1.11.1"
+regex = "1.12.3"
+rustls-webpki = "0.103.13"
 
 [[bin]]
 name = "liveboat"

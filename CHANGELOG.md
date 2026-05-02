@@ -6,12 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.1.8] 2026-05-02
+### Changed
+- Update Cargo dependencies
+- Update npm/vue dependencies
+
 ## [1.1.7] 2025-11-26
 ### Fixed
 - Fix audio player seek when rewinding back in the timeline
 ### Added
 - Add configurable parameters to Youtube embedded player
- 
+
 ## [1.1.6] 2025-02-15
 ### Changed
 - Change default filter to last 20 items (default template)
@@ -28,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add support for `header-svg`, `repo-url` and `subheader-text` template settings (default template)
 ### Fixed
 - Disable nav button when displaying firehose feed
- 
+
 ## [1.1.3] 2025-01-27
 ### Fixed
 - Fix filtering for feeds with multiple tags (default template)
@@ -106,7 +111,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.3] 2024-12-23
 ### Changed
 - Use crates.io version of libnewsboat
- 
+
 ### Fixed
 - Don't overwrite user defined settings during template update
 
@@ -121,12 +126,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] 2024-12-21
 ### Fixed
 - Fix sorting article items in proper descending order
- 
+
 ### Added
 - Add build time query param to feed calls make sure no calls are cached by the browser
 - Add modules for updating Liveboat binaries and templates
 - Add ability to override template_dir with env variable
- 
+
 ## [0.9.0] 2024-12-15
 
 ### Added

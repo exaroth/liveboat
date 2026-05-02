@@ -1,6 +1,6 @@
 prog :=liveboat
 target_t :=x86_64-unknown-linux-musl
-bin_name :=liveboat-linux-musl 
+bin_name :=liveboat-linux-musl
 debug ?=
 
 $(info debug is $(debug))
@@ -55,7 +55,7 @@ setup-default-template-dev:
 	cargo build;
 	cd ./templates/default/src/include && rm -Rf ./node_modules package-lock.json
 	./target/debug/liveboat --template-path templates/default/src templates/default/src/include && git restore ./templates/default/src
-	cd ./templates/default/src/include && npm install && npm run dev
+	cd ./templates/default/src/include && npm install --legacy-peer-deps && npm run dev
 
 .PHONY: build-default-template
 build-default-template:
