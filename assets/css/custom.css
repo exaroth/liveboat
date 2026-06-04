@@ -1,0 +1,10 @@
+#githubfork {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+}
+
+#text-centered {
+    text-align: center !important;
+    display: block;
+}
