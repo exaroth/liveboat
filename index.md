@@ -20,10 +20,10 @@
 ## Github Pages setup
 
 - Visit [Liveboat Github Runner](https://github.com/exaroth/liveboat-github-runner) repository and click `Use this template` button in top right corner. Select name and privacy settings
-- After the repository has been created use git clone to download it.
-- Update configuration and urls file
-    + Edit `./config/liveboat-config.toml` file, update `title` and  `site_path` fields - site path needs to be set to `/<repo_name>/` where `wrepo_name` corresponds to repository name created in Step 1.
-    + Replace feed urls in `./config/urls` with those you want to follow - simply add 1 atom/rss link per line.
+- After the repository has been created use `git clone` to download it.
+- Update configuration and urls file inside cloned repository.
+    + Edit `config/liveboat-config.toml` file, update `title` and  `site_path` fields - site path needs to be set to `/<repo_name>/` where `repo_name` corresponds to repository name created in Step 1.
+    + Replace feed urls in `config/urls` with those you want to follow - simply add 1 atom/rss link per line.
 - Commit all the changes and `git push` them to remote.
 - Go to `Settings->Actions->General` page within the repo created in Step 1. In `Workflow Permissions` section set `Read and write permissions` and click `Save`.
 
