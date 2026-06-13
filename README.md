@@ -189,6 +189,15 @@ Liveboat is compatible with Newsboat urls filtering and aggregation syntax, gene
 
 If your urls file contains any of the above filters these will be ignored when generating the page.
 
+
+<a href="https://brainmade.org/">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://brainmade.org/white-logo.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://brainmade.org/black-logo.svg">
+  <img alt="brainmade" src="https://brainmade.org/white-logo.svg">
+</picture>
+</a>
+
 ## Acknowledgements
 - Team behind Newsboat/Newsbeuter RSS readers for making amazing app :)
 - MynaUI icon set authors [https://mynaui.com/icons](https://mynaui.com/icons)
