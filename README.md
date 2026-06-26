@@ -25,7 +25,9 @@ See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo
 
 ## Running via Github actions
 The most straightforward way to generate Liveboat feed page is via Github Actions - the site will be uploaded to Github Pages on your account, available immediately and set up with automatic updates.
-For details follow instructions at [https://github.com/exaroth/liveboat-github-runner](https://github.com/exaroth/liveboat-github-runner)
+
+
+For details follow instructions in [Liveboat Github Runner Readme](https://github.com/exaroth/liveboat-github-runner)
 
 ## Running locally
 
