@@ -47,6 +47,10 @@ ul {
   }
 }
 
+@media (max-width: 640px) {
+  ul { padding: 0; }
+}
+
 .loading-spinner {
   width: 48px;
   height: 48px;

@@ -285,4 +285,21 @@ watch(searchFeedsTerm, (val) => {
     width: 70px;
   }
 }
+
+@media (max-width: 640px) {
+  .filter-box button, #app #filter-search input { min-height: 40px; }
+
+  .filter-container { height: auto; gap: 8px; flex-wrap: wrap; padding-bottom: 56px; }
+
+  #filter-search { left: 0; transform: none; bottom: 0; }
+
+  #filter-search-clear {
+    top: 28px;
+  }
+
+  #filter-search-icon {
+    top: 28px;
+  }
+
+}
 </style>
