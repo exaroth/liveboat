@@ -7,6 +7,7 @@ Liveboat
 [![License](https://img.shields.io/github/license/exaroth/liveboat)](https://github.com/exaroth/liveboat/blob/develop/LICENSE)
 [![rustc 1.84.0](https://img.shields.io/badge/rust-1.84%2B-orange.svg)](https://img.shields.io/badge/rust-1.84%2B-orange.svg)
 [![liveboat](https://snapcraft.io/liveboat/badge.svg)](https://snapcraft.io/liveboat)
+[![AUR](https://img.shields.io/aur/version/liveboat)](https://aur.archlinux.org/packages/liveboat)
 <br/>
 <br/>
 Liveboat is a static page generator which turns RSS reader feed data into beautiful static websites.
