@@ -1,5 +1,5 @@
 <h1 align="center">
-<img align="center" width="70" height="70" src="logo.png"><br/> <br/>
+<img align="center" width="70" height="70" src="https://github.com/exaroth/liveboat/releases/download/development/liveboat-ico-small.png"><br/> <br/>
 Liveboat
 </h1>
 
@@ -9,7 +9,7 @@ Liveboat
 [![liveboat](https://snapcraft.io/liveboat/badge.svg)](https://snapcraft.io/liveboat)
 <br/>
 <br/>
-Liveboat is a static page generator which turns Newsboat RSS reader feed data into beautiful static websites.
+Liveboat is a static page generator which turns RSS reader feed data into beautiful static websites.
 
 <h3 align="center" border="none">
 See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo</a>
@@ -25,7 +25,9 @@ See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo
 
 ## Running via Github actions
 The most straightforward way to generate Liveboat feed page is via Github Actions - the site will be uploaded to Github Pages on your account, available immediately and set up with automatic updates.
-For details follow instructions at [https://github.com/exaroth/liveboat-github-runner](https://github.com/exaroth/liveboat-github-runner)
+
+
+For details follow instructions in [Liveboat Github Runner Readme](https://github.com/exaroth/liveboat-github-runner)
 
 ## Running locally
 
@@ -134,7 +136,7 @@ Configuration file can be found at `~/.config/liveboat/config.toml` and stores o
 - `site_path` - This defines base path under which feed page will be hosted, unless deployed at the root domain this variable should be updated, eg. if hosted on the Github Pages (as a repository) this will need to be changed to `/<repo_name>/`.
 - `site_url` - If you are planning on using Liveboat OPML channel this value should be set to base url where Liveboat is hosted at, so that Query Feed entries will contain proper backlink pointing back to Liveboat instance.
 - `show_read_articles` - Whether or not to include articles marked as read by Newsboat.
-- `time_threshold` - Amount of time in the past (in days) for which Liveboat should look for when retrieving articles. 
+- `time_threshold` - Amount of time in the past (in days) for which Liveboat should look for when retrieving articles.
 - `template_name` - Name of the template to use when generating the feed page, templates are stored at `~/.config/liveboat/templates`, if you want to use template located elsewhere use `--template-path` argument when invoking Liveboat.
 - `include_article_content_in_rss_feeds` - Set this option to true to include article content in aggregated rss xml file, it might increase file size significantly
 - `scrape_reddit_links` - If set to true Liveboat will attempt to scrape all external Reddit links substituting retrieved content with that defined in the RSS feed (default `true`)
@@ -187,13 +189,20 @@ Liveboat is compatible with Newsboat urls filtering and aggregation syntax, gene
 - `feed_index` `<rss_feed_attribute>`
 - `article_index` `<rss_article_attribute>`
 
-If your urls file contains any of the above filters these will be ignored when generating the page. 
+If your urls file contains any of the above filters these will be ignored when generating the page.
+
+
+<a href="https://brainmade.org/">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://brainmade.org/white-logo.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://brainmade.org/black-logo.svg">
+  <img alt="brainmade" src="https://brainmade.org/white-logo.svg">
+</picture>
+</a>
 
 ## Acknowledgements
 - Team behind Newsboat/Newsbeuter RSS readers for making amazing app :)
 - MynaUI icon set authors [https://mynaui.com/icons](https://mynaui.com/icons)
- 
+
 ## License
 Liveboat is provided under MIT License, see `LICENSE` file for details
-
-

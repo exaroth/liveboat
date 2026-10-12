@@ -1,0 +1,16 @@
+lang: en-US
+bg_color: dark
+theme_color: violet
+title: Liveboat
+description: Liveboat is a static page generator which turns Newsboat RSS reader feed data into beautiful static websites.
+keywords: rss, atom, static generator, github pages
+
+remote_theme: devich/quick@0.0.1
+defaults:
+  -
+    scope:
+      path: ""
+    values:
+      layout: "default"
+plugins:
+  - jekyll-optional-front-matter

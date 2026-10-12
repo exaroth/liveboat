@@ -222,9 +222,23 @@ onUnmounted(() => {
   border-radius: 25%;
   margin-left: 4px;
 }
-@media (max-width: 500px) {
+@media (max-width: 640px) {
   #feed-header-tags {
     display: none;
+  }
+  .feed-title {
+    padding: 0;
+    margin: 20px 0 8px;
+    border-bottom: 0;
+  }
+  .feed-title a {
+    display: block; max-width: 100%; top: 0; padding: 10px 12px;
+    border-radius: 6px; font-weight: 700; font-size: 1.05rem;
+    border-left: 4px solid var(--color-custom);
+  }
+  .feed-buttons {
+    padding-top: 10px;
+    display: block;
   }
 }
 </style>

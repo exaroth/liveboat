@@ -59,9 +59,11 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: "--locked --release"
           strip: true
+
       - name: Save binary SHA
         run: mkdir checksums;
           echo -n target/${{ matrix.platform.target }}/release/liveboat | shasum -a 256 > checksums/${{ matrix.platform.binary_name }};
+
       - name: Upload development binaries
         uses: svenstaro/upload-release-action@v2
         with:
