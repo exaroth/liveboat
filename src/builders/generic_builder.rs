@@ -159,16 +159,6 @@ where
         Ok(())
     }
 
-    /// Save single feed data in tmp dir.
-    fn save_feed_data(&self, name: &String, data: &[u8]) -> Result<()> {
-        let feeds_dir = self.tmp_dir.join(FEEDS_DIRNAME);
-        _ = fs::create_dir(&feeds_dir)?;
-        let path = feeds_dir.join(format!("{}.json", name));
-        info!("Saving feed at path {}", path.display());
-        let mut file = File::create(path)?;
-        file.write_all(data)?;
-        Ok(())
-    }
 
     /// Save rss feeds containing query feed data used in the
     /// self referential data used in OPML channel.
@@ -199,6 +189,7 @@ where
 
     /// Generate json files for each feed.
     fn save_json_feeds(&self) -> Result<()> {
+        _ = fs::create_dir(self.tmp_dir.join(FEEDS_DIRNAME))?;
         let mut f_list = FeedList::new();
         for f in self.context.feeds() {
             if !f.is_empty() && !f.is_hidden() {
@@ -257,6 +248,16 @@ where
                 serde_json::to_string(&feed)?.as_bytes(),
             )?;
         }
+        Ok(())
+    }
+
+    /// Save single feed data in tmp dir.
+    fn save_feed_data(&self, name: &String, data: &[u8]) -> Result<()> {
+        let feeds_dir = self.tmp_dir.join(FEEDS_DIRNAME);
+        let path = feeds_dir.join(format!("{}.json", name));
+        info!("Saving feed at path {}", path.display());
+        let mut file = File::create(path)?;
+        file.write_all(data)?;
         Ok(())
     }
 }
