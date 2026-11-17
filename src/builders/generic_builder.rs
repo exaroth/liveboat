@@ -18,6 +18,7 @@ use crate::template::{Context, TemplateConfig};
 
 
 /// Available modes for rendering templates in the builder.
+#[derive(PartialEq)]
 enum BuilderMode {
     Spa,
     Multi,
@@ -64,6 +65,12 @@ where
     /// Render template using context provided.
     fn render_templates(&self) -> Result<()> {
         self.render_index()?;
+        if self.mode == BuilderMode::Multi || self.mode == BuilderMode::MultiE {
+            self.render_feed_templates()?;
+        }
+        if self.mode == BuilderMode::MultiE {
+            self.render_article_templates()?;
+        }
         Ok(())
     }
 }
@@ -145,6 +152,16 @@ where
         let path = self.tmp_dir.join(BUILD_TIME_FILENAME);
         let mut file = File::create(path)?;
         file.write_all(format!("{}", self.context.build_time()).as_bytes())?;
+        Ok(())
+    }
+
+    /// Render template for each feed.
+    fn render_feed_templates(&self) -> Result<()> {
+        Ok(())
+    }
+
+    /// Render template for each feed.
+    fn render_article_templates(&self) -> Result<()> {
         Ok(())
     }
 

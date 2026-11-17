@@ -94,6 +94,8 @@ pub struct SimpleContext<'a> {
     template_settings: &'a HashMap<String, String>,
     /// Version of template as defined in template config.
     template_version: String,
+    /// Set only for templates operating on single feed/article
+    current_feed: Option<&'a Feed>
 }
 
 impl<'a> Context for SimpleContext<'a> {
@@ -141,6 +143,7 @@ impl<'a> SimpleContext<'a> {
             build_time,
             template_settings,
             template_version,
+            current_feed: None,
         }
     }
 }
