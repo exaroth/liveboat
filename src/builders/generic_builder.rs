@@ -53,20 +53,7 @@ where
 
     /// Render template using context provided.
     fn render_templates(&self) -> Result<()> {
-        let tpl_file =
-            self.template_path.join(format!("{}.hbs", INDEX_FILENAME));
-        info!("Rendering template @ {}", &tpl_file.display());
-        let raw = fs::read_to_string(tpl_file)?;
-        let mut handlebars = Handlebars::new();
-        _ = handlebars.register_template_string(INDEX_FILENAME, raw);
-        let out = handlebars.render(INDEX_FILENAME, &self.context)?;
-
-        let out_path = self.tmp_dir.join(format!("{}.html", INDEX_FILENAME));
-        info!("Saving template @ {}", &out_path.display());
-
-        let mut f = File::create(out_path)?;
-        f.write_all(out.as_bytes())?;
-
+        self.render_index()?;
         Ok(())
     }
 }
@@ -92,17 +79,6 @@ where
             )
             .into());
         }
-        let tpl_file = template_path.join(format!("{}.hbs", INDEX_FILENAME));
-        if !tpl_file.try_exists()? {
-            return Err(IOError::new(
-                ErrorKind::NotFound,
-                format!(
-                    "index.hpl does not exist for path {}",
-                    template_path.display()
-                ),
-            )
-            .into());
-        };
 
         Ok(GenericBuilder {
             template_path,
@@ -111,6 +87,34 @@ where
             context,
             debug,
         })
+    }
+    
+    /// Render index template.
+    fn render_index(&self) -> Result<()> {
+        let tpl_file = self.template_path.join(format!("{}.hbs", INDEX_FILENAME));
+        if !tpl_file.try_exists()? {
+            return Err(IOError::new(
+                ErrorKind::NotFound,
+                format!(
+                    "Index template does not exist for path {}",
+                    self.template_path.display()
+                ),
+            )
+            .into());
+        };
+        info!("Rendering template @ {}", &tpl_file.display());
+        let raw = fs::read_to_string(tpl_file)?;
+        let mut handlebars = Handlebars::new();
+        _ = handlebars.register_template_string(INDEX_FILENAME, raw);
+        let out = handlebars.render(INDEX_FILENAME, &self.context)?;
+
+        let out_path = self.tmp_dir.join(format!("{}.html", INDEX_FILENAME));
+        info!("Saving template @ {}", &out_path.display());
+
+        let mut f = File::create(out_path)?;
+        f.write_all(out.as_bytes())?;
+
+        Ok(())
     }
 
     /// Save build time as text file.
