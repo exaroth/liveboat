@@ -4,34 +4,17 @@ use std::io::prelude::*;
 use std::io::Error as IOError;
 use std::io::ErrorKind;
 use std::path::Path;
-use std::{fs, io};
+use std::fs;
 
 use anyhow::Result;
 use handlebars::Handlebars;
 use url::Url;
 
-use crate::builders::aux::Builder;
+use crate::builders::aux::*;
 use crate::builders::utils::{generate_opml, generate_rss_channel};
 use crate::errors::ConfigurationError;
 use crate::feed::{Feed, FeedList};
 use crate::template::Context;
-use crate::utils::copy_all;
-
-/// Dirname of the directory to be used for storing feed data.
-const FEEDS_DIRNAME: &str = "feeds";
-/// Dirname of include directory.
-const INCLUDE_DIRNAME: &str = "include";
-/// Base name of the index template and output html page.
-const INDEX_FILENAME: &str = "index";
-/// Filename for the file containing build timestamp.
-const BUILD_TIME_FILENAME: &str = "build_time.txt";
-/// Filename of the rss file.
-const RSS_FILE_FILENAME: &str = "rss.xml";
-/// Directory name used for storing self referential rss documents
-/// used for storing query feed rss data.
-const SELF_REFERENTIAL_RSS_DIRNAME: &str = "channels";
-/// Filename of the ompl file.
-const OPML_FILENAME: &str = "opml.xml";
 
 /// This represents default builder module
 /// used for processing single page Liveboat templates.
@@ -40,7 +23,6 @@ where
     C: serde::Serialize + Context,
 {
     template_path: &'a Path,
-    build_dir: &'a Path,
     tmp_dir: &'a Path,
     context: &'a C,
     debug: bool,
@@ -50,16 +32,6 @@ impl<'a, C> Builder for GenericBuilder<'a, C>
 where
     C: serde::Serialize + Context,
 {
-    /// Create tmp directory structure.
-    fn create_tmp(&self) -> Result<(), io::Error> {
-        info!("Creating tmp dir at {}", self.tmp_dir.display());
-        _ = fs::create_dir(self.tmp_dir)?;
-        info!("Creating tmp feeds dir");
-        _ = fs::create_dir(self.tmp_dir.join(FEEDS_DIRNAME))?;
-        _ = fs::create_dir(self.tmp_dir.join(SELF_REFERENTIAL_RSS_DIRNAME))?;
-        Ok(())
-    }
-
     /// Generate any auxiliary data required for page generation,
     /// such as json feeds.
     fn generate_aux_data(&self) -> Result<()> {
@@ -71,53 +43,6 @@ where
         Ok(())
     }
 
-    /// Copy data from tmp to build directory.
-    fn copy_data(&self) -> Result<()> {
-        let include_dir = self.template_path.join(INCLUDE_DIRNAME);
-        info!("Copying include contents @ {}", include_dir.display());
-        copy_all(include_dir, &self.build_dir)?;
-
-        let feeds_dir_tmp = self.tmp_dir.join(FEEDS_DIRNAME);
-        let feeds_dir = self.build_dir.join(FEEDS_DIRNAME);
-        info!(
-            "Copying feed data from {} to {}",
-            feeds_dir_tmp.display(),
-            feeds_dir.display()
-        );
-
-        if self.build_dir.is_dir() && feeds_dir.is_dir() {
-            _ = fs::remove_dir_all(&feeds_dir);
-        }
-        copy_all(feeds_dir_tmp, &feeds_dir)?;
-
-        let channel_dir_tmp = self.tmp_dir.join(SELF_REFERENTIAL_RSS_DIRNAME);
-        let channel_dir = self.build_dir.join(SELF_REFERENTIAL_RSS_DIRNAME);
-        copy_all(channel_dir_tmp, &channel_dir)?;
-
-        let tpl_index_path =
-            self.tmp_dir.join(format!("{}.html", INDEX_FILENAME));
-        let index_path =
-            self.build_dir.join(format!("{}.html", INDEX_FILENAME));
-        info!(
-            "Copying rendered index @ {} to {}",
-            tpl_index_path.display(),
-            index_path.display()
-        );
-        fs::copy(tpl_index_path, index_path)?;
-        fs::copy(
-            self.tmp_dir.join(BUILD_TIME_FILENAME),
-            self.build_dir.join(BUILD_TIME_FILENAME),
-        )?;
-        fs::copy(
-            self.tmp_dir.join(RSS_FILE_FILENAME),
-            self.build_dir.join(RSS_FILE_FILENAME),
-        )?;
-        fs::copy(
-            self.tmp_dir.join(OPML_FILENAME),
-            self.build_dir.join(OPML_FILENAME),
-        )?;
-        Ok(())
-    }
 
     /// Render template using context provided.
     fn render_templates(&self) -> Result<()> {
@@ -137,12 +62,6 @@ where
 
         Ok(())
     }
-
-    /// Clean up tmp directory.
-    fn clean_up(&self) {
-        info!("Cleanup");
-        _ = fs::remove_dir_all(self.tmp_dir);
-    }
 }
 
 impl<'a, C> GenericBuilder<'a, C>
@@ -151,7 +70,6 @@ where
 {
     pub fn init(
         tmp_dir: &'a Path,
-        build_dir: &'a Path,
         template_path: &'a Path,
         context: &'a C,
         debug: bool,
@@ -180,7 +98,6 @@ where
 
         Ok(GenericBuilder {
             template_path,
-            build_dir,
             tmp_dir,
             context,
             debug,
@@ -232,6 +149,7 @@ where
     /// Save single feed data in tmp dir.
     fn save_feed_data(&self, name: &String, data: &[u8]) -> Result<()> {
         let feeds_dir = self.tmp_dir.join(FEEDS_DIRNAME);
+        _ = fs::create_dir(&feeds_dir)?;
         let path = feeds_dir.join(format!("{}.json", name));
         info!("Saving feed at path {}", path.display());
         let mut file = File::create(path)?;

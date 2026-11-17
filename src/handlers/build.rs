@@ -12,7 +12,7 @@ use anyhow::Result;
 use console::Term;
 
 use crate::args::Args;
-use crate::builders::aux::Builder;
+use crate::builders::aux::{Builder, INCLUDE_DIRNAME};
 use crate::builders::generic_builder::GenericBuilder;
 use crate::content::process_article_content;
 use crate::db::{Connector, DBConnector};
@@ -23,6 +23,7 @@ use crate::opts::Options;
 use crate::paths::Paths;
 use crate::template::{SimpleContext, TemplateConfig};
 use crate::urls::UrlReader;
+use crate::utils::copy_all;
 
 /// Build controller faciliates the process of parsing url
 /// files, retrieving feed information from db, generating feed objects
@@ -103,11 +104,24 @@ impl BuildController {
             tpl_config.version.clone(),
         );
         let builder = self.get_builder(&ctx)?;
+        info!("Creating tmp dir at {}", self.paths.tmp_dir().display());
         _ = fs::create_dir(self.paths.tmp_dir())?;
         builder.generate_aux_data()?;
         builder.render_templates()?;
-        builder.copy_data()?;
-        builder.clean_up();
+        let include_dir = self.paths.template_path().join(INCLUDE_DIRNAME);
+        if include_dir.try_exists()? {
+            info!("Copying include contents @ {}", include_dir.display());
+            copy_all(include_dir, &self.paths.build_dir())?;
+        }
+
+        info!("Copying tmp contents @ {} to {}",
+            self.paths.tmp_dir().display(),
+            self.paths.build_dir().display(),
+            );
+        copy_all(&self.paths.tmp_dir(), &self.paths.build_dir())?;
+
+        info!("Cleanup");
+        _ = fs::remove_dir_all(self.paths.tmp_dir());
         println!(
             "Liveboat feed page saved to {}",
             self.paths.build_dir().display()
@@ -123,7 +137,6 @@ impl BuildController {
     ) -> Result<Box<dyn Builder + 'a>> {
         let simple_builder = GenericBuilder::init(
             self.paths.tmp_dir(),
-            self.paths.build_dir(),
             self.paths.template_path(),
             context,
             self.debug,
