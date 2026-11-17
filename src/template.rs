@@ -26,6 +26,18 @@ fn default_builder() -> String {
     String::from("spa")
 }
 
+fn default_include_json_feeds() -> bool {
+    return true
+}
+
+fn default_include_opml() -> bool {
+    return true
+}
+
+fn default_include_rss() -> bool {
+    return true
+}
+
 /// This is representation of per template
 /// configuration which is attached to every template
 #[derive(serde::Deserialize, serde::Serialize, Debug)]
@@ -33,7 +45,18 @@ pub struct TemplateConfig {
     pub version: String,
     #[serde(default = "default_builder")]
     #[allow(dead_code)]
+    /// Defines builder behaviour (spa/multipage/multipage-ext)
     pub builder: String,
+    #[serde(default = "default_include_json_feeds")]
+    /// Whether or not to include JSON files containing
+    /// feed data when rendering templates.
+    pub include_json_feeds: bool,
+    #[serde(default = "default_include_opml")]
+    /// Whether to include OPML feeds when rendering templates.
+    pub include_opml: bool,
+    #[serde(default = "default_include_rss")]
+    /// Whether or not to add RSS XML based on current feed data.
+    pub include_rss: bool,
     #[serde(default = "default_template_settings")]
     pub template_settings: HashMap<String, String>,
 }

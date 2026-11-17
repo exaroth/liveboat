@@ -35,7 +35,7 @@ const OPML_FILENAME: &str = "opml.xml";
 
 /// This represents default builder module
 /// used for processing single page Liveboat templates.
-pub struct SinglePageBuilder<'a, C>
+pub struct GenericBuilder<'a, C>
 where
     C: serde::Serialize + Context,
 {
@@ -46,7 +46,7 @@ where
     debug: bool,
 }
 
-impl<'a, C> Builder for SinglePageBuilder<'a, C>
+impl<'a, C> Builder for GenericBuilder<'a, C>
 where
     C: serde::Serialize + Context,
 {
@@ -145,7 +145,7 @@ where
     }
 }
 
-impl<'a, C> SinglePageBuilder<'a, C>
+impl<'a, C> GenericBuilder<'a, C>
 where
     C: serde::Serialize + Context,
 {
@@ -155,7 +155,7 @@ where
         template_path: &'a Path,
         context: &'a C,
         debug: bool,
-    ) -> Result<SinglePageBuilder<'a, C>, IOError> {
+    ) -> Result<GenericBuilder<'a, C>, IOError> {
         if !template_path.try_exists()? {
             return Err(IOError::new(
                 ErrorKind::NotFound,
@@ -178,7 +178,7 @@ where
             .into());
         };
 
-        Ok(SinglePageBuilder {
+        Ok(GenericBuilder {
             template_path,
             build_dir,
             tmp_dir,

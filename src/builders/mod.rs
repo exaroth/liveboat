@@ -4,6 +4,6 @@
 /// rendering templates.
 ///
 pub mod aux;
-pub mod spa_builder;
+pub mod generic_builder;
 
 mod utils;

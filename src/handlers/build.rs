@@ -2,6 +2,7 @@
 #[allow(unused_imports)]
 use mockall::Sequence;
 
+use std::fs;
 use log::{info, trace, warn};
 use std::cell::RefCell;
 use std::fs::read_to_string;
@@ -12,7 +13,7 @@ use console::Term;
 
 use crate::args::Args;
 use crate::builders::aux::Builder;
-use crate::builders::spa_builder::SinglePageBuilder;
+use crate::builders::generic_builder::GenericBuilder;
 use crate::content::process_article_content;
 use crate::db::{Connector, DBConnector};
 use crate::errors::FilesystemError;
@@ -102,7 +103,7 @@ impl BuildController {
             tpl_config.version.clone(),
         );
         let builder = self.get_builder(&ctx)?;
-        builder.create_tmp()?;
+        _ = fs::create_dir(self.paths.tmp_dir())?;
         builder.generate_aux_data()?;
         builder.render_templates()?;
         builder.copy_data()?;
@@ -120,7 +121,7 @@ impl BuildController {
         &'a self,
         context: &'a SimpleContext,
     ) -> Result<Box<dyn Builder + 'a>> {
-        let simple_builder = SinglePageBuilder::init(
+        let simple_builder = GenericBuilder::init(
             self.paths.tmp_dir(),
             self.paths.build_dir(),
             self.paths.template_path(),
