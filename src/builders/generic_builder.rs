@@ -161,6 +161,7 @@ where
     /// self referential data used in OPML channel.
     fn save_query_feed_channels(&self) -> Result<()> {
         let base_path = self.tmp_dir.join(SELF_REFERENTIAL_RSS_DIRNAME);
+        _ = fs::create_dir(&base_path)?;
         let q_feeds: Vec<&Feed> = self
             .context
             .feeds()
