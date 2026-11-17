@@ -14,7 +14,7 @@ use crate::builders::aux::*;
 use crate::builders::utils::{generate_opml, generate_rss_channel};
 use crate::errors::ConfigurationError;
 use crate::feed::{Feed, FeedList};
-use crate::template::{Context, TemplateConfig};
+use crate::template::{Context, TemplateConfig, FeedContext};
 
 
 /// Available modes for rendering templates in the builder.
@@ -46,7 +46,7 @@ where
 {
 	/// Generate any auxiliary data required for page generation,
 	/// such as json feeds.
-	fn generate_aux_data(&mut self) -> Result<()> {
+	fn generate_aux_data(&self) -> Result<()> {
 		if self.template_config.include_json_feeds {
 			self.save_json_feeds()?;
 		}
@@ -63,7 +63,7 @@ where
 
 
 	/// Render template using context provided.
-	fn render_templates(&mut self) -> Result<()> {
+	fn render_templates(&self) -> Result<()> {
 		self.render_index()?;
 		if self.mode == BuilderMode::Multi || self.mode == BuilderMode::MultiE {
 			self.render_feed_templates()?;
@@ -139,7 +139,7 @@ where
 		let out = handlebars.render(INDEX_TEMPLATE_FILENAME, &self.context)?;
 
 		let out_path = self.tmp_dir.join(format!("{}.html", INDEX_TEMPLATE_FILENAME));
-		info!("Saving index template @ {}", &out_path.display());
+		info!("Saving index page @ {}", &out_path.display());
 
 		let mut f = File::create(out_path)?;
 		f.write_all(out.as_bytes())?;
@@ -148,7 +148,7 @@ where
 	}
 
 	/// Render template for each feed.
-	fn render_feed_templates(&mut self) -> Result<()> {
+	fn render_feed_templates(&self) -> Result<()> {
 		let tpl_file = self.template_path.join(format!("{}.hbs", FEED_TEMPLATE_FILENAME));
 		if !tpl_file.try_exists()? {
 			return Err(IOError::new(
@@ -161,14 +161,25 @@ where
 				.into());
 				};
 	
+		let feed_p_dir = self.tmp_dir.join(FEED_PAGES_DIRNAME);
+		_ = fs::create_dir(&feed_p_dir)?;
+
 		let raw = fs::read_to_string(tpl_file)?;
 		let mut handlebars = Handlebars::new();
         _ = handlebars.register_template_string(FEED_TEMPLATE_FILENAME, raw);
 		let mut idx: usize = 0;
 		// TODO: clone ctx ?
 		for _f in self.context.feeds().clone() {
-			self.context.set_current_feed(Some(idx));
+			// self.context.set_current_feed(Some(idx));
 			idx += 1;
+
+            let out = handlebars.render(FEED_TEMPLATE_FILENAME, &self.context)?;
+            // TODO use proper filename
+            let out_path = feed_p_dir.join(format!("abc-{}.html", idx));
+            info!("Saving feed page @ {}", &out_path.display());
+
+            let mut f = File::create(out_path)?;
+            f.write_all(out.as_bytes())?;
 		}
 		Ok(())
 	}

@@ -78,8 +78,8 @@ pub trait Context {
     #[allow(dead_code)]
     fn options(&self) -> &Options;
     fn build_time(&self) -> u64;
-    fn current_feed(&self) -> Option<Feed>;
-    fn set_current_feed(&mut self, feed_idx: Option<usize>);
+    fn template_settings(&self) -> &HashMap<String, String>;
+    fn template_version(&self) -> &String;
 }
 
 /// Representation of default context to be passed
@@ -96,8 +96,6 @@ pub struct SimpleContext<'a> {
     template_settings: &'a HashMap<String, String>,
     /// Version of template as defined in template config.
     template_version: String,
-    /// Set only for templates operating on single feed/article
-    current_feed: Option<usize>
 }
 
 impl<'a> Context for SimpleContext<'a> {
@@ -110,14 +108,11 @@ impl<'a> Context for SimpleContext<'a> {
     fn build_time(&self) -> u64 {
         return self.build_time;
     }
-    fn current_feed(&self) -> Option<Feed> {
-        if let Some(cur) = self.current_feed {
-            return Some(self.feeds[cur].clone());
-        }
-        return None
+    fn template_settings(&self) -> &HashMap<String, String> {
+        return self.template_settings;
     }
-    fn set_current_feed(&mut self, feed_idx: Option<usize>) {
-        self.current_feed = feed_idx;
+    fn template_version(&self) -> &String {
+        return &self.template_version;
     }
 }
 
@@ -154,7 +149,6 @@ impl<'a> SimpleContext<'a> {
             build_time,
             template_settings,
             template_version,
-            current_feed: None,
         }
     }
 }
@@ -168,6 +162,59 @@ impl fmt::Display for SimpleContext<'_> {
             opts: {}
             build_time: {}",
             self.feeds.len(),
+            self.options,
+            self.build_time,
+        )
+    }
+}
+
+/// Context to be passed to the feed page
+/// when rendering template.
+#[derive(serde::Serialize)]
+pub struct FeedContext<'a> {
+    /// Feed data
+    feed: &'a Feed, 
+    /// Liveboat options.
+    options: &'a Options,
+    /// Timestamp of the build time.
+    build_time: u64,
+    /// Custom template settings.
+    template_settings: &'a HashMap<String, String>,
+    /// Version of template as defined in template config.
+    template_version: &'a String,
+}
+
+impl<'a> FeedContext<'a> {
+    /// Initialize new context given processing and context opts.
+    pub fn init(
+        feed: &'a Feed,
+        options: &'a Options,
+        template_settings: &'a HashMap<String, String>,
+        template_version: &'a String,
+        build_time: u64,
+    ) -> FeedContext<'a> {
+        FeedContext {
+            feed,
+            options,
+            build_time,
+            template_settings,
+            template_version,
+        }
+    }
+}
+
+
+impl fmt::Display for FeedContext<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Feed Ctx::
+            id {}:
+            title {}:
+            opts: {}
+            build_time: {}",
+            self.feed.id(),
+            self.feed.title(),
             self.options,
             self.build_time,
         )
