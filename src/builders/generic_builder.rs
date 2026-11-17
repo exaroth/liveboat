@@ -16,6 +16,15 @@ use crate::errors::ConfigurationError;
 use crate::feed::{Feed, FeedList};
 use crate::template::{Context, TemplateConfig};
 
+
+/// Available modes for rendering templates in the builder.
+enum BuilderMode {
+    Spa,
+    Multi,
+    MultiE,
+}
+
+
 /// This represents default builder module
 /// used for processing single page Liveboat templates.
 pub struct GenericBuilder<'a, C>
@@ -26,6 +35,7 @@ where
     template_config: &'a TemplateConfig,
     tmp_dir: &'a Path,
     context: &'a C,
+    mode: BuilderMode,
     debug: bool,
 }
 
@@ -68,16 +78,28 @@ where
         template_config: &'a TemplateConfig,
         context: &'a C,
         debug: bool,
-    ) -> Result<GenericBuilder<'a, C>, IOError> {
+    ) -> Result<GenericBuilder<'a, C>> {
         if !template_path.try_exists()? {
             return Err(IOError::new(
-                ErrorKind::NotFound,
-                format!(
-                    "Template not found at path {}",
-                    template_path.to_str().unwrap()
-                ),
+                    ErrorKind::NotFound,
+                    format!(
+                        "Template not found at path {}",
+                        template_path.to_str().unwrap()
+                    ),
             )
-            .into());
+                .into());
+        }
+        let mode_b = template_config.builder.to_lowercase();
+        let m = mode_b.as_str();
+        let mode: BuilderMode;
+        if m == "spa" {
+            mode = BuilderMode::Spa
+        } else if m == "multipage" {
+            mode = BuilderMode::Multi
+        } else if m == "multipage-ext" {
+            mode = BuilderMode::MultiE
+        } else {
+            return Err(ConfigurationError::InvalidBuildMode.into());
         }
 
         Ok(GenericBuilder {
@@ -85,30 +107,31 @@ where
             template_config,
             tmp_dir,
             context,
+            mode,
             debug,
         })
     }
-    
+
     /// Render index template.
     fn render_index(&self) -> Result<()> {
-        let tpl_file = self.template_path.join(format!("{}.hbs", INDEX_FILENAME));
+        let tpl_file = self.template_path.join(format!("{}.hbs", INDEX_TEMPLATE_FILENAME));
         if !tpl_file.try_exists()? {
             return Err(IOError::new(
-                ErrorKind::NotFound,
-                format!(
-                    "Index template does not exist for path {}",
-                    self.template_path.display()
-                ),
+                    ErrorKind::NotFound,
+                    format!(
+                        "Index template does not exist for path {}",
+                        self.template_path.display()
+                    ),
             )
-            .into());
-        };
+                .into());
+                };
         info!("Rendering template @ {}", &tpl_file.display());
         let raw = fs::read_to_string(tpl_file)?;
         let mut handlebars = Handlebars::new();
-        _ = handlebars.register_template_string(INDEX_FILENAME, raw);
-        let out = handlebars.render(INDEX_FILENAME, &self.context)?;
+        _ = handlebars.register_template_string(INDEX_TEMPLATE_FILENAME, raw);
+        let out = handlebars.render(INDEX_TEMPLATE_FILENAME, &self.context)?;
 
-        let out_path = self.tmp_dir.join(format!("{}.html", INDEX_FILENAME));
+        let out_path = self.tmp_dir.join(format!("{}.html", INDEX_TEMPLATE_FILENAME));
         info!("Saving template @ {}", &out_path.display());
 
         let mut f = File::create(out_path)?;

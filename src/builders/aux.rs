@@ -5,7 +5,11 @@ pub const FEEDS_DIRNAME: &str = "feeds";
 /// Dirname of include directory.
 pub const INCLUDE_DIRNAME: &str = "include";
 /// Base name of the index template and output html page.
-pub const INDEX_FILENAME: &str = "index";
+pub const INDEX_TEMPLATE_FILENAME: &str = "index";
+/// Base name of the single feed template
+pub const FEED_TEMPLATE_FILENAME: &str = "feed";
+/// Base name of the single article template
+pub const ARTICLE_TEMPLATE_FILENAME: &str = "article";
 /// Filename for the file containing build timestamp.
 pub const BUILD_TIME_FILENAME: &str = "build_time.txt";
 /// Filename of the rss file.
