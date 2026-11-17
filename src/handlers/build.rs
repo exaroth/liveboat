@@ -103,7 +103,7 @@ impl BuildController {
             &tpl_config.template_settings,
             tpl_config.version.clone(),
         );
-        let builder = self.get_builder(&ctx)?;
+        let builder = self.get_builder(&ctx, &tpl_config)?;
         info!("Creating tmp dir at {}", self.paths.tmp_dir().display());
         _ = fs::create_dir(self.paths.tmp_dir())?;
         builder.generate_aux_data()?;
@@ -130,18 +130,20 @@ impl BuildController {
     }
 
     /// Retrieve builder instance to be used for generating static content.
-    /// At the moment there is only SPA builder implemented.
+    /// At the moment only GenericBuilder is implemented.
     fn get_builder<'a>(
         &'a self,
         context: &'a SimpleContext,
+        config: &'a TemplateConfig,
     ) -> Result<Box<dyn Builder + 'a>> {
-        let simple_builder = GenericBuilder::init(
+        let builder = GenericBuilder::init(
             self.paths.tmp_dir(),
             self.paths.template_path(),
+            config,
             context,
             self.debug,
         )?;
-        return Ok(Box::new(simple_builder));
+        return Ok(Box::new(builder));
     }
 
     /// Populate feeds with article items, filter out read articles based on the opt value.

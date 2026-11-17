@@ -14,7 +14,7 @@ use crate::builders::aux::*;
 use crate::builders::utils::{generate_opml, generate_rss_channel};
 use crate::errors::ConfigurationError;
 use crate::feed::{Feed, FeedList};
-use crate::template::Context;
+use crate::template::{Context, TemplateConfig};
 
 /// This represents default builder module
 /// used for processing single page Liveboat templates.
@@ -23,6 +23,7 @@ where
     C: serde::Serialize + Context,
 {
     template_path: &'a Path,
+    template_config: &'a TemplateConfig,
     tmp_dir: &'a Path,
     context: &'a C,
     debug: bool,
@@ -35,11 +36,17 @@ where
     /// Generate any auxiliary data required for page generation,
     /// such as json feeds.
     fn generate_aux_data(&self) -> Result<()> {
-        self.save_json_feeds()?;
+        if self.template_config.include_json_feeds {
+            self.save_json_feeds()?;
+        }
+        if self.template_config.include_rss {
+            self.save_rss_channel()?;
+        }
+        if self.template_config.include_opml {
+            self.save_query_feed_channels()?;
+            self.save_opml()?;
+        }
         self.save_build_time()?;
-        self.save_rss_channel()?;
-        self.save_query_feed_channels()?;
-        self.save_opml()?;
         Ok(())
     }
 
@@ -71,6 +78,7 @@ where
     pub fn init(
         tmp_dir: &'a Path,
         template_path: &'a Path,
+        template_config: &'a TemplateConfig,
         context: &'a C,
         debug: bool,
     ) -> Result<GenericBuilder<'a, C>, IOError> {
@@ -98,6 +106,7 @@ where
 
         Ok(GenericBuilder {
             template_path,
+            template_config,
             tmp_dir,
             context,
             debug,

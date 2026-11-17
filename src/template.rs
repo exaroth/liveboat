@@ -44,7 +44,6 @@ fn default_include_rss() -> bool {
 pub struct TemplateConfig {
     pub version: String,
     #[serde(default = "default_builder")]
-    #[allow(dead_code)]
     /// Defines builder behaviour (spa/multipage/multipage-ext)
     pub builder: String,
     #[serde(default = "default_include_json_feeds")]
