@@ -19,10 +19,12 @@ pub const RSS_FILE_FILENAME: &str = "rss.xml";
 pub const SELF_REFERENTIAL_RSS_DIRNAME: &str = "channels";
 /// Filename of the ompl file.
 pub const OPML_FILENAME: &str = "opml.xml";
+/// Directory to store rendered feed pages (for multipage builder mode)
+pub const FEED_PAGES_DIRNAME = "f"
 
 /// This trait defines methods which every builder representation
 /// must implement.
 pub trait Builder {
-    fn render_templates(&self) -> Result<()>;
-    fn generate_aux_data(&self) -> Result<()>;
+    fn render_templates(&mut self) -> Result<()>;
+    fn generate_aux_data(&mut self) -> Result<()>;
 }

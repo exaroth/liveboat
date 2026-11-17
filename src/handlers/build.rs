@@ -13,7 +13,7 @@ use console::Term;
 
 use crate::args::Args;
 use crate::builders::aux::{Builder, INCLUDE_DIRNAME};
-use crate::builders::generic_builder::GenericBuilder;
+use crate::builders::generic::GenericBuilder;
 use crate::content::process_article_content;
 use crate::db::{Connector, DBConnector};
 use crate::errors::FilesystemError;
@@ -96,14 +96,14 @@ impl BuildController {
         let tpl_config = TemplateConfig::get_config_for_template(
             self.paths.template_path(),
         )?;
-        let ctx = SimpleContext::init(
+        let mut ctx = SimpleContext::init(
             &feeds,
             &q_feeds,
             &self.options,
             &tpl_config.template_settings,
             tpl_config.version.clone(),
         );
-        let builder = self.get_builder(&ctx, &tpl_config)?;
+        let mut builder = self.get_builder(&mut ctx, &tpl_config)?;
         info!("Creating tmp dir at {}", self.paths.tmp_dir().display());
         _ = fs::create_dir(self.paths.tmp_dir())?;
         builder.generate_aux_data()?;
@@ -133,7 +133,7 @@ impl BuildController {
     /// At the moment only GenericBuilder is implemented.
     fn get_builder<'a>(
         &'a self,
-        context: &'a SimpleContext,
+        context: &'a mut SimpleContext,
         config: &'a TemplateConfig,
     ) -> Result<Box<dyn Builder + 'a>> {
         let builder = GenericBuilder::init(

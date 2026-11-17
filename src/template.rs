@@ -78,6 +78,8 @@ pub trait Context {
     #[allow(dead_code)]
     fn options(&self) -> &Options;
     fn build_time(&self) -> u64;
+    fn current_feed(&self) -> Option<Feed>;
+    fn set_current_feed(&mut self, feed_idx: Option<usize>);
 }
 
 /// Representation of default context to be passed
@@ -95,7 +97,7 @@ pub struct SimpleContext<'a> {
     /// Version of template as defined in template config.
     template_version: String,
     /// Set only for templates operating on single feed/article
-    current_feed: Option<&'a Feed>
+    current_feed: Option<usize>
 }
 
 impl<'a> Context for SimpleContext<'a> {
@@ -107,6 +109,15 @@ impl<'a> Context for SimpleContext<'a> {
     }
     fn build_time(&self) -> u64 {
         return self.build_time;
+    }
+    fn current_feed(&self) -> Option<Feed> {
+        if let Some(cur) = self.current_feed {
+            return Some(self.feeds[cur].clone());
+        }
+        return None
+    }
+    fn set_current_feed(&mut self, feed_idx: Option<usize>) {
+        self.current_feed = feed_idx;
     }
 }
 
