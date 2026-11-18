@@ -170,6 +170,9 @@ where
 		let mut idx: usize = 0;
         let mut feed_ctx: FeedContext;
 		for f in self.context.feeds() {
+            if f.is_empty() || f.is_hidden() {
+                continue
+            }
             feed_ctx = FeedContext::init(
                 f,
                 self.context.options(),
