@@ -10,6 +10,7 @@ use anyhow::Result;
 
 use crate::errors::FilesystemError;
 use crate::feed::Feed;
+use crate::feed_item::FeedItem;
 use crate::opts::Options;
 
 /// Default filename for template config.
@@ -185,7 +186,6 @@ pub struct FeedContext<'a> {
 }
 
 impl<'a> FeedContext<'a> {
-    /// Initialize new context given processing and context opts.
     pub fn init(
         feed: &'a Feed,
         options: &'a Options,
@@ -220,6 +220,59 @@ impl fmt::Display for FeedContext<'_> {
         )
     }
 }
+
+/// Context to be passed to the article page
+/// when rendering template.
+#[derive(serde::Serialize)]
+pub struct ArticleContext<'a> {
+    /// Article data
+    article: &'a FeedItem, 
+    /// Feed data
+    feed: &'a Feed, 
+    /// Liveboat options.
+    options: &'a Options,
+    /// Timestamp of the build time.
+    build_time: u64,
+    /// Custom template settings.
+    template_settings: &'a HashMap<String, String>,
+    /// Version of template as defined in template config.
+    template_version: &'a String,
+}
+
+impl<'a> ArticleContext<'a> {
+    pub fn init(
+        article: &'a FeedItem,
+        feed: &'a Feed,
+        options: &'a Options,
+        template_settings: &'a HashMap<String, String>,
+        template_version: &'a String,
+        build_time: u64,
+    ) -> ArticleContext<'a> {
+        ArticleContext {
+            article,
+            feed,
+            options,
+            build_time,
+            template_settings,
+            template_version,
+        }
+    }
+}
+
+
+impl fmt::Display for ArticleContext<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Article Ctx::
+            title {},
+            feed_id: {}",
+            self.article.title(),
+            self.feed.id(),
+        )
+    }
+}
+
 
 #[cfg(test)]
 mod tests {

@@ -167,7 +167,6 @@ where
 		let raw = fs::read_to_string(tpl_file)?;
 		let mut handlebars = Handlebars::new();
         _ = handlebars.register_template_string(FEED_TEMPLATE_FILENAME, raw);
-		let mut idx: usize = 0;
         let mut feed_ctx: FeedContext;
 		for f in self.context.feeds() {
             if f.is_empty() || f.is_hidden() {
@@ -180,11 +179,10 @@ where
                 self.context.template_version(),
                 self.context.build_time(),
                 );
-			idx += 1;
 
             let out = handlebars.render(FEED_TEMPLATE_FILENAME, &feed_ctx)?;
-            // TODO use proper filename
-            let out_path = feed_p_dir.join(format!("abc-{}.html", idx));
+            // TODO add slug field for each feed
+            let out_path = feed_p_dir.join(format!("{}.html", f.id()));
             info!("Saving feed page @ {}", &out_path.display());
 
             let mut f = File::create(out_path)?;
