@@ -168,12 +168,18 @@ where
 		let mut handlebars = Handlebars::new();
         _ = handlebars.register_template_string(FEED_TEMPLATE_FILENAME, raw);
 		let mut idx: usize = 0;
-		// TODO: clone ctx ?
-		for _f in self.context.feeds().clone() {
-			// self.context.set_current_feed(Some(idx));
+        let mut feed_ctx: FeedContext;
+		for f in self.context.feeds() {
+            feed_ctx = FeedContext::init(
+                f,
+                self.context.options(),
+                self.context.template_settings(),
+                self.context.template_version(),
+                self.context.build_time(),
+                );
 			idx += 1;
 
-            let out = handlebars.render(FEED_TEMPLATE_FILENAME, &self.context)?;
+            let out = handlebars.render(FEED_TEMPLATE_FILENAME, &feed_ctx)?;
             // TODO use proper filename
             let out_path = feed_p_dir.join(format!("abc-{}.html", idx));
             info!("Saving feed page @ {}", &out_path.display());

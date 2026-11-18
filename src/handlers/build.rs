@@ -8,7 +8,7 @@ use std::cell::RefCell;
 use std::fs::read_to_string;
 use std::sync::Arc;
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use console::Term;
 
 use crate::args::Args;
@@ -103,11 +103,19 @@ impl BuildController {
             &tpl_config.template_settings,
             tpl_config.version.clone(),
         );
-        let mut builder = self.get_builder(&mut ctx, &tpl_config)?;
+        let builder = self.get_builder(&mut ctx, &tpl_config)?;
         info!("Creating tmp dir at {}", self.paths.tmp_dir().display());
         _ = fs::create_dir(self.paths.tmp_dir())?;
-        builder.generate_aux_data()?;
-        builder.render_templates()?;
+
+        if let Err(e) = builder.generate_aux_data() {
+            self.cleanup_tmp();
+            bail!("Error generating aux data: {}", e);
+        }
+        if let Err(e) = builder.render_templates() {
+            self.cleanup_tmp();
+            bail!("Error rendering templates: {}", e);
+        }
+
         let include_dir = self.paths.template_path().join(INCLUDE_DIRNAME);
         if include_dir.try_exists()? {
             info!("Copying include contents @ {}", include_dir.display());
@@ -120,13 +128,17 @@ impl BuildController {
             );
         copy_all(&self.paths.tmp_dir(), &self.paths.build_dir())?;
 
-        info!("Cleanup");
-        _ = fs::remove_dir_all(self.paths.tmp_dir());
+        self.cleanup_tmp();
         println!(
             "Liveboat feed page saved to {}",
             self.paths.build_dir().display()
         );
         Ok(())
+    }
+
+    fn cleanup_tmp(&self) {
+        info!("Cleanup");
+        _ = fs::remove_dir_all(self.paths.tmp_dir());
     }
 
     /// Retrieve builder instance to be used for generating static content.
