@@ -6,6 +6,7 @@ use libnewsboat::matchable::Matchable;
 use serde::ser::{Serialize, SerializeStruct, Serializer};
 
 use crate::feed_item::FeedItem;
+use crate::utils::slugify;
 
 /// Maximum number of items to be included with truncated
 /// feed, unless number of items for time threshold defined
@@ -33,6 +34,8 @@ pub struct Feed {
     feedlink: String,
     /// Whether or not feed is defined as hidden (via urls file)
     hidden: bool,
+    /// Slug based on feed title.
+    slug: String,
     /// Article items associated with given feed.
     pub items: Vec<FeedItem>,
     /// Tags associated with given feed.
@@ -55,6 +58,7 @@ impl Feed {
             id: bs58_encode(&url).into_string(),
             title: title.clone(),
             display_title: title.clone(),
+            slug: slugify(title.as_str()),
             url: url,
             feedlink: feedlink,
             hidden: false,
@@ -75,6 +79,7 @@ impl Feed {
             title: title.clone(),
             display_title: title.clone(),
             url: String::new(),
+            slug: slugify(title.as_str()),
             feedlink: String::new(),
             items: Vec::new(),
             hidden: false,
@@ -163,6 +168,11 @@ impl Feed {
     /// Default title as retrievied from RSS feed.
     pub fn title(&self) -> &String {
         return &self.title;
+    }
+
+    /// Slugified title.
+    pub fn slug(&self) -> &String {
+        return &self.slug;
     }
 
     /// User defined title (via urls file).

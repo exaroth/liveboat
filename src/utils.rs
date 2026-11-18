@@ -64,6 +64,28 @@ impl Version {
     }
 }
 
+/// Slugify input text replacing spaces with '-'.
+/// TODO: add test
+/// TODO: noirmalize unicode
+pub fn slugify(input: &str) -> String {
+    if input.trim().is_empty() {
+        return String::new();
+    }
+    input.chars()
+        .map(|c| {
+        c.to_ascii_lowercase()
+    })
+        .map(|c| {
+            if c == ' ' {
+                '-'
+            } else {
+                c
+            }
+        })
+        .filter(|c| c.is_ascii_alphanumeric() || *c == '-')
+        .collect::<String>()
+}
+
 #[cfg(not(test))]
 pub fn now() -> DateTime<Local> {
     Local::now()
