@@ -1,0 +1,56 @@
+body {
+    padding: 0 6vw;
+    position: relative;
+    min-height: 100vh;
+}
+
+#page-header {
+    position: relative;
+    width: 100%;
+    display: block;
+    border-bottom: 1px solid black;
+}
+
+#page-header img {
+    width: 34px;
+    height: 34px;
+    display: inline-block;
+    float: left;
+}
+#page-header a {
+    text-decoration: none;
+    color: black;
+}
+
+#article-contents {
+    position: relative;
+    width: 60vw;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.2em;
+}
+
+.article-title {
+    width: 100%;
+    position: relative;
+}
+
+.article-title a {
+    text-align: center;
+    width: 100%;
+    display: block;
+    color: black;
+    text-decoration: none;
+}
+
+.feed-title a {
+    color: black;
+    text-decoration: none;
+}
+
+
+@media (max-width: 800px) {
+    body {
+        padding: 0px;
+    }
+}

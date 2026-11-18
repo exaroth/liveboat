@@ -1,0 +1,10 @@
+name = "Plain Template"
+builder = "multipage-ext"
+version = "0.0.1"
+author = "Konrad Wasowicz (exaroth@gmail.com)"
+include_json_feeds = false
+include_opml = false
+include_rss = true
+
+[template_settings]
+dummy-setting = "yes"
