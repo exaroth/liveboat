@@ -72,6 +72,10 @@ pub struct Options {
     /// rss feeds (might increase size significantly)
     #[serde(default = "default_bool::<true>")]
     pub include_article_content_in_rss_feeds: bool,
+    /// Whether or not to escape article content when rendering
+    /// article template (multipage-ext build mode only)
+    #[serde(default = "default_bool::<true>")]
+    pub escape_article_content: bool,
     /// Path to Newsboat urls file
     #[serde(default = "default_newsboat_url_file")]
     pub newsboat_urls_file: String,
@@ -110,6 +114,7 @@ impl Options {
             time_threshold: 20,
             scrape_reddit_links: true,
             scrape_hn_links: true,
+            escape_article_content: true,
             newsboat_urls_file: default_newsboat_url_file(),
             newsboat_cache_file: default_newsboat_cache_file(),
             build_dir: default_build_dir(),
@@ -151,6 +156,7 @@ impl fmt::Display for Options {
             cache_file: {}
             time_threshold: {},
             include_article_content_in_rss_feeds: {},
+            escape_article_content: {},
             build_dir: {}",
             self.title,
             self.site_path,
@@ -161,6 +167,7 @@ impl fmt::Display for Options {
             self.newsboat_cache_file,
             self.time_threshold,
             self.include_article_content_in_rss_feeds,
+            self.escape_article_content,
             self.build_dir,
         )
     }

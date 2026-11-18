@@ -114,6 +114,11 @@ impl FeedItem {
         return self.date;
     }
 
+    /// Title of the article as retrieved from RSS feed.
+    pub fn slug(&self) -> &String {
+        return &self.slug;
+    }
+
     /// Whether or not article has been
     /// marked as read (or not) by Newsboat.
     #[allow(dead_code)]
@@ -371,6 +376,7 @@ impl Serialize for FeedItem {
         state.serialize_field("url", &self.url)?;
         state.serialize_field("date", &self.date)?;
         state.serialize_field("author", &self.author)?;
+        state.serialize_field("slug", &self.slug)?;
         state.serialize_field("guid", &self.guid)?;
         state.serialize_field("unread", &self.unread)?;
         state.serialize_field("content", &self.content)?;

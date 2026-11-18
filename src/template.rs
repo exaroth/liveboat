@@ -175,6 +175,9 @@ impl fmt::Display for SimpleContext<'_> {
 pub struct FeedContext<'a> {
     /// Feed data
     feed: &'a Feed, 
+    /// Include feed items as separate key to make it easier
+    /// to work with handlebars.
+    items: &'a Vec<FeedItem>,
     /// Liveboat options.
     options: &'a Options,
     /// Timestamp of the build time.
@@ -199,6 +202,7 @@ impl<'a> FeedContext<'a> {
             build_time,
             template_settings,
             template_version,
+            items: &feed.items,
         }
     }
 }

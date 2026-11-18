@@ -7,7 +7,7 @@ use std::path::Path;
 use std::fs;
 
 use anyhow::Result;
-use handlebars::Handlebars;
+use handlebars::{Handlebars, no_escape};
 use url::Url;
 
 use crate::builders::aux::*;
@@ -189,8 +189,7 @@ where
             );
 
             let out = handlebars.render(FEED_TEMPLATE_FILENAME, &feed_ctx)?;
-            // TODO add slug field for each feed
-            let out_path = feed_p_dir.join(format!("{}.html", f.id()));
+            let out_path = feed_p_dir.join(format!("{}.html", f.slug()));
             info!("Saving feed page @ {}", &out_path.display());
 
             let mut f = File::create(out_path)?;
@@ -219,6 +218,9 @@ where
         let raw = fs::read_to_string(tpl_file)?;
         let mut handlebars = Handlebars::new();
         _ = handlebars.register_template_string(ARTICLE_TEMPLATE_FILENAME, raw);
+        if self.context.options().escape_article_content {
+            handlebars.register_escape_fn(no_escape);
+        }
         let mut article_ctx: ArticleContext;
         for f in self.context.feeds() {
             if f.is_empty() || f.is_hidden() {
@@ -227,6 +229,9 @@ where
 
             let mut truncated = f.clone();
             truncated.truncate_items();
+
+            let article_feed_dir = article_p_dir.join(f.slug());
+            _ = fs::create_dir(&article_feed_dir)?;
 
             for a in truncated.items {
                 article_ctx = ArticleContext::init(
@@ -238,8 +243,7 @@ where
                     self.context.build_time(),
                 );
                 let out = handlebars.render(ARTICLE_TEMPLATE_FILENAME, &article_ctx)?;
-                // TODO use slug as filename based on title and feed id.
-                let out_path = article_p_dir.join(format!("{}.html", a.title()));
+                let out_path = article_feed_dir.join(format!("{}.html", a.slug()));
                 info!("Saving article page @ {}", &out_path.display());
 
                 let mut f = File::create(out_path)?;
