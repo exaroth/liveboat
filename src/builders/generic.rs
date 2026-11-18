@@ -14,14 +14,17 @@ use crate::builders::aux::*;
 use crate::builders::utils::{generate_opml, generate_rss_channel};
 use crate::errors::ConfigurationError;
 use crate::feed::{Feed, FeedList};
-use crate::template::{Context, TemplateConfig, FeedContext};
+use crate::template::{Context, TemplateConfig, FeedContext, ArticleContext};
 
 
 /// Available modes for rendering templates in the builder.
 #[derive(PartialEq)]
 enum BuilderMode {
+    /// Single page app, only index is rendered
 	Spa,
+    /// Multipage build, generates separate page for each feed
 	Multi,
+    /// Same as multipage but also generates page for each article (feed item).
 	MultiE,
 }
 
@@ -147,38 +150,43 @@ where
 		Ok(())
 	}
 
-	/// Render template for each feed.
-	fn render_feed_templates(&self) -> Result<()> {
-		let tpl_file = self.template_path.join(format!("{}.hbs", FEED_TEMPLATE_FILENAME));
-		if !tpl_file.try_exists()? {
-			return Err(IOError::new(
-					ErrorKind::NotFound,
-					format!(
-						"Feed template does not exist for path {}",
-						self.template_path.display()
-					),
-			)
-				.into());
-				};
-	
-		let feed_p_dir = self.tmp_dir.join(FEED_PAGES_DIRNAME);
-		_ = fs::create_dir(&feed_p_dir)?;
+    /// Render template for each feed.
+    fn render_feed_templates(&self) -> Result<()> {
+        let tpl_file = self.template_path.join(format!("{}.hbs", FEED_TEMPLATE_FILENAME));
+        if !tpl_file.try_exists()? {
+            return Err(IOError::new(
+                    ErrorKind::NotFound,
+                    format!(
+                        "Feed template does not exist for path {}",
+                        self.template_path.display()
+                    ),
+            )
+                .into());
+                };
 
-		let raw = fs::read_to_string(tpl_file)?;
-		let mut handlebars = Handlebars::new();
+        let feed_p_dir = self.tmp_dir.join(FEED_PAGES_DIRNAME);
+        _ = fs::create_dir(&feed_p_dir)?;
+
+        let raw = fs::read_to_string(tpl_file)?;
+        let mut handlebars = Handlebars::new();
         _ = handlebars.register_template_string(FEED_TEMPLATE_FILENAME, raw);
         let mut feed_ctx: FeedContext;
-		for f in self.context.feeds() {
+        for f in self.context.feeds() {
             if f.is_empty() || f.is_hidden() {
                 continue
             }
+            // TODO: truncate when creating context
+            let mut truncated = f.clone();
+            truncated.truncate_items();
+
+            // TODO: use truncated iter
             feed_ctx = FeedContext::init(
-                f,
+                &truncated,
                 self.context.options(),
                 self.context.template_settings(),
                 self.context.template_version(),
                 self.context.build_time(),
-                );
+            );
 
             let out = handlebars.render(FEED_TEMPLATE_FILENAME, &feed_ctx)?;
             // TODO add slug field for each feed
@@ -187,14 +195,59 @@ where
 
             let mut f = File::create(out_path)?;
             f.write_all(out.as_bytes())?;
-		}
-		Ok(())
-	}
+        }
+        Ok(())
+    }
 
-	/// Render template for each feed.
-	fn render_article_templates(&self) -> Result<()> {
-		Ok(())
-	}
+    /// Render template for each feed.
+    fn render_article_templates(&self) -> Result<()> {
+        let tpl_file = self.template_path.join(format!("{}.hbs", ARTICLE_TEMPLATE_FILENAME));
+        if !tpl_file.try_exists()? {
+            return Err(IOError::new(
+                    ErrorKind::NotFound,
+                    format!(
+                        "Article template does not exist for path {}",
+                        self.template_path.display()
+                    ),
+            )
+                .into());
+                };
+
+        let article_p_dir = self.tmp_dir.join(ARTICLE_PAGES_DIRNAME);
+        _ = fs::create_dir(&article_p_dir)?;
+
+        let raw = fs::read_to_string(tpl_file)?;
+        let mut handlebars = Handlebars::new();
+        _ = handlebars.register_template_string(ARTICLE_TEMPLATE_FILENAME, raw);
+        let mut article_ctx: ArticleContext;
+        for f in self.context.feeds() {
+            if f.is_empty() || f.is_hidden() {
+                continue
+            }
+
+            let mut truncated = f.clone();
+            truncated.truncate_items();
+
+            for a in truncated.items {
+                article_ctx = ArticleContext::init(
+                    &a,
+                    f,
+                    self.context.options(),
+                    self.context.template_settings(),
+                    self.context.template_version(),
+                    self.context.build_time(),
+                );
+                let out = handlebars.render(ARTICLE_TEMPLATE_FILENAME, &article_ctx)?;
+                // TODO use slug as filename based on title and feed id.
+                let out_path = article_p_dir.join(format!("{}.html", a.title()));
+                info!("Saving article page @ {}", &out_path.display());
+
+                let mut f = File::create(out_path)?;
+                f.write_all(out.as_bytes())?;
+            }
+        }
+        Ok(())
+    }
 
 	/// Save build time as text file.
 	fn save_build_time(&self) -> Result<()> {
