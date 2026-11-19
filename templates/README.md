@@ -42,8 +42,8 @@ This mode is enabled by setting `builder` key to `spa` in template configuration
 
 Each `index.hbs` is rendered with context containing following variables:
 
-- `feeds` - array of all feeds which contained at least one article, see serializer reference @ [https://github.com/exaroth/liveboat/src/feed.rs](https://github.com/exaroth/liveboat/blob/develop/src/feed.rs) for details. This also includes all articles associated with each feed.
-- `options` - Page generation options as defined at [https://github.com/exaroth/liveboat/src/opts.rs](https://github.com/exaroth/liveboat/blob/develop/src/opts.rs)
+- `feeds` - array of all feeds which contained at least one article, see serializer reference @ [feed.rs](https://github.com/exaroth/liveboat/blob/develop/src/feed.rs) for details. This also includes all articles associated with each feed.
+- `options` - Page generation options as defined at [opts.rs](https://github.com/exaroth/liveboat/blob/develop/src/opts.rs)
 - `build_time` - Timestamp containing build generation time
 - `template_settings` - A dictionary containing any arbitrary data to be passed to in the context as defined in `config.toml` file for given template.
 - `template_version` - String denoting current version of the template
@@ -54,8 +54,8 @@ This mode is enabled by setting `builder` to `multipage`, in this mode liveboat 
 
 When rendering `feed.hbs` following variables are available:
 
-- `feed` - feed data as described in [https://github.com/exaroth/liveboat/src/feed.rs](https://github.com/exaroth/liveboat/blob/develop/src/feed.rs) serializer.
-- `items` - articles associated with given feed - see [https://github.com/exaroth/liveboat/src/feed.rs](https://github.com/exaroth/liveboat/blob/develop/src/feed_item.rs) serializer reference for details.
+- `feed` - feed data as described in [feed.rs](https://.com/exaroth/liveboat/blob/develop/src/feed.rs) serializer.
+- `items` - articles associated with given feed - see [feed_item.rs](https://github.com/exaroth/liveboat/blob/develop/src/feed_item.rs) serializer reference for details.
 - `options`, `build_time`, `template_settings`, `template_version` - same as in `spa` mode.
 
 Context for `index.hbs` is same as in `spa` mode.
@@ -68,7 +68,7 @@ This mode requires including `article.hbs` file in template directory, as well a
 
 `article.hbs` is rendered with following context:
 
-- `article` - current article being displayed, see [https://github.com/exaroth/liveboat/src/feed.rs](https://github.com/exaroth/liveboat/blob/develop/src/feed_item.rs) serializer reference for details.
+- `article` - current article being displayed, see [feed_item.rs](https://github.com/exaroth/liveboat/blob/develop/src/feed_item.rs) serializer reference for details.
 - `feed` - identical to `feed` in `feed.hbs` template context.
 - `options`, `build_time`, `template_settings`, `template_version`
 
@@ -113,7 +113,9 @@ Template supplied using this directory structure will be shipped as:
 
 ```
 ├── include
-│   └── ...
+│   └── assets
+│       ├── index.css
+│       └── index.js
 ├── index.hbs
 └── config.toml
 ```
