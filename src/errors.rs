@@ -32,4 +32,6 @@ pub enum UrlReaderError {
 pub enum ConfigurationError {
     #[error("Invalid site URL defined in Liveboat options")]
     InvalidSiteUrl,
+    #[error("Invalid build mode selected, available modes: spa, multipage, multipage-ext")]
+    InvalidBuildMode,
 }
