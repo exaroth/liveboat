@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add plain and plain-ext templates
 - Add escape_article_content option
 - Add slug field for titles of feeds and articles
+### Changed
+- Update rustls/quinn-proto packages
 
 ## [1.1.9] 2026-10-12
 ### Changed
