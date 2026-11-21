@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Add generic page builder with support for `multipage` and `multipage-ext` build modes
+- Add plain and plain-ext templates
+- Add escape_article_content option
+- Add slug field for titles of feeds and articles
+
 ## [1.1.9] 2026-10-12
 ### Changed
 - Update Cargo dependencies
@@ -32,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix processing tags for feed which uses NotContains operator expression
 - Fix colors for Tokyo Night theme
+
 ## [1.1.4] 2025-02-03
 ### Added
 - Add theme selector

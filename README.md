@@ -141,6 +141,7 @@ Configuration file can be found at `~/.config/liveboat/config.toml` and stores o
 - `template_name` - Name of the template to use when generating the feed page, templates are stored at `~/.config/liveboat/templates`, if you want to use template located elsewhere use `--template-path` argument when invoking Liveboat.
 - `include_article_content_in_rss_feeds` - Set this option to true to include article content in aggregated rss xml file, it might increase file size significantly
 - `scrape_reddit_links` - If set to true Liveboat will attempt to scrape all external Reddit links substituting retrieved content with that defined in the RSS feed (default `true`)
+- `escape_article_content` - (`multipage-ext` build mode only) - whether or not to escape html when rendering article template.
 - `scrape_hn_links` - This option will trigger scraping of all external links attached to HN RSS feeds - supported feeds are official Ycombinator feed (`news.ycombinator.com/rss`) as well as [hnrss.org](https://hnrss.github.io/) feeds
 - `build_dir` - Default path to directory where Liveboat will output feed page files, can be overwritten via `--build-dir` argument.
 - `newsboat_urls_file` - Path to Newsboat urls file.

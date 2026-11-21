@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="">
+    <head>
+        <meta charset="utf-8">
+
+        <title>{{ options.title }}</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="{{ options.title }}">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+        <link rel='icon' href='../assets/favicon.ico' type='image/x-icon'>
+        <link rel="stylesheet" href="../assets/styles.css">
+
+    </head>
+    <body>
+
+        <div id="page-header">
+            <img src="../../assets/icon.svg">
+            <h2><a href="/">{{options.title}}</a></h2>
+        </div>
+        <div id="page-items">
+            <h3 class="feed-title">{{feed.title}}</h3>
+            <ul class="feed-items">
+            {{#each items }}
+                <li class="feed-item"><a href="{{this.url}}">{{this.title}}</a></li>
+            {{/each}}
+            </ul>
+        </div>
+
+    </body>
+</html>
