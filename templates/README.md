@@ -54,7 +54,7 @@ This mode is enabled by setting `builder` to `multipage`, in this mode liveboat 
 
 When rendering `feed.hbs` following variables are available:
 
-- `feed` - feed data as described in [feed.rs](https://.com/exaroth/liveboat/blob/develop/src/feed.rs) serializer.
+- `feed` - feed data as described in [feed.rs](https://github.com/exaroth/liveboat/blob/develop/src/feed.rs) serializer.
 - `items` - articles associated with given feed - see [feed_item.rs](https://github.com/exaroth/liveboat/blob/develop/src/feed_item.rs) serializer reference for details.
 - `options`, `build_time`, `template_settings`, `template_version` - same as in `spa` mode.
 
