@@ -50,7 +50,7 @@ Each `index.hbs` is rendered with context containing following variables:
 
 ### MULTIPAGE
 
-This mode is enabled by setting `builder` to `multipage`, in this mode liveboat will generate both index as well as separate HTML page for each feed using `feed.hbs` template. Both `index.hbs` and `feed.hbs` templates must be present in template directory. TODO update after adding opt.
+This mode is enabled by setting `builder` to `multipage`, in this mode liveboat will generate both index as well as separate HTML page for each feed using `feed.hbs` template. Both `index.hbs` and `feed.hbs` templates must be present in template directory.
 
 When rendering `feed.hbs` following variables are available:
 

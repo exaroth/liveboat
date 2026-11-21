@@ -175,11 +175,9 @@ where
             if f.is_empty() || f.is_hidden() {
                 continue
             }
-            // TODO: truncate when creating context
             let mut truncated = f.clone();
             truncated.truncate_items();
 
-            // TODO: use truncated iter
             feed_ctx = FeedContext::init(
                 &truncated,
                 self.context.options(),
