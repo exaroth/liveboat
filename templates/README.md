@@ -15,7 +15,7 @@ For quick start see `plain` and `plain-ext` templates in [default template direc
 
 Each template needs to include configuration file - `config.toml` which contains all the settings used for generating HTML and associated data.
 
-Setting are:
+Available settings:
 
 - `name` - Name of the template
 - `version` - version of the template (in a form of `MAJOR.MINOR.PATCH`)
@@ -77,7 +77,7 @@ This mode requires including `article.hbs` file in template directory, as well a
 
 If `include_json_feeds` is set in template configuration file Liveboat will generate JSON files containing feed data, this is useful when building JS based Single Page Applications(SPA) or can be used as single idempodent API by 3rd party apps.
 
-Liveboat will save JSON feed data in `<build_dir>/feeds` directory (one per feed) with all the articles which matched the criteria. Query feeds are treated same way as ordinary URL based feeds (with the exception of `is_query` flag). On top of that list of feeds and query feeds will be saved in `feeds.json`. See `Serializer` reference at [https://github.com/exaroth/liveboat/src/feed_item.rs](https://github.com/exaroth/liveboat/blob/develop/src/feed_item.rs) for details about available fields in each feed article rendered in `JSON` file.
+Liveboat will save JSON feed data in `<build_dir>/feeds` directory (one per feed) with all the articles which matched the criteria. Query feeds are treated same way as ordinary URL based feeds (with the exception of `is_query` flag). Feeds which are empty or hidden will not be processed. On top of that list of feeds and query feeds will be saved in `feeds.json`. See `Serializer` reference at [feed_item.rs](https://github.com/exaroth/liveboat/blob/develop/src/feed_item.rs) for details about available fields in each feed article rendered in `JSON` file.
 
 > [!NOTE]
 > `JSON` files are minified by default unless template is built with `--debug` options. <br/>

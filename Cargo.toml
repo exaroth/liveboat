@@ -43,6 +43,7 @@ url = "2.5.8"
 libnewsboat = "2.38.0"
 regex = "1.12.3"
 rustls-webpki = "0.103.13"
+unicode-normalization = "0.1.26"
 
 [[bin]]
 name = "liveboat"
