@@ -2,17 +2,18 @@
 #[allow(unused_imports)]
 use mockall::Sequence;
 
+use std::fs;
 use log::{info, trace, warn};
 use std::cell::RefCell;
 use std::fs::read_to_string;
 use std::sync::Arc;
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use console::Term;
 
 use crate::args::Args;
-use crate::builders::aux::Builder;
-use crate::builders::spa_builder::SinglePageBuilder;
+use crate::builders::aux::{Builder, INCLUDE_DIRNAME};
+use crate::builders::generic::GenericBuilder;
 use crate::content::process_article_content;
 use crate::db::{Connector, DBConnector};
 use crate::errors::FilesystemError;
@@ -22,6 +23,7 @@ use crate::opts::Options;
 use crate::paths::Paths;
 use crate::template::{SimpleContext, TemplateConfig};
 use crate::urls::UrlReader;
+use crate::utils::copy_all;
 
 /// Build controller faciliates the process of parsing url
 /// files, retrieving feed information from db, generating feed objects
@@ -94,19 +96,39 @@ impl BuildController {
         let tpl_config = TemplateConfig::get_config_for_template(
             self.paths.template_path(),
         )?;
-        let ctx = SimpleContext::init(
+        let mut ctx = SimpleContext::init(
             &feeds,
             &q_feeds,
             &self.options,
             &tpl_config.template_settings,
             tpl_config.version.clone(),
         );
-        let builder = self.get_builder(&ctx)?;
-        builder.create_tmp()?;
-        builder.generate_aux_data()?;
-        builder.render_templates()?;
-        builder.copy_data()?;
-        builder.clean_up();
+        let builder = self.get_builder(&mut ctx, &tpl_config)?;
+        info!("Creating tmp dir at {}", self.paths.tmp_dir().display());
+        _ = fs::create_dir(self.paths.tmp_dir())?;
+
+        if let Err(e) = builder.generate_aux_data() {
+            self.cleanup_tmp();
+            bail!("Error generating aux data: {}", e);
+        }
+        if let Err(e) = builder.render_templates() {
+            self.cleanup_tmp();
+            bail!("Error rendering templates: {}", e);
+        }
+
+        let include_dir = self.paths.template_path().join(INCLUDE_DIRNAME);
+        if include_dir.try_exists()? {
+            info!("Copying include contents @ {}", include_dir.display());
+            copy_all(include_dir, &self.paths.build_dir())?;
+        }
+
+        info!("Copying tmp contents @ {} to {}",
+            self.paths.tmp_dir().display(),
+            self.paths.build_dir().display(),
+            );
+        copy_all(&self.paths.tmp_dir(), &self.paths.build_dir())?;
+
+        self.cleanup_tmp();
         println!(
             "Liveboat feed page saved to {}",
             self.paths.build_dir().display()
@@ -114,20 +136,26 @@ impl BuildController {
         Ok(())
     }
 
+    fn cleanup_tmp(&self) {
+        info!("Cleanup");
+        _ = fs::remove_dir_all(self.paths.tmp_dir());
+    }
+
     /// Retrieve builder instance to be used for generating static content.
-    /// At the moment there is only SPA builder implemented.
+    /// At the moment only GenericBuilder is implemented.
     fn get_builder<'a>(
         &'a self,
-        context: &'a SimpleContext,
+        context: &'a mut SimpleContext,
+        config: &'a TemplateConfig,
     ) -> Result<Box<dyn Builder + 'a>> {
-        let simple_builder = SinglePageBuilder::init(
+        let builder = GenericBuilder::init(
             self.paths.tmp_dir(),
-            self.paths.build_dir(),
             self.paths.template_path(),
+            config,
             context,
             self.debug,
         )?;
-        return Ok(Box::new(simple_builder));
+        return Ok(Box::new(builder));
     }
 
     /// Populate feeds with article items, filter out read articles based on the opt value.

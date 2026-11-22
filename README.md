@@ -7,6 +7,7 @@ Liveboat
 [![License](https://img.shields.io/github/license/exaroth/liveboat)](https://github.com/exaroth/liveboat/blob/develop/LICENSE)
 [![rustc 1.84.0](https://img.shields.io/badge/rust-1.84%2B-orange.svg)](https://img.shields.io/badge/rust-1.84%2B-orange.svg)
 [![liveboat](https://snapcraft.io/liveboat/badge.svg)](https://snapcraft.io/liveboat)
+[![AUR](https://img.shields.io/aur/version/liveboat)](https://aur.archlinux.org/packages/liveboat)
 <br/>
 <br/>
 Liveboat is a static page generator which turns RSS reader feed data into beautiful static websites.
@@ -16,16 +17,15 @@ See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo
 </h3>
 
 ## What Liveboat is about
-- Generate static pages for your RSS/Atom subscriptions allowing you to access all the news from the browser
+- Generate static pages from RSS/Atom subscriptions
 - Aggregate all the subscriptions in one place so you can use single feed source in any of your RSS clients. OPML file is also available.
 - Easily deployable to Github Pages - See [liveboat-github-runner](https://github.com/exaroth/liveboat-github-runner) template for details. There's also [Docker image](https://github.com/exaroth/liveboat/tree/develop/docker) included for easy self hosting.
 - Liveboat exposes simple JSON API you can use to integrate RSS subscriptions into your apps [Using Liveboat's JSON API](#using-liveboat-json-api)
-- Compatible with Newsboat url file format including query feeds
-- Templating support - See [Template development guide](https://github.com/exaroth/liveboat/tree/develop/templates) for details
+- Compatible with Newsboat url file format
+- Templating support - See [Template guide](https://github.com/exaroth/liveboat/tree/develop/templates) for details
 
 ## Running via Github actions
 The most straightforward way to generate Liveboat feed page is via Github Actions - the site will be uploaded to Github Pages on your account, available immediately and set up with automatic updates.
-
 
 For details follow instructions in [Liveboat Github Runner Readme](https://github.com/exaroth/liveboat-github-runner)
 
@@ -140,6 +140,7 @@ Configuration file can be found at `~/.config/liveboat/config.toml` and stores o
 - `template_name` - Name of the template to use when generating the feed page, templates are stored at `~/.config/liveboat/templates`, if you want to use template located elsewhere use `--template-path` argument when invoking Liveboat.
 - `include_article_content_in_rss_feeds` - Set this option to true to include article content in aggregated rss xml file, it might increase file size significantly
 - `scrape_reddit_links` - If set to true Liveboat will attempt to scrape all external Reddit links substituting retrieved content with that defined in the RSS feed (default `true`)
+- `escape_article_content` - (`multipage-ext` build mode only) - whether or not to escape html when rendering article template.
 - `scrape_hn_links` - This option will trigger scraping of all external links attached to HN RSS feeds - supported feeds are official Ycombinator feed (`news.ycombinator.com/rss`) as well as [hnrss.org](https://hnrss.github.io/) feeds
 - `build_dir` - Default path to directory where Liveboat will output feed page files, can be overwritten via `--build-dir` argument.
 - `newsboat_urls_file` - Path to Newsboat urls file.
@@ -174,6 +175,8 @@ Each template can be further configured by editing `config.toml` file located in
 
 
 ### Using Liveboat JSON API
+> [!NOTE]
+> `include_json_feeds` option must be enabled in template settings for JSON data to be generated.
 
 Liveboat exposes simple idempodent API consisting of 3 endpoints
 

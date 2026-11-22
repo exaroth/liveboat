@@ -10,6 +10,7 @@ use anyhow::Result;
 
 use crate::errors::FilesystemError;
 use crate::feed::Feed;
+use crate::feed_item::FeedItem;
 use crate::opts::Options;
 
 /// Default filename for template config.
@@ -26,14 +27,36 @@ fn default_builder() -> String {
     String::from("spa")
 }
 
+fn default_include_json_feeds() -> bool {
+    return true
+}
+
+fn default_include_opml() -> bool {
+    return true
+}
+
+fn default_include_rss() -> bool {
+    return true
+}
+
 /// This is representation of per template
 /// configuration which is attached to every template
 #[derive(serde::Deserialize, serde::Serialize, Debug)]
 pub struct TemplateConfig {
     pub version: String,
     #[serde(default = "default_builder")]
-    #[allow(dead_code)]
+    /// Defines builder behaviour (spa/multipage/multipage-ext)
     pub builder: String,
+    #[serde(default = "default_include_json_feeds")]
+    /// Whether or not to include JSON files containing
+    /// feed data when rendering templates.
+    pub include_json_feeds: bool,
+    #[serde(default = "default_include_opml")]
+    /// Whether to include OPML feeds when rendering templates.
+    pub include_opml: bool,
+    #[serde(default = "default_include_rss")]
+    /// Whether or not to add RSS XML based on current feed data.
+    pub include_rss: bool,
     #[serde(default = "default_template_settings")]
     pub template_settings: HashMap<String, String>,
 }
@@ -56,6 +79,8 @@ pub trait Context {
     #[allow(dead_code)]
     fn options(&self) -> &Options;
     fn build_time(&self) -> u64;
+    fn template_settings(&self) -> &HashMap<String, String>;
+    fn template_version(&self) -> &String;
 }
 
 /// Representation of default context to be passed
@@ -83,6 +108,12 @@ impl<'a> Context for SimpleContext<'a> {
     }
     fn build_time(&self) -> u64 {
         return self.build_time;
+    }
+    fn template_settings(&self) -> &HashMap<String, String> {
+        return self.template_settings;
+    }
+    fn template_version(&self) -> &String {
+        return &self.template_version;
     }
 }
 
@@ -137,6 +168,115 @@ impl fmt::Display for SimpleContext<'_> {
         )
     }
 }
+
+/// Context to be passed to the feed page
+/// when rendering template.
+#[derive(serde::Serialize)]
+pub struct FeedContext<'a> {
+    /// Feed data
+    feed: &'a Feed, 
+    /// Include feed items as separate key to make it easier
+    /// to work with handlebars.
+    items: &'a Vec<FeedItem>,
+    /// Liveboat options.
+    options: &'a Options,
+    /// Timestamp of the build time.
+    build_time: u64,
+    /// Custom template settings.
+    template_settings: &'a HashMap<String, String>,
+    /// Version of template as defined in template config.
+    template_version: &'a String,
+}
+
+impl<'a> FeedContext<'a> {
+    pub fn init(
+        feed: &'a Feed,
+        options: &'a Options,
+        template_settings: &'a HashMap<String, String>,
+        template_version: &'a String,
+        build_time: u64,
+    ) -> FeedContext<'a> {
+        FeedContext {
+            feed,
+            options,
+            build_time,
+            template_settings,
+            template_version,
+            items: &feed.items,
+        }
+    }
+}
+
+
+impl fmt::Display for FeedContext<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Feed Ctx::
+            id {}:
+            title {}:
+            opts: {}
+            build_time: {}",
+            self.feed.id(),
+            self.feed.title(),
+            self.options,
+            self.build_time,
+        )
+    }
+}
+
+/// Context to be passed to the article page
+/// when rendering template.
+#[derive(serde::Serialize)]
+pub struct ArticleContext<'a> {
+    /// Article data
+    article: &'a FeedItem, 
+    /// Feed data
+    feed: &'a Feed, 
+    /// Liveboat options.
+    options: &'a Options,
+    /// Timestamp of the build time.
+    build_time: u64,
+    /// Custom template settings.
+    template_settings: &'a HashMap<String, String>,
+    /// Version of template as defined in template config.
+    template_version: &'a String,
+}
+
+impl<'a> ArticleContext<'a> {
+    pub fn init(
+        article: &'a FeedItem,
+        feed: &'a Feed,
+        options: &'a Options,
+        template_settings: &'a HashMap<String, String>,
+        template_version: &'a String,
+        build_time: u64,
+    ) -> ArticleContext<'a> {
+        ArticleContext {
+            article,
+            feed,
+            options,
+            build_time,
+            template_settings,
+            template_version,
+        }
+    }
+}
+
+
+impl fmt::Display for ArticleContext<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Article Ctx::
+            title {},
+            feed_id: {}",
+            self.article.title(),
+            self.feed.id(),
+        )
+    }
+}
+
 
 #[cfg(test)]
 mod tests {

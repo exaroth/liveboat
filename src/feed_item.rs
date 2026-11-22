@@ -12,7 +12,7 @@ use serde::ser::{Serialize, SerializeStruct, Serializer};
 use chrono::DateTime;
 
 use crate::feed::Feed;
-use crate::utils::now;
+use crate::utils::{now, slugify};
 
 /// Container for storing and operating
 /// on the newsboat article items.
@@ -30,6 +30,8 @@ pub struct FeedItem {
     author: String,
     /// Timestamp of the article.
     date: i64,
+    /// Slugified title of the article.
+    slug: String,
     /// Whether or not article has been
     /// marked as read (or not) by Newsboat.
     unread: bool,
@@ -63,15 +65,17 @@ pub struct FeedItem {
 impl FeedItem {
     /// Initialize new article item from db row.
     pub fn from_db_row(row: &Row) -> Result<FeedItem, SQLiteError> {
+        let title: String = row.get(2)?;
         let feed_item = FeedItem {
             feed_url: row.get(0)?,
-            title: row.get(2)?,
+            title: title.clone(),
             url: row.get(3)?,
             author: row.get(4)?,
             date: row.get(5)?,
             unread: row.get(6)?,
             content: row.get(7)?,
             guid: row.get(8)?,
+            slug: slugify(title.as_str()),
             enc_url: row.get(9)?,
             enc_mime: row.get(10)?,
             flags: row.get(11)?,
@@ -108,6 +112,11 @@ impl FeedItem {
     /// Timestamp of the article.
     pub fn date(&self) -> i64 {
         return self.date;
+    }
+
+    /// Title of the article as retrieved from RSS feed.
+    pub fn slug(&self) -> &String {
+        return &self.slug;
     }
 
     /// Whether or not article has been
@@ -278,6 +287,7 @@ impl FeedItem {
             url: url.to_string(),
             feed_url: feed_url.to_string(),
             author: author.to_string(),
+            slug: slugify(title),
             date: date,
             unread: unread,
             content: content.to_string(),
@@ -366,6 +376,7 @@ impl Serialize for FeedItem {
         state.serialize_field("url", &self.url)?;
         state.serialize_field("date", &self.date)?;
         state.serialize_field("author", &self.author)?;
+        state.serialize_field("slug", &self.slug)?;
         state.serialize_field("guid", &self.guid)?;
         state.serialize_field("unread", &self.unread)?;
         state.serialize_field("content", &self.content)?;

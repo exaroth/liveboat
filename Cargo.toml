@@ -1,6 +1,6 @@
 [package]
 name = "liveboat"
-version = "1.1.9"
+version = "1.2.0"
 edition = "2021"
 description = "Static page generator for Newsboat feeds"
 homepage = "https://github.com/exaroth/liveboat"
@@ -42,7 +42,10 @@ opml = "1.1.6"
 url = "2.5.8"
 libnewsboat = "2.38.0"
 regex = "1.12.3"
+rustls="0.23.46"
 rustls-webpki = "0.103.13"
+quinn-proto = "0.11.15"
+unicode-normalization = "0.1.26"
 
 [[bin]]
 name = "liveboat"
