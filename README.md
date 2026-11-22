@@ -17,16 +17,15 @@ See <a href="https://konrad.website/liveboat-github-runner" target="_blank">Demo
 </h3>
 
 ## What Liveboat is about
-- Generate static pages for your RSS/Atom subscriptions allowing you to access all the news from the browser
+- Generate static pages from RSS/Atom subscriptions
 - Aggregate all the subscriptions in one place so you can use single feed source in any of your RSS clients. OPML file is also available.
 - Easily deployable to Github Pages - See [liveboat-github-runner](https://github.com/exaroth/liveboat-github-runner) template for details. There's also [Docker image](https://github.com/exaroth/liveboat/tree/develop/docker) included for easy self hosting.
 - Liveboat exposes simple JSON API you can use to integrate RSS subscriptions into your apps [Using Liveboat's JSON API](#using-liveboat-json-api)
-- Compatible with Newsboat url file format including query feeds
-- Templating support - See [Template development guide](https://github.com/exaroth/liveboat/tree/develop/templates) for details
+- Compatible with Newsboat url file format
+- Templating support - See [Template guide](https://github.com/exaroth/liveboat/tree/develop/templates) for details
 
 ## Running via Github actions
 The most straightforward way to generate Liveboat feed page is via Github Actions - the site will be uploaded to Github Pages on your account, available immediately and set up with automatic updates.
-
 
 For details follow instructions in [Liveboat Github Runner Readme](https://github.com/exaroth/liveboat-github-runner)
 
@@ -176,6 +175,8 @@ Each template can be further configured by editing `config.toml` file located in
 
 
 ### Using Liveboat JSON API
+> [!NOTE]
+> `include_json_feeds` option must be enabled in template settings for JSON data to be generated.
 
 Liveboat exposes simple idempodent API consisting of 3 endpoints
 
