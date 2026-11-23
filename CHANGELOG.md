@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Fix base site interpolation in plain templates
+
 ## [1.2.0] 2026-11-22
 ### Added
 - Add generic page builder with support for `multipage` and `multipage-ext` build modes
